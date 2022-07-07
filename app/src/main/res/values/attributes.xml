@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    // Background
+    <attr name="MainColor" format="color" />
+    <attr name="BackgroundColor" format="color" />
+
+    <attr name="ComponentBackgroundColor" format="color" />
+
+    // Text
+    <attr name="PrimaryTextColor" format="color" />
+    <attr name="SecondaryTextColor" format="color" />
+
+    <attr name="ComponentPrimaryTextColor" format="color" />
+    <attr name="ComponentSecondaryTextColor" format="color" />
+
+    // Tint
+    <attr name="ComponentIconTint" format="color" />
+</resources>

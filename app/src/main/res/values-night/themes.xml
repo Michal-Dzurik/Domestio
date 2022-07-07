@@ -1,0 +1,30 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Domestio" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <!--<item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/black</item>
+        &lt;!&ndash; Secondary brand color. &ndash;&gt;
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>-->
+
+        <!-- Customize your theme here. -->
+        <item name="MainColor">@color/orange</item>
+        <item name="BackgroundColor">@color/dark_grey</item>
+        <item name="ComponentBackgroundColor">@color/dark_grey_lighter</item>
+
+        <item name="PrimaryTextColor">@color/white</item>
+        <item name="SecondaryTextColor">@color/grey_lighter</item>
+
+        <item name="ComponentPrimaryTextColor">@color/white</item>
+
+        <item name="ComponentIconTint">@color/white</item>
+
+        <!-- Setting colors to android -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:colorBackground">?attr/BackgroundColor</item>
+
+    </style>
+</resources>

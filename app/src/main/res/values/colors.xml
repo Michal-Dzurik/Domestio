@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    // Basic colors
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+
+    // App colors
+    <color name="orange">#FF5C00</color>
+    <color name="red">#E93F34</color>
+    
+    // Light theme
+    <color name="white_darker">#EBEBEB</color>
+    <color name="grey">#B5B5B5</color>
+    <color name="grey_darker">#494949</color>
+    
+    // Dark theme
+    <color name="dark_grey">#1C1C1C</color>
+    <color name="dark_grey_lighter">#333333</color>
+    <color name="grey_lighter">#6E6E6E</color>
+</resources>
