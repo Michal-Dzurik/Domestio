@@ -26,6 +26,7 @@
         <item name="android:statusBarColor">?attr/BackgroundColor</item>
         <item name="android:colorBackground">?attr/BackgroundColor</item>
         <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:colorControlHighlight">@color/ripple_color_dark</item>
 
     </style>
 </resources>

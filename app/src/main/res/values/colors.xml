@@ -8,6 +8,7 @@
     // App colors
     <color name="orange">#FF5C00</color>
     <color name="red">#E93F34</color>
+    <color name="blue">#336BFA</color>
     
     // Light theme
     <color name="white_darker">#EBEBEB</color>
@@ -18,4 +19,8 @@
     <color name="dark_grey">#1C1C1C</color>
     <color name="dark_grey_lighter">#333333</color>
     <color name="grey_lighter">#6E6E6E</color>
+
+    // Others
+    <color name="ripple_color_dark">#34000000</color>
+    <color name="ripple_color_light">#34FFFFFF</color>
 </resources>
