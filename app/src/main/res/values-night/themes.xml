@@ -23,8 +23,9 @@
         <item name="ComponentIconTint">@color/white</item>
 
         <!-- Setting colors to android -->
-        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:statusBarColor">?attr/BackgroundColor</item>
         <item name="android:colorBackground">?attr/BackgroundColor</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
 
     </style>
 </resources>
