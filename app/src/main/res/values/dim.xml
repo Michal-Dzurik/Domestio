@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="auth_body_margin">32dp</dimen>
+
     <dimen name="corner_radius">18dp</dimen>
     <dimen name="button_padding_horizontal">15dp</dimen>
     <dimen name="button_padding_vertical">12dp</dimen>
+
+    <dimen name="input_horizontal_padding">18dp</dimen>
+    <dimen name="input_vertical_padding">12dp</dimen>
+    <dimen name="input_stroke_width">1.5dp</dimen>
+    <dimen name="input_text_size">14dp</dimen>
+    <dimen name="input_corner_radius">14dp</dimen>
+    <dimen name="input_top_margin">4dp</dimen>
+    <dimen name="input_bottom_margin">25dp</dimen>
+
+    <dimen name="main_button_corner_radius">18dp</dimen>
 </resources>

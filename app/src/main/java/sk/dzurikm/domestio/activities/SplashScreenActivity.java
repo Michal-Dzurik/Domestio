@@ -1,7 +1,6 @@
-package sk.dzurikm.domestio;
+package sk.dzurikm.domestio.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -12,13 +11,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 
+import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 
@@ -91,6 +89,8 @@ public class SplashScreenActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Go to register screen
+                Intent registerActivity = new Intent(SplashScreenActivity.this,RegisterActivity.class);
+                startActivity(registerActivity);
             }
         });
 

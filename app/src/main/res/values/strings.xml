@@ -15,4 +15,12 @@
     <string name="made_by">Made by</string>
     <string name="author">Michal Dzurík</string>
     <string name="sign_up_by_email">Sign up by Email</string>
+    <string name="name_and_surename">Name and Surename</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="password_repeat">Password repeat</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="informations_are_not_valid">Informations are not valid</string>
+    <string name="back">Back</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape android:shape="rectangle"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <padding android:top="@dimen/input_vertical_padding" android:bottom="@dimen/input_vertical_padding" android:left="@dimen/input_horizontal_padding" android:right="@dimen/input_horizontal_padding"/>
+    <corners android:radius="@dimen/input_corner_radius"/>
+    <solid android:color="@color/transparent"/>
+    <stroke android:color="?attr/SecondaryTextColor" android:width="@dimen/input_stroke_width"/>
+</shape>
