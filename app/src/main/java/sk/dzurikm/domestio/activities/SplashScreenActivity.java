@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
@@ -9,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -53,6 +55,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         });
 
+
     }
 
     private void startApp(){
@@ -79,10 +82,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         expand(authSection);
 
         // Setting up buttons
-        View facebookButton,googleButton,loginButton;
+        View loginButton;
 
-        facebookButton = findViewById(R.id.connectWithFacebookButton);
-        googleButton = findViewById(R.id.connectWithGoogleButton);
         loginButton = findViewById(R.id.loginButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -94,19 +95,6 @@ public class SplashScreenActivity extends AppCompatActivity {
             }
         });
 
-        googleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Register / Login with Google and go to the home screen
-            }
-        });
-
-        facebookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Register / Login with Facebook and go to the home screen
-            }
-        });
 
 
     }
@@ -151,4 +139,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         credits.setAlpha(1f);
         credits.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
     }
+
+
 }

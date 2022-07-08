@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "312367982020",
+    "project_id": "domestio",
+    "storage_bucket": "domestio.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312367982020:android:5e247b4012255a44f13091",
+        "android_client_info": {
+          "package_name": "sk.dzurikm.domestio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "312367982020-np1uv5knebjsel3dsjunb3uo4604hfcj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdNbiLB3Qo4C3TDqtBTHEsZim0WslMIq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "312367982020-np1uv5knebjsel3dsjunb3uo4604hfcj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

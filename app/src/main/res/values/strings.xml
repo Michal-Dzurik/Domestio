@@ -23,4 +23,11 @@
     <string name="register">Register</string>
     <string name="informations_are_not_valid">Informations are not valid</string>
     <string name="back">Back</string>
+    <string name="authentication_failed">Authentication failed.</string>
+
+    <string name="google_oath_id">814409971189-9ma0fmcg2it6rs7fid6toteqkccjcigq.apps.googleusercontent.com</string>
+
+    <string name="facebook_app_id">760644241789899</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">e01dcd9662bc1dcda1ed50cc5789b637</string>
 </resources>
