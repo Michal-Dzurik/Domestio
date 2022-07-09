@@ -30,4 +30,6 @@
     <string name="facebook_app_id">760644241789899</string>
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">e01dcd9662bc1dcda1ed50cc5789b637</string>
+    <string name="you_have_been_registered_successfully">You have been registered successfully</string>
+    <string name="you_have_been_logged_in_successfully">You have been logged in successfully</string>
 </resources>

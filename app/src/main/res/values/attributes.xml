@@ -9,6 +9,7 @@
     // Text
     <attr name="PrimaryTextColor" format="color" />
     <attr name="SecondaryTextColor" format="color" />
+    <attr name="PrimaryTextColorTransparent" format="color" />
 
     <attr name="ComponentPrimaryTextColor" format="color" />
     <attr name="ComponentSecondaryTextColor" format="color" />

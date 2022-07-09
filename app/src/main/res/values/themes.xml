@@ -17,6 +17,7 @@
 
         <item name="PrimaryTextColor">@color/black</item>
         <item name="SecondaryTextColor">@color/grey</item>
+        <item name="PrimaryTextColorTransparent">@color/white_transparent</item>
 
         <item name="ComponentPrimaryTextColor">@color/white</item>
 

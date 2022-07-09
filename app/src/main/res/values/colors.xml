@@ -23,4 +23,5 @@
     // Others
     <color name="ripple_color_dark">#34000000</color>
     <color name="ripple_color_light">#34FFFFFF</color>
+    <color name="white_transparent">#80FFFFFF</color>
 </resources>

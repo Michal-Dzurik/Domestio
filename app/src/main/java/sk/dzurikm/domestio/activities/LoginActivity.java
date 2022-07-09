@@ -2,6 +2,7 @@ package sk.dzurikm.domestio.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -54,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d("Firebase Auth", "signInUserWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
+                                    onLoginSucceed();
 
                                 } else {
                                     // If sign in fails, display a message to the user.
@@ -73,6 +75,16 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void onLoginSucceed(){
+        Toast.makeText(LoginActivity.this,
+                LoginActivity.this.getString(R.string.you_have_been_logged_in_successfully),
+                Toast.LENGTH_SHORT).show();
+
+        Intent nextActivity = new Intent(LoginActivity.this,HomeActivity.class);
+        nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(nextActivity);
     }
 
     private boolean loginDataValid(){

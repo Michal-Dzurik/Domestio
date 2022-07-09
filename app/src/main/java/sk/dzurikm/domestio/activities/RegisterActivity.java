@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Helpers;
@@ -53,10 +54,20 @@ public class RegisterActivity extends AppCompatActivity {
                                     Log.d("Firebase Auth", "createUserWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
 
+                                    UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(getText(name)).build();
+                                    if (user != null) {
+                                        user.updateProfile(profileUpdate);
+                                    }
+
+                                    onRegistrationSucceed();
+
+
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w("Firebase Auth", "createUserWithEmail:failure", task.getException());
-                                    Toast.makeText(RegisterActivity.this, RegisterActivity.this.getString(R.string.authentication_failed),
+                                    Toast.makeText(RegisterActivity.this,
+                                            RegisterActivity.this.getString(R.string.authentication_failed),
                                             Toast.LENGTH_SHORT).show();
 
                                 }
@@ -81,6 +92,16 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void onRegistrationSucceed(){
+        Toast.makeText(RegisterActivity.this,
+                RegisterActivity.this.getString(R.string.you_have_been_registered_successfully),
+                Toast.LENGTH_SHORT).show();
+
+        Intent nextActivity = new Intent(RegisterActivity.this,HomeActivity.class);
+        nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(nextActivity);
     }
 
     private boolean registrationDataValid(){

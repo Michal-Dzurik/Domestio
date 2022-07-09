@@ -17,6 +17,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
@@ -59,19 +62,19 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void startApp(){
-        boolean loggedIn = sharedPreferences.getBoolean(Constants.LOGGED_IN,false);
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         Intent nextActivity;
 
-        if (loggedIn){
+        if (mAuth.getCurrentUser() != null){
             // User logged in , we can go to home screen
-            nextActivity = new Intent(SplashScreenActivity.this,SplashScreenActivity.class);
+            nextActivity = new Intent(SplashScreenActivity.this,HomeActivity.class);
             nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(nextActivity);
         }
 
         // User not logged in, we need to log in
 
-        startAuth();
+        else startAuth();
 
     }
 

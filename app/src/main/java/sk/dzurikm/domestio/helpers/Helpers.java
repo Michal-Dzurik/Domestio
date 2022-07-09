@@ -1,6 +1,7 @@
 package sk.dzurikm.domestio.helpers;
 
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -26,6 +27,7 @@ public class Helpers {
             String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
             java.util.regex.Matcher m = p.matcher(email);
+            Log.i("Validation", "Password match "  + String.valueOf(m.matches()));
             return m.matches();
         }
 
@@ -36,19 +38,17 @@ public class Helpers {
 
             String[] names = name.split(" ");
 
-            for (int i = 0; i < names.length; i++) {
-                if (!names[i].matches( "[A-Z][a-z]*" )) return false;
-            }
-
-            return true;
-
+            return names.length >= 2;
         }
 
         public static boolean passwords(String password,String passwordRepeated){
             password = password.trim();
             passwordRepeated = passwordRepeated.trim();
 
-            if (password.equals("") || passwordRepeated.equals("")) return false;
+            if (password.equals("") || passwordRepeated.equals("")) {
+                Log.i("Validation","password not correct");
+                return false;
+            }
 
             return password.equals(passwordRepeated);
 

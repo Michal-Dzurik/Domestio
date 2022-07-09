@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="sk.dzurikm.domestio">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Domestio"
         tools:targetApi="31">
+        <activity
+            android:name=".activities.HomeActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false" />
@@ -30,7 +33,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

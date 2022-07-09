@@ -15,4 +15,14 @@
     <dimen name="input_bottom_margin">25dp</dimen>
 
     <dimen name="main_button_corner_radius">18dp</dimen>
+
+    <dimen name="home_body_margin">20dp</dimen>
+
+    <dimen name="heading_vertical_margin">10dp</dimen>
+    <dimen name="heading_text_size">22sp</dimen>
+
+    <dimen name="see_more_button_text_size">12sp</dimen>
+    <dimen name="see_more_button_radius">8sp</dimen>
+    <dimen name="see_more_button_padding_horizontal">8sp</dimen>
+    <dimen name="see_more_button_padding_vertical">4sp</dimen>
 </resources>

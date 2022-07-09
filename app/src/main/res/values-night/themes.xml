@@ -17,10 +17,11 @@
 
         <item name="PrimaryTextColor">@color/white</item>
         <item name="SecondaryTextColor">@color/grey_lighter</item>
+        <item name="PrimaryTextColorTransparent">@color/white_transparent</item>
 
         <item name="ComponentPrimaryTextColor">@color/white</item>
 
-        <item name="ComponentIconTint">@color/white</item>
+        <item name="ComponentIconTint">#B6B6B6</item>
 
         <!-- Setting colors to android -->
         <item name="android:statusBarColor">?attr/BackgroundColor</item>
