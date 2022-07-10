@@ -32,4 +32,8 @@
     <string name="facebook_client_token">e01dcd9662bc1dcda1ed50cc5789b637</string>
     <string name="you_have_been_registered_successfully">You have been registered successfully</string>
     <string name="you_have_been_logged_in_successfully">You have been logged in successfully</string>
+    <string name="see_all">See all</string>
+    <string name="today_s_tasks">Today\'s tasks</string>
+    <string name="your_rooms">Your rooms</string>
+    <string name="done">Done</string>
 </resources>
