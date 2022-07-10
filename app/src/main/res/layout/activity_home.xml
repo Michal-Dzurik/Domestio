@@ -224,6 +224,7 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:overScrollMode="never"
+        android:layout_marginVertical="10dp"
         android:paddingHorizontal="@dimen/home_body_margin"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="horizontal"/>
@@ -264,7 +265,22 @@
     </LinearLayout>
 
     <!-- Tasks -->
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/verticalTaskSlider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tasksHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:layout_marginVertical="10dp"
+        android:paddingHorizontal="@dimen/home_body_margin"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="vertical"/>
+    <!--<LinearLayout
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -378,7 +394,7 @@
 
 
 
-    </LinearLayout>
+    </LinearLayout>-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
