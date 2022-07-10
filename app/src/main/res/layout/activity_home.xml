@@ -5,18 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.HomeActivity"
-    android:layout_margin="@dimen/home_body_margin">
+    >
 
     <!-- TOP BAR -->
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="@dimen/home_body_margin"
+        android:layout_marginTop="@dimen/home_body_margin"
+        >
 
         <android.widget.ImageButton
             android:id="@+id/menuButton"
@@ -43,7 +46,7 @@
 
     <!-- FIRST HEADING -->
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/roomsHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -52,7 +55,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        android:layout_marginHorizontal="@dimen/home_body_margin"
+        app:layout_constraintTop_toBottomOf="@+id/topBar">
 
         <TextView
             android:layout_width="match_parent"
@@ -76,16 +80,13 @@
     </LinearLayout>
 
     <!-- ROOM TALE -->
-    <LinearLayout
+    <!--<LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout2">
+        >
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -211,20 +212,35 @@
                     android:src="@drawable/ic_leave" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-    </LinearLayout>
+    </LinearLayout>-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/horizontalRoomSlider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/roomsHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingHorizontal="@dimen/home_body_margin"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="horizontal"/>
 
     <!-- Second HEADING -->
     <LinearLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/tasksHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="@dimen/home_body_margin"
         android:paddingVertical="@dimen/heading_vertical_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+        app:layout_constraintTop_toBottomOf="@+id/horizontalRoomSlider">
 
         <TextView
             android:layout_width="match_parent"
@@ -252,10 +268,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout3"
+        app:layout_constraintTop_toBottomOf="@id/tasksHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="@dimen/home_body_margin"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
@@ -267,7 +284,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/rounded_corners_dark"
+                android:background="@drawable/rounded_corners_dark_no_ripple"
                 android:backgroundTint="?attr/ComponentBackgroundColor"
                 android:clickable="true"
                 android:paddingBottom="55dp"

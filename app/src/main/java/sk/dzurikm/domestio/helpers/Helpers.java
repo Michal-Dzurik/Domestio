@@ -7,6 +7,18 @@ import java.util.Locale;
 
 public class Helpers {
 
+    public static int positiveValueOrDefault(int value,int defaultValue){
+        if (value < 0) return defaultValue;
+
+        return value;
+    }
+
+    public static String stringValueOrDefault(String value,String defaultValue){
+        if (value == null || value.trim().equals("")) return defaultValue;
+
+        return value;
+    }
+
     public static class Time{
         public static long seconds(double seconds){
             return (long) (seconds * 1000L);
