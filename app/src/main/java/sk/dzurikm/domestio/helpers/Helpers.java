@@ -1,8 +1,15 @@
 package sk.dzurikm.domestio.helpers;
 
+import static java.text.DateFormat.getDateTimeInstance;
+
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 public class Helpers {
@@ -27,6 +34,16 @@ public class Helpers {
         public static void delay(Runnable runnable,long time){
             Handler handler = new Handler();
             handler.postDelayed(runnable, time);   //5 seconds
+        }
+
+        public static String getTimeDate(long timestamp){
+            try{
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                Date netDate = (new Date(timestamp * 1000));
+                return dateFormat.format(netDate);
+            } catch(Exception e) {
+                return "date";
+            }
         }
     }
 
@@ -75,6 +92,20 @@ public class Helpers {
 
         }
 
+    }
+
+    public static class List{
+        public static void addUnique(ArrayList<String> list,ArrayList<String> add){
+
+            if (add.size() < 1) return;
+
+            for (int i = 0; i < add.size(); i++) {
+                String itemToAdd = add.get(i);
+                if (!list.contains(itemToAdd)){
+                    list.add(itemToAdd);
+                }
+            }
+        }
     }
 
 }

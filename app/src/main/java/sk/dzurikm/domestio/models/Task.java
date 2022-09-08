@@ -1,14 +1,22 @@
 package sk.dzurikm.domestio.models;
 
-public class Task {
-    String heading,description,time,owner,room;
+import com.google.firebase.Timestamp;
 
-    public Task(String task, String description, String time, String owner, String room) {
+import java.util.Map;
+
+import sk.dzurikm.domestio.helpers.Helpers;
+
+public class Task {
+    String id,heading,description,time, ownerId, roomId, owner, room;
+    Timestamp timestamp;
+
+    public Task(String id,String task, String description, String time, String ownerId, String roomId) {
+        this.id = id;
         this.heading = task;
         this.description = description;
         this.time = time;
-        this.owner = owner;
-        this.room = room;
+        this.ownerId = ownerId;
+        this.roomId = roomId;
     }
 
     public Task() {
@@ -26,11 +34,57 @@ public class Task {
         return time;
     }
 
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
     public String getOwner() {
         return owner;
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public String getRoom() {
         return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    public void cast(String id, Map<String, Object> data){
+        this.id = id;
+        this.heading = (String) data.get("heading");
+        this.description = (String) data.get("description");
+
+        this.timestamp = (Timestamp) data.get("time");
+        this.time = Helpers.Time.getTimeDate(timestamp.getSeconds());
+
+        this.roomId = (String) data.get("room_id");
+        this.ownerId = (String) data.get("author_user_id");
+
+        System.out.println(ownerId);
+
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id='" + id + '\'' +
+                ", heading='" + heading + '\'' +
+                ", description='" + description + '\'' +
+                ", time='" + time + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", roomId='" + roomId + '\'' +
+                ", owner='" + owner + '\'' +
+                ", room='" + room + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }

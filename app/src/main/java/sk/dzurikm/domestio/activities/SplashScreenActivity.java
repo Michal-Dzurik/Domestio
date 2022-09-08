@@ -68,7 +68,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() != null){
             // User logged in , we can go to home screen
             nextActivity = new Intent(SplashScreenActivity.this,HomeActivity.class);
-            nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            nextActivity.putExtra("user_name",mAuth.getCurrentUser().getDisplayName());
             startActivity(nextActivity);
         }
 
