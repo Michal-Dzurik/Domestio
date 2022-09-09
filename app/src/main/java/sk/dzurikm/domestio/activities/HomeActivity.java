@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,6 +42,7 @@ import sk.dzurikm.domestio.helpers.listeners.OnDoneListener;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
+import sk.dzurikm.domestio.services.NotificationService;
 
 public class HomeActivity extends AppCompatActivity {
     private final String DOCUMENT_ROOMS = "Rooms";
@@ -122,6 +124,8 @@ public class HomeActivity extends AppCompatActivity {
         snapHelper.attachToRecyclerView(horizontalRoomSlider);
         verticalTaskSlider.setAdapter(taskAdapter);
 
+        startService(new Intent( this, NotificationService.class ) );
+
         Helpers.Time.delay(new Runnable() {
             @Override
             public void run() {
@@ -172,7 +176,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 });
 
-        roomQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        /*roomQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null)
@@ -194,7 +198,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
+        });*/
 
     }
 
@@ -286,7 +290,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-        taskQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        /*taskQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null)
@@ -308,7 +312,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
+        });*/
     }
 
     private String getUsersName(String id){

@@ -7,16 +7,25 @@ import java.util.Map;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class Task {
-    String id,heading,description,time, ownerId, roomId, owner, room;
+    String id;
+    String heading;
+    String description;
+    String time;
+    String ownerId;
+    String roomId;
+    String owner;
+    String room;
+    String receiverId;
     Timestamp timestamp;
 
-    public Task(String id,String task, String description, String time, String ownerId, String roomId) {
+    public Task(String id,String task, String description, String time, String ownerId, String roomId,String receiverId) {
         this.id = id;
         this.heading = task;
         this.description = description;
         this.time = time;
         this.ownerId = ownerId;
         this.roomId = roomId;
+        this.receiverId = receiverId;
     }
 
     public Task() {
@@ -58,6 +67,10 @@ public class Task {
         this.room = room;
     }
 
+    public String getReceiverId() {
+        return receiverId;
+    }
+
     public void cast(String id, Map<String, Object> data){
         this.id = id;
         this.heading = (String) data.get("heading");
@@ -68,6 +81,7 @@ public class Task {
 
         this.roomId = (String) data.get("room_id");
         this.ownerId = (String) data.get("author_user_id");
+        this.receiverId = (String) data.get("receiving_user_id");
 
         System.out.println(ownerId);
 
