@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="?attr/BackgroundColor"/>
+    <padding android:left="@dimen/home_body_margin"
+        android:right="@dimen/home_body_margin"
+        />
+    <corners android:topLeftRadius="@dimen/room_card_radius"
+        android:topRightRadius="@dimen/room_card_radius"/>
+</shape>

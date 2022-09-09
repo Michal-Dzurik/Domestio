@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +44,7 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.services.NotificationService;
+import sk.dzurikm.domestio.views.dialogs.MenuDialog;
 
 public class HomeActivity extends AppCompatActivity {
     private final String DOCUMENT_ROOMS = "Rooms";
@@ -52,6 +54,7 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView horizontalRoomSlider,verticalTaskSlider;
     View loading;
     TextView userName;
+    ImageButton menuButton,accountButton;
 
     ArrayList<String> userRelatedTaskIds,userRelatedUserIds;
 
@@ -79,6 +82,9 @@ public class HomeActivity extends AppCompatActivity {
 
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
         verticalTaskSlider = findViewById(R.id.verticalTaskSlider);
+
+        accountButton = findViewById(R.id.accountButton);
+        menuButton = findViewById(R.id.menuButton);
 
         loading = findViewById(R.id.loading);
 
@@ -108,6 +114,17 @@ public class HomeActivity extends AppCompatActivity {
         usersData = new LinkedList<User>();
 
         loadData();
+
+        MenuDialog menuDialog = new MenuDialog(HomeActivity.this,HomeActivity.this.getSupportFragmentManager());
+
+        // Initializing listeners
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show Menu dialog
+                menuDialog.show(getSupportFragmentManager(),"MenuDialog");
+            }
+        });
 
     }
 
