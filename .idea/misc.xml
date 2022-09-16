@@ -3,12 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/alert_layout.xml" value="0.3105" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/alert_negative_button_background.xml" value="0.3365" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/alert_positive_button_background.xml" value="0.3365" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/controll_button_background.xml" value="0.1555" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/done_button_background.xml" value="0.1565" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/edit_button_background.xml" value="0.2455" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_about.xml" value="0.229" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_account.xml" value="0.1565" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_account_smaller.xml" value="0.1565" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_back.xml" value="0.2865" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_create_room.xml" value="0.229" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_edit.xml" value="0.2455" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_facebook.xml" value="0.192" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_find.xml" value="0.229" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_google.xml" value="0.192" />
@@ -19,6 +25,7 @@
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_settings.xml" value="0.229" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/ic_tasks.xml" value="0.1565" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/input_background_rounded.xml" value="0.265" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/leave_button_background.xml" value="0.2865" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/main_button_background.xml" value="0.265" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/menu_button_background.xml" value="0.3105" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/drawable/menu_dialog_background.xml" value="0.3105" />
@@ -30,8 +37,10 @@
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_auth.xml" value="0.146875" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_home.xml" value="0.25" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_login.xml" value="0.2869791666666667" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_profile.xml" value="0.5" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_register.xml" value="0.4" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/activity_splash_screen.xml" value="0.176" />
+        <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/alert_layout.xml" value="0.73828125" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/menu_dialog_layput.xml" value="0.2" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/room_slider_layout.xml" value="0.1" />
         <entry key="..\:/Projekty/Android Apps/Domestio/app/src/main/res/layout/task_slider_layout.xml" value="0.4" />

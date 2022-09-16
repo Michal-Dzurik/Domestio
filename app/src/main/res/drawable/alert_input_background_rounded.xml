@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape android:shape="rectangle"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <padding android:top="@dimen/alert_input_vertical_padding"
+        android:bottom="@dimen/alert_input_vertical_padding"
+        android:left="@dimen/alert_input_horizontal_padding"
+        android:right="@dimen/alert_input_horizontal_padding"/>
+    <corners android:radius="@dimen/alert_input_radius"/>
+    <solid android:color="?ComponentBackgroundColor"/>
+
+</shape>

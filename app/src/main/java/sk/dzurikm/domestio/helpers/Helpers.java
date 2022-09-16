@@ -1,16 +1,12 @@
 package sk.dzurikm.domestio.helpers;
 
-import static java.text.DateFormat.getDateTimeInstance;
-
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.util.Log;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 public class Helpers {
 

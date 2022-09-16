@@ -26,6 +26,24 @@
     <dimen name="see_more_button_padding_horizontal">8sp</dimen>
     <dimen name="see_more_button_padding_vertical">4sp</dimen>
 
+    <dimen name="edit_button_text_size">10sp</dimen>
+    <dimen name="edit_button_radius">8sp</dimen>
+    <dimen name="edit_button_padding_horizontal">8sp</dimen>
+    <dimen name="edit_button_padding_vertical">4sp</dimen>
+
+    <dimen name="alert_button_text_size">13sp</dimen>
+    <dimen name="alert_button_radius">20sp</dimen>
+    <dimen name="alert_button_padding_horizontal">8dp</dimen>
+    <dimen name="alert_button_padding_vertical">4dp</dimen>
+
+    <dimen name="alert_radius">25dp</dimen>
+    <dimen name="alert_padding">25dp</dimen>
+
+    <dimen name="alert_input_horizontal_padding">15dp</dimen>
+    <dimen name="alert_input_vertical_padding">10dp</dimen>
+    <dimen name="alert_input_stroke_width">4dp</dimen>
+    <dimen name="alert_input_radius">10dp</dimen>
+
     <dimen name="room_card_padding">20dp</dimen>
     <dimen name="room_card_radius">20dp</dimen>
 

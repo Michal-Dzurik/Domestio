@@ -35,7 +35,7 @@
             android:layout_weight="1" />
 
         <android.widget.ImageButton
-            android:id="@+id/accountButton"
+            android:id="@+id/profileButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_gravity="right"

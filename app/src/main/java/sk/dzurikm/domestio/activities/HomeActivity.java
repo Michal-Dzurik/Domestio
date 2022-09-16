@@ -1,7 +1,6 @@
 package sk.dzurikm.domestio.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,18 +17,14 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView horizontalRoomSlider,verticalTaskSlider;
     View loading;
     TextView userName;
-    ImageButton menuButton,accountButton;
+    ImageButton menuButton, profileButton;
 
     ArrayList<String> userRelatedTaskIds,userRelatedUserIds;
 
@@ -83,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
         verticalTaskSlider = findViewById(R.id.verticalTaskSlider);
 
-        accountButton = findViewById(R.id.accountButton);
+        profileButton = findViewById(R.id.profileButton);
         menuButton = findViewById(R.id.menuButton);
 
         loading = findViewById(R.id.loading);
@@ -123,6 +118,15 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Show Menu dialog
                 menuDialog.show(getSupportFragmentManager(),"MenuDialog");
+            }
+        });
+
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent profileActivityIntent = new Intent(HomeActivity.this,ProfileActivity.class );
+
+                startActivity(profileActivityIntent);
             }
         });
 

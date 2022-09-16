@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/ripple_color_dark">
+    <!-- Use this to define the shape of the ripple effect (rectangle, oval, ring or line). The color specified here isn't used anyway -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <corners android:radius="@dimen/alert_button_radius" />
+            <padding android:right="@dimen/alert_button_padding_horizontal"
+                android:left="@dimen/alert_button_padding_horizontal"
+                android:bottom="@dimen/alert_button_padding_vertical"
+                android:top="@dimen/alert_button_padding_vertical"/>
+        </shape>
+    </item>
+    <!-- This is the background for your button -->
+    <item>
+        <!-- Use the shape you want here -->
+        <shape android:shape="rectangle">
+            <solid android:color="@color/transparent" />
+            <corners android:radius="@dimen/alert_button_radius" />
+            <padding android:right="@dimen/alert_button_padding_horizontal"
+                android:left="@dimen/alert_button_padding_horizontal"
+                android:bottom="@dimen/alert_button_padding_vertical"
+                android:top="@dimen/alert_button_padding_vertical"/>
+        </shape>
+    </item>
+</ripple>
