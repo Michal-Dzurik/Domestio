@@ -27,6 +27,7 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
+import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 import sk.dzurikm.domestio.views.alerts.ReauthenticateAlert;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -46,6 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Alert signOutAlert;
     private InputAlert editNameAlert,editEmailAlert;
     private ReauthenticateAlert reauthenticateAlert;
+    private PasswordChangeAlert passwordChangeAlert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +141,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Showing Alerts
                 if (authenticated){
-                    //editEmailAlert.show();
+                    passwordChangeAlert.show();
                 }
                 else {
                     reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
@@ -148,7 +150,7 @@ public class ProfileActivity extends AppCompatActivity {
                             if (task.isSuccessful()){
                                 Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
                                 reauthenticateAlert.dismiss();
-                                //waitAndShow(editEmailAlert,1000);
+                                waitAndShow(passwordChangeAlert,1000);
                                 authenticated = true;
                             }
                             else somethingWentWrongMessage();
@@ -329,6 +331,55 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        //Making password change alert
+        passwordChangeAlert = new PasswordChangeAlert(ProfileActivity.this);
+        passwordChangeAlert.setPasswordMatchListener(new PasswordChangeAlert.OnPasswordMatchListener() {
+            @Override
+            public void onPasswordMach(String password) {
+                // Change password
+                Objects.requireNonNull(auth.getCurrentUser()).updatePassword(password).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.getException() != null) {
+                            Log.i("EXCEPTION HERE",task.getException().getMessage());
+                            // Reauthenticate
+                            passwordChangeAlert.dismiss();
+                            reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
+                                        reauthenticateAlert.dismiss();
+                                        waitAndShow(passwordChangeAlert,200);
+                                        authenticated = true;
+                                    }
+                                    else somethingWentWrongMessage();
+                                }
+                            });
+                            reauthenticateAlert.show();
+                        }
+                        if(task.isSuccessful()){
+                            passwordChangeAlert.dismiss();
+
+                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.password_was_changed_successfully),Toast.LENGTH_SHORT).show();
+                        }
+                        else somethingWentWrongMessage();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onPasswordDontMatch() {
+                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.passwords_dont_match),Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onPasswordNotValid() {
+                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.password_at_least_6_char_long),Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Making authenticated alert
         reauthenticateAlert = new ReauthenticateAlert(ProfileActivity.this);
         reauthenticateAlert.setNegativeButtonOnClickListener(new View.OnClickListener() {
@@ -354,6 +405,15 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void waitAndShow(InputAlert alert,int delay){
+        Helpers.Time.delay(new Runnable() {
+            @Override
+            public void run() {
+                alert.show();
+            }
+        },delay);
+    }
+
+    private void waitAndShow(PasswordChangeAlert alert,int delay){
         Helpers.Time.delay(new Runnable() {
             @Override
             public void run() {

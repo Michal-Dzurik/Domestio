@@ -64,4 +64,9 @@
     <string name="need_to_authenticate">We need to authenticate you before changing your information</string>
     <string name="enter_your_password">Enter your password</string>
     <string name="password_is_empty">Password is empty</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="password_was_changed_successfully">Password was changed successfully</string>
+    <string name="password_at_least_6_char_long">Password must be at last 6 characters long</string>
 </resources>
