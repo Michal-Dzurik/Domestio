@@ -28,6 +28,7 @@
         <item name="android:colorBackground">?attr/BackgroundColor</item>
         <item name="android:fontFamily">@font/poppins_semibold</item>
         <item name="android:colorControlHighlight">@color/ripple_color_dark</item>
+        <item name="android:windowIsTranslucent">true</item>
 
         <item name="bottomSheetDialogTheme">@style/MenuDialogTheme</item>
 
@@ -48,5 +49,6 @@
     <style name="MenuStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/menu_dialog_background</item>
     </style>
+
 
 </resources>

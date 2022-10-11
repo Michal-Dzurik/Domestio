@@ -1,6 +1,7 @@
 package sk.dzurikm.domestio.helpers;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
 
@@ -102,6 +103,21 @@ public class Helpers {
                 }
             }
         }
+    }
+
+    public static class Colors{
+        public static int gettextContrastColor(int color,int lightColor, int darkColor) {
+            int r = Color.red(color); // hexToR
+            int g = Color.green(color); // hexToG
+            int b = Color.blue(color); // hexToB
+            return (((r * 0.299) + (g * 0.587) + (b * 0.114)) > 186) ?
+                    darkColor : lightColor;
+        }
+
+        public static String fromIntToColor(int color){
+            return String.format("#%06X", (0xFFFFFF & color));
+        }
+
     }
 
 }

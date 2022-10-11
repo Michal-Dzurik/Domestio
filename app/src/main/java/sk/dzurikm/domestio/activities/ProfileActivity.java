@@ -31,8 +31,6 @@ import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 import sk.dzurikm.domestio.views.alerts.ReauthenticateAlert;
 
 public class ProfileActivity extends AppCompatActivity {
-    private final String DOCUMENT_ROOMS = "Rooms";
-    private final String DOCUMENT_TASKS = "Tasks";
     private final String DOCUMENT_USERS = "Users";
 
     private ImageButton backButton,leaveButton;

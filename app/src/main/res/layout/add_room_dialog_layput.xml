@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_dialog_background"
+    android:paddingVertical="@dimen/home_body_margin"
+    android:paddingHorizontal="@dimen/home_body_margin"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingBottom="25dp">
+
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/trash"
+                android:background="@drawable/leave_button_background" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create_room"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="22sp"
+                android:textColor="?attr/PrimaryTextColor"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingTop="8dp"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_plus"
+                android:background="@drawable/menu_button_background"/>
+
+
+
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/headingInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/room_heading"
+            android:textSize="22sp"
+            android:inputType="text"
+            android:background="@null"/>
+
+    <EditText
+        android:id="@+id/descriptionInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/room_description"
+        android:textSize="18sp"
+        android:gravity="top"
+        android:layout_marginTop="5dp"
+        android:inputType="text|textMultiLine"
+        android:background="@null"
+        android:layout_marginBottom="25dp"/>
+
+    <LinearLayout
+        android:id="@+id/pickColorInput"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@drawable/color_picker_background"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="10dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/colorPickerIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/palette"/>
+
+        <TextView
+            android:id="@+id/colorPickerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="No color selected"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/colorPickerPreview"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?MainColor"
+            android:layout_marginRight="10dp"
+            app:cardCornerRadius="6dp"
+            app:strokeColor="@color/white"
+            app:strokeWidth="1dp"/>
+    </LinearLayout>
+
+</LinearLayout>

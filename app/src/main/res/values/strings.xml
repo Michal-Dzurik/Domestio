@@ -69,4 +69,9 @@
     <string name="passwords_dont_match">Passwords don\'t match</string>
     <string name="password_was_changed_successfully">Password was changed successfully</string>
     <string name="password_at_least_6_char_long">Password must be at last 6 characters long</string>
+    <string name="heading">Heading</string>
+    <string name="room_heading">Room heading</string>
+    <string name="room_description">Room description</string>
+    <string name="choose_a_color">Choose a color</string>
+    <string name="choose">Choose</string>
 </resources>

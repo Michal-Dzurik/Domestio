@@ -30,7 +30,6 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:id="@+id/createTaskButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -40,6 +39,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/createTaskButton"
                         android:src="@drawable/ic_plus"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
@@ -61,7 +61,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/myRoomsButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -71,6 +70,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/myRoomsButton"
                         android:src="@drawable/ic_list"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
@@ -101,7 +101,6 @@
                 android:layout_marginVertical="35dp">
 
                 <LinearLayout
-                    android:id="@+id/findRoomsButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -111,6 +110,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/findRoomsButton"
                         android:src="@drawable/ic_find"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
@@ -132,7 +132,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/CreateRoomButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -142,6 +141,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/CreateRoomButton"
                         android:src="@drawable/ic_create_room"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
@@ -171,7 +171,6 @@
                 android:layout_marginBottom="10dp">
 
                 <LinearLayout
-                    android:id="@+id/settingsButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -181,6 +180,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/settingsButton"
                         android:src="@drawable/ic_settings"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
@@ -202,7 +202,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/aboutButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -212,6 +211,7 @@
                     android:focusable="true">
 
                     <ImageButton
+                        android:id="@+id/aboutButton"
                         android:src="@drawable/ic_about"
                         android:layout_width="55dp"
                         android:layout_height="55dp"

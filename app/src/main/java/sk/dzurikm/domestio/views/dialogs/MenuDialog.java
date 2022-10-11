@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,12 +15,16 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.HomeActivity;
 
 public class MenuDialog extends BottomSheetDialogFragment {
     private Context context;
     private FragmentManager fragmentManager;
 
+    private AddRoomDialog addRoomDialog;
+
     private View rootView;
+    private View addRoomButton;
 
     public MenuDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -38,6 +43,10 @@ public class MenuDialog extends BottomSheetDialogFragment {
         rootView = View.inflate(getContext(), R.layout.menu_dialog_layput, null);
         dialog.setContentView(rootView);
 
+        addRoomButton = rootView.findViewById(R.id.CreateRoomButton);
+
+        addRoomDialog = new AddRoomDialog(context,fragmentManager);
+
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
         /*dialog.getWindow().setDimAmount(0.0f);
@@ -51,6 +60,14 @@ public class MenuDialog extends BottomSheetDialogFragment {
                 openColorPicker();
             }
         });*/
+
+        addRoomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MenuDialog.this.dismiss();
+                addRoomDialog.show(fragmentManager,"AddRoom");
+            }
+        });
     }
 
 
