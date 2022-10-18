@@ -22,9 +22,10 @@ public class MenuDialog extends BottomSheetDialogFragment {
     private FragmentManager fragmentManager;
 
     private AddRoomDialog addRoomDialog;
+    private AddTaskDialog addTaskDialog;
 
     private View rootView;
-    private View addRoomButton;
+    private View addRoomButton,addTaskButton;
 
     public MenuDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -44,28 +45,27 @@ public class MenuDialog extends BottomSheetDialogFragment {
         dialog.setContentView(rootView);
 
         addRoomButton = rootView.findViewById(R.id.CreateRoomButton);
+        addTaskButton = rootView.findViewById(R.id.createTaskButton);
 
         addRoomDialog = new AddRoomDialog(context,fragmentManager);
+        addTaskDialog = new AddTaskDialog(context,fragmentManager);
 
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
-        /*dialog.getWindow().setDimAmount(0.0f);
-
-        colorPickerButton = (CardView) rootView.findViewById(R.id.folderColorPickerButton);
-        colorPickerButton.setCardBackgroundColor(ColorsUtil.getCurrentFolderColor(context));
-
-        colorPickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openColorPicker();
-            }
-        });*/
 
         addRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MenuDialog.this.dismiss();
                 addRoomDialog.show(fragmentManager,"AddRoom");
+            }
+        });
+
+        addTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MenuDialog.this.dismiss();
+                addTaskDialog.show(fragmentManager,"AddTask");
             }
         });
     }

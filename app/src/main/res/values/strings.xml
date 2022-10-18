@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Domestio</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <!-- Strings used for fragments for navigation -->
@@ -74,4 +74,8 @@
     <string name="room_description">Room description</string>
     <string name="choose_a_color">Choose a color</string>
     <string name="choose">Choose</string>
+    <string name="room">Room:</string>
+    <string name="word_for" tools:ignore="ExtraTranslation">For:</string>
+    <string name="task_heading">Task Heading</string>
+    <string name="task_description">Task description</string>
 </resources>

@@ -18,6 +18,11 @@ public class Room {
     public Room() {
     }
 
+    public Room(String id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public String getId() {
         return id;
     }

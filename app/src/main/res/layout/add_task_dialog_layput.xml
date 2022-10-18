@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_dialog_background"
+    android:paddingVertical="@dimen/home_body_margin"
+    android:paddingHorizontal="@dimen/home_body_margin"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingBottom="25dp">
+
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/trash"
+                android:background="@drawable/leave_button_background" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create_task"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="22sp"
+                android:textColor="?attr/PrimaryTextColor"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingTop="8dp"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_plus"
+                android:background="@drawable/menu_button_background"/>
+
+
+
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/headingInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/task_heading"
+            android:textSize="22sp"
+            android:inputType="text"
+            android:background="@null"/>
+
+    <EditText
+        android:id="@+id/descriptionInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/task_description"
+        android:textSize="18sp"
+        android:gravity="top"
+        android:layout_marginTop="5dp"
+        android:inputType="text|textMultiLine"
+        android:background="@null"
+        android:layout_marginBottom="15dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:paddingBottom="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="-5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/room"
+                android:textSize="16sp"
+                android:textFontWeight="700"/>
+
+            <Spinner
+                android:id="@+id/roomSelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:backgroundTint="?attr/MainColor"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/word_for"
+                android:textSize="16sp"
+                android:textFontWeight="700"/>
+
+            <Spinner
+                android:id="@+id/ownerSelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:backgroundTint="?attr/MainColor"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dateAndTimePickerButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="@drawable/color_picker_background"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="10dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/pickerIcon"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/ic_date"/>
+
+        <TextView
+            android:id="@+id/datePickerButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="No date selcted"/>
+
+    </LinearLayout>
+
+</LinearLayout>

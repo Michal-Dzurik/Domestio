@@ -120,4 +120,16 @@ public class Helpers {
 
     }
 
+    public static class Integer{
+        public static String formatNumberOnTwoSpaces(int numb){
+            String numbStr = numb + "";
+
+            if (numbStr.length() < 2) return "0" + numb;
+
+
+            return numbStr;
+
+        }
+    }
+
 }
