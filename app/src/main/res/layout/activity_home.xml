@@ -67,6 +67,7 @@
             android:textSize="@dimen/heading_text_size" />
 
         <android.widget.TextView
+            android:id="@+id/seeAllRoomsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-1dp"
@@ -80,139 +81,6 @@
     </LinearLayout>
 
     <!-- ROOM TALE -->
-    <!--<LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:orientation="horizontal"
-        >
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:cardCornerRadius="@dimen/room_card_radius"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/linearLayout2">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/cloth">
-
-                <LinearLayout
-                    android:id="@+id/cardBackground"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#ADFF5C00"
-                    android:minHeight="170dp"
-                    android:orientation="vertical"
-                    android:padding="@dimen/room_card_padding"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="-5dp"
-                        android:text="Family "
-                        android:textColor="@color/white"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Lorem ipsum dolor sit amet  "
-                        android:textColor="?attr/PrimaryTextColorTransparent" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_account_smaller" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="5dp"
-                                android:layout_marginBottom="-5dp"
-                                android:lineHeight="0dp"
-                                android:text="5"
-                                android:textColor="?attr/PrimaryTextColorTransparent"
-                                android:textSize="18sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginRight="5dp"
-                                android:layout_marginBottom="-5dp"
-                                android:lineHeight="0dp"
-                                android:text="5"
-                                android:textColor="?attr/PrimaryTextColorTransparent"
-                                android:textSize="18sp" />
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/ic_tasks" />
-
-                        </LinearLayout>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="-40dp"
-            android:translationZ="-1dp"
-            app:cardCornerRadius="@dimen/room_card_radius">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/rounded_corners_dark"
-                android:backgroundTint="?attr/ComponentBackgroundColor"
-                android:clickable="true"
-                android:paddingLeft="55dp"
-                android:paddingRight="15dp">
-
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_leave" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/horizontalRoomSlider"
         app:layout_constraintEnd_toEndOf="parent"
@@ -252,6 +120,7 @@
             android:textSize="@dimen/heading_text_size" />
 
         <android.widget.TextView
+            android:id="@+id/seeAllTasksButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-1dp"
@@ -280,121 +149,6 @@
         android:paddingHorizontal="@dimen/home_body_margin"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"/>
-    <!--<LinearLayout
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tasksHeading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="@dimen/home_body_margin"
-        android:orientation="vertical">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-50dp"
-            app:cardBackgroundColor="@color/transparent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/rounded_corners_dark_no_ripple"
-                android:backgroundTint="?attr/ComponentBackgroundColor"
-                android:clickable="true"
-                android:paddingBottom="55dp"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="15dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="5:00 AM"
-                    android:textSize="12dp"
-                    android:textColor="?attr/ComponentIconTint"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dad · Family"
-                    android:textColor="?attr/ComponentIconTint"
-                    android:textSize="12dp"/>
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            app:cardCornerRadius="@dimen/task_card_radius">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/cloth">
-
-                <LinearLayout
-                    android:id="@+id/roomBackground"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#ADFF5C00"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/room_card_padding"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Wash the dishes"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:textColor="@color/white"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Lorem ipsum dolor sit amet"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/poppins_medium"
-                            android:textColor="@color/white_transparent"/>
-                    </LinearLayout>
-
-
-                    <android.widget.TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="-1dp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@drawable/done_button_background"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:text="@string/done"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/see_more_button_text_size" />
-
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-
-
-
-
-    </LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/loading"

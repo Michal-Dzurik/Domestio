@@ -118,6 +118,15 @@ public class Helpers {
             return String.format("#%06X", (0xFFFFFF & color));
         }
 
+        public static String addOpacity(String hex,String opacity){
+            StringBuilder color = new StringBuilder(opacity);
+            for (int i = 1; i < hex.length(); i++) {
+                color.append(hex.charAt(i));
+            }
+
+            return "#" + color;
+        }
+
     }
 
     public static class Integer{

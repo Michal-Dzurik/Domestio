@@ -27,7 +27,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="35dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -70,77 +71,6 @@
                     android:focusable="true">
 
                     <ImageButton
-                        android:id="@+id/myRoomsButton"
-                        android:src="@drawable/ic_list"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:background="@drawable/menu_button_background"
-                        android:padding="15dp"
-                        android:scaleType="fitCenter"
-                        />
-
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/my_rooms"
-                        android:layout_marginTop="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="?attr/SecondaryTextColor" />
-
-                </LinearLayout>
-
-
-                </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginVertical="35dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageButton
-                        android:id="@+id/findRoomsButton"
-                        android:src="@drawable/ic_find"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:background="@drawable/menu_button_background"
-                        android:padding="15dp"
-                        android:scaleType="fitCenter"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Search Rooms"
-                        android:layout_marginTop="12dp"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="?attr/SecondaryTextColor"
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageButton
                         android:id="@+id/CreateRoomButton"
                         android:src="@drawable/ic_create_room"
                         android:layout_width="55dp"
@@ -162,7 +92,8 @@
                 </LinearLayout>
 
 
-            </LinearLayout>
+                </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -155,8 +155,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
         long secondsSinceEpoch = odt.toEpochSecond() ;
 
-        System.out.println(secondsSinceEpoch + " - " +  datetime);
-
         datePickerButtonText.setText(datetime);
 
     }

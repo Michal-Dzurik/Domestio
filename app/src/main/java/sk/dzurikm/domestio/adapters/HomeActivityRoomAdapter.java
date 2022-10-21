@@ -2,12 +2,14 @@ package sk.dzurikm.domestio.adapters;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -29,8 +31,9 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     }
 
     // inflates the row layout from xml when needed
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.room_slider_layout, parent, false);
         return new ViewHolder(view);
     }
@@ -40,7 +43,7 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     public void onBindViewHolder(ViewHolder holder, int position) {
         Room currentRoom = data.get(position);
 
-        String title,description;
+        String title,description,color;
         int peopleCount,tasksCount;
 
         title = Helpers.stringValueOrDefault(currentRoom.getTitle(),"Title not provided");
@@ -48,6 +51,10 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
 
         peopleCount = Helpers.positiveValueOrDefault(currentRoom.getPeopleCount(),0);
         tasksCount = Helpers.positiveValueOrDefault(currentRoom.getTasksCount(),0);
+        color = Helpers.stringValueOrDefault(currentRoom.getColor(),"#bada55");
+
+        holder.getCardBackground()
+                .setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(color,"AD")));
 
         holder.getTitle()
                 .setText(title);

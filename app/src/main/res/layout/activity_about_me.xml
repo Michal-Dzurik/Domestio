@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.AboutMeActivity">
+
+    <!-- TOP BAR -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="@dimen/home_body_margin"
+        android:layout_marginTop="@dimen/home_body_margin"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="@dimen/home_body_margin"
+        >
+
+        <android.widget.ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="left"
+            android:background="@drawable/controll_button_background"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/title"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:text="@string/about_me"
+            android:textColor="?PrimaryTextColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingVertical="35dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            app:cardCornerRadius="200dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:src="@drawable/profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_marginTop="40dp"
+            android:layout_width="wrap_content"
+            android:textAlignment="center"
+            android:maxWidth="300dp"
+            android:paddingHorizontal="20dp"
+            android:layout_height="wrap_content"
+            android:text="Cupcake brownie halvah gingerbread gingerbread brownie danish muffin. Caramels gummi bears pie. Sugar plum sweet roll chocolate gingerbread jelly halvah muffin. Marzipan macaroon bonbon gummies."/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        >
+
+        <ImageButton
+            android:layout_marginHorizontal="10dp"
+            android:id="@+id/facebook"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_facebook"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="@drawable/controll_button_background"/>
+        <ImageButton
+            android:layout_marginHorizontal="10dp"
+            android:id="@+id/linkedin"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_linkedin"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="@drawable/controll_button_background"/>
+        <ImageButton
+            android:layout_marginHorizontal="10dp"
+            android:id="@+id/github"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_github"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="@drawable/controll_button_background"/>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="20dp">
+
+        <LinearLayout
+            android:id="@+id/supportMeButton"
+            android:background="@drawable/support_button_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_heart"
+                android:layout_marginRight="10dp"/>
+
+            <TextView
+                android:textColor="?attr/ComponentIconTint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/buy_me_a_coffee"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

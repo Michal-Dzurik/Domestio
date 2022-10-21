@@ -25,8 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import sk.dzurikm.domestio.R;
@@ -50,15 +48,16 @@ public class HomeActivity extends AppCompatActivity {
     View loading;
     TextView userName;
     ImageButton menuButton, profileButton;
+    TextView seeAllTasksButton,seeAllRoomsButton;
 
-    ArrayList<String> userRelatedTaskIds,userRelatedUserIds;
+    ArrayList<String> roomsIDs,userRelatedUserIds;
 
     HomeActivityRoomAdapter roomAdapter;
     HomeActivityTaskAdapter taskAdapter;
 
-    List<Room> roomData;
-    List<Task> taskData;
-    List<User> usersData;
+    ArrayList<Room> roomData;
+    ArrayList<Task> taskData;
+    ArrayList<User> usersData;
 
     SnapHelper snapHelper;
     MultipleDone multipleDone;
@@ -80,6 +79,8 @@ public class HomeActivity extends AppCompatActivity {
 
         profileButton = findViewById(R.id.profileButton);
         menuButton = findViewById(R.id.menuButton);
+        seeAllRoomsButton = findViewById(R.id.seeAllRoomsButton);
+        seeAllTasksButton = findViewById(R.id.seeAllTasksButton);
 
         loading = findViewById(R.id.loading);
 
@@ -100,13 +101,13 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        roomData = new LinkedList<Room>();
-        userRelatedTaskIds = new ArrayList();
+        roomData = new ArrayList<>();
+        roomsIDs = new ArrayList();
         userRelatedUserIds = new ArrayList();
 
-        taskData = new LinkedList<Task>();
+        taskData = new ArrayList<Task>();
 
-        usersData = new LinkedList<User>();
+        usersData = new ArrayList<User>();
 
         loadData();
 
@@ -127,6 +128,26 @@ public class HomeActivity extends AppCompatActivity {
                 Intent profileActivityIntent = new Intent(HomeActivity.this,ProfileActivity.class );
 
                 startActivity(profileActivityIntent);
+            }
+        });
+
+        seeAllRoomsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent yourRoomsActivityIntent = new Intent(HomeActivity.this,YourRoomsActivity.class );
+                yourRoomsActivityIntent.putExtra("rooms", roomData);
+
+                startActivity(yourRoomsActivityIntent);
+            }
+        });
+
+        seeAllTasksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent yourTasksActivityIntent = new Intent(HomeActivity.this,YourTasksActivity.class );
+                yourTasksActivityIntent.putExtra("tasks", taskData);
+
+                startActivity(yourTasksActivityIntent);
             }
         });
 
@@ -177,8 +198,8 @@ public class HomeActivity extends AppCompatActivity {
                                 roomData.add(room);
 
                                 // Tasks
-                                ArrayList<String> taskIds = data.get("task_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("task_ids");
-                                Helpers.List.addUnique(userRelatedTaskIds,taskIds);
+                                String id = document.getId();
+                                roomsIDs.add(id);
 
                                 // Users
                                 ArrayList<String> userIds = data.get("user_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("user_ids");
@@ -280,16 +301,19 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadTasks(){
         Query taskQuery = db.collection(DOCUMENT_TASKS)
-                .whereIn(FieldPath.documentId(), userRelatedTaskIds);
+                .whereIn("room_id", roomsIDs)
+                .whereEqualTo("receiving_user_id",user.getUid());
+
+        System.out.println(roomsIDs);
 
         taskQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> response) {
                         if (response.isSuccessful()) {
-
+                            taskData.clear();
                             for (QueryDocumentSnapshot document : response.getResult()) {
-                                taskData.clear();
+
                                 Map<String, Object> data = document.getData();
 
                                 // Task storing
@@ -297,13 +321,16 @@ public class HomeActivity extends AppCompatActivity {
                                 task.cast(document.getId(),data);
                                 task.setOwner(getUsersName(task.getOwnerId()));
                                 task.setRoom(getRoomsTitle(task.getRoomId()));
+                                task.setColor(getRoomsColor(task.getOwnerId()));
 
                                 taskData.add(task);
+                                Log.i("DB_RESULT_TASKS", task.toString());
 
                             }
 
                             System.out.println(String.valueOf(Arrays.toString(taskData.toArray())));
                             hideLoading();
+
 
                         } else {
                             Log.w("DB_RESULT", "Error getting documents.", response.getException());
@@ -349,6 +376,15 @@ public class HomeActivity extends AppCompatActivity {
         for (int i = 0; i < roomData.size(); i++) {
             Room room = roomData.get(i);
             if (room.getId().equals(id)) return room.getTitle();
+        }
+
+        return "";
+    }
+
+    private String getRoomsColor(String id){
+        for (int i = 0; i < roomData.size(); i++) {
+            Room room = roomData.get(i);
+            if (room.getId().equals(id)) return room.getColor();
         }
 
         return "";

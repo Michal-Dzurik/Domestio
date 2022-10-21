@@ -1,8 +1,10 @@
 package sk.dzurikm.domestio.views.dialogs;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +17,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.AboutMeActivity;
 import sk.dzurikm.domestio.activities.HomeActivity;
 
 public class MenuDialog extends BottomSheetDialogFragment {
@@ -25,7 +28,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
     private AddTaskDialog addTaskDialog;
 
     private View rootView;
-    private View addRoomButton,addTaskButton;
+    private View addRoomButton,addTaskButton,aboutButton;
 
     public MenuDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -46,6 +49,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
 
         addRoomButton = rootView.findViewById(R.id.CreateRoomButton);
         addTaskButton = rootView.findViewById(R.id.createTaskButton);
+        aboutButton = rootView.findViewById(R.id.aboutButton);
 
         addRoomDialog = new AddRoomDialog(context,fragmentManager);
         addTaskDialog = new AddTaskDialog(context,fragmentManager);
@@ -66,6 +70,14 @@ public class MenuDialog extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 MenuDialog.this.dismiss();
                 addTaskDialog.show(fragmentManager,"AddTask");
+            }
+        });
+
+        aboutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), AboutMeActivity.class);
+                startActivity(i);
             }
         });
     }

@@ -1,10 +1,14 @@
 package sk.dzurikm.domestio.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Room {
-    String id,title,description;
+public class Room implements Serializable {
+    String id,title,description,color;
     ArrayList<String> userIds,takIds;
 
     public Room(String id, String title, String description, ArrayList<String> userIds, ArrayList<String> takIds) {
@@ -61,6 +65,15 @@ public class Room {
         this.description = (String) data.get("description");
         this.userIds = data.get("user_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("user_ids");
         this.takIds = data.get("task_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("task_ids");
+        this.color = (String) data.get("color");
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     @Override
@@ -71,6 +84,7 @@ public class Room {
                 ", description='" + description + '\'' +
                 ", userIds=" + userIds +
                 ", takIds=" + takIds +
+                ", color=" + color +
                 '}';
     }
 }

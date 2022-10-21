@@ -1,9 +1,10 @@
 package sk.dzurikm.domestio.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
     private String id,name;
 
     public User(String id, String name) {

@@ -81,7 +81,7 @@
         android:background="@drawable/cloth">
 
         <LinearLayout
-            android:id="@+id/roomBackground"
+            android:id="@+id/cardBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#ADFF5C00"

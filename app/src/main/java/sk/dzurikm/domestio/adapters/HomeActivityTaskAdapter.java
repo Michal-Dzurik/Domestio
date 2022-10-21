@@ -2,9 +2,12 @@ package sk.dzurikm.domestio.adapters;
 
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,13 +42,14 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     public void onBindViewHolder(ViewHolder holder, int position) {
         Task currentTask = data.get(position);
 
-        String heading,description,owner,time,room;
+        String heading,description,owner,time,room,color;
 
         heading = Helpers.stringValueOrDefault(currentTask.getHeading(),"Heading not provided");
         description = Helpers.stringValueOrDefault(currentTask.getDescription(),"");
         owner = Helpers.stringValueOrDefault(currentTask.getOwner(),"No owner");
         time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
         room = Helpers.stringValueOrDefault(currentTask.getRoom(),"No room");
+        color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
         holder.getHeading()
                 .setText(heading);
@@ -58,12 +62,23 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                     .setText(description);
         }
 
+        holder.getCardBackground()
+                        .setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(color,"AD")));
+
         holder.getOwner()
                 .setText(owner);
         holder.getTime()
                 .setText(time);
         holder.getRoom()
                 .setText(room);
+
+        TextView doneButton = holder.getDoneButton();
+
+        if (currentTask.getDone()){
+            doneButton.setPaintFlags(doneButton.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
+
 
     }
 
@@ -79,7 +94,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder{
        private LinearLayout cardBackground;
-       private TextView heading,description,time,owner,room;
+       private TextView heading,description,time,owner,room,doneButton;
 
 
         ViewHolder(View view) {
@@ -91,6 +106,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             time = view.findViewById(R.id.time);
             owner = view.findViewById(R.id.owner);
             room = view.findViewById(R.id.roomName);
+            doneButton = view.findViewById(R.id.doneButton);
 
         }
 
@@ -116,6 +132,10 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
         public TextView getRoom() {
             return room;
+        }
+
+        public TextView getDoneButton() {
+            return doneButton;
         }
     }
 

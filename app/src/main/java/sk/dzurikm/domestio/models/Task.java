@@ -2,11 +2,13 @@ package sk.dzurikm.domestio.models;
 
 import com.google.firebase.Timestamp;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 import sk.dzurikm.domestio.helpers.Helpers;
 
-public class Task {
+public class Task implements Serializable {
     String id;
     String heading;
     String description;
@@ -16,7 +18,9 @@ public class Task {
     String owner;
     String room;
     String receiverId;
-    Timestamp timestamp;
+    Date date;
+    String color;
+    Boolean done;
 
     public Task(String id,String task, String description, String time, String ownerId, String roomId,String receiverId) {
         this.id = id;
@@ -29,6 +33,30 @@ public class Task {
     }
 
     public Task() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Boolean getDone() {
+        return done;
     }
 
     public String getHeading() {
@@ -76,15 +104,16 @@ public class Task {
         this.heading = (String) data.get("heading");
         this.description = (String) data.get("description");
 
-        this.timestamp = (Timestamp) data.get("time");
-        this.time = Helpers.Time.getTimeDate(timestamp.getSeconds());
+        Timestamp ts = (Timestamp) data.get("time");
+        assert ts != null;
+        this.date = ts.toDate();
+        this.time = Helpers.Time.getTimeDate(ts.getSeconds());
 
         this.roomId = (String) data.get("room_id");
         this.ownerId = (String) data.get("author_user_id");
         this.receiverId = (String) data.get("receiving_user_id");
 
-        System.out.println(ownerId);
-
+        this.done = (Boolean) data.get("done");
     }
 
     @Override
@@ -98,7 +127,8 @@ public class Task {
                 ", roomId='" + roomId + '\'' +
                 ", owner='" + owner + '\'' +
                 ", room='" + room + '\'' +
-                ", timestamp=" + timestamp +
+                ", timestamp=" + new Timestamp(date) +
+                ", done=" + done +
                 '}';
     }
 }
