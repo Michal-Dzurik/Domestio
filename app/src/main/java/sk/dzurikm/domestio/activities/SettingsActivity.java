@@ -11,6 +11,7 @@ import android.widget.TextView;
 import sk.dzurikm.domestio.R;
 
 public class SettingsActivity extends AppCompatActivity {
+    // Views
     private Button notificationEditButton,backButton;
     private TextView notificationHint;
 
@@ -20,11 +21,12 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        // Views
         notificationEditButton = findViewById(R.id.notificationEditButton);
         notificationHint = findViewById(R.id.notificationHint);
         backButton = findViewById(R.id.backButton);
 
-
+        // Setting up listeners
         notificationEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

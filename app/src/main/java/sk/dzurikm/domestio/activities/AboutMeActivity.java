@@ -1,5 +1,7 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Constants.Url.*;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.widget.LinearLayout;
 import sk.dzurikm.domestio.R;
 
 public class AboutMeActivity extends AppCompatActivity {
+    // Views
     private ImageButton facebook,linkedin,github,backButton;
     private LinearLayout supportMe;
 
@@ -20,13 +23,14 @@ public class AboutMeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_me);
 
+        // Views
         facebook = findViewById(R.id.facebook);
         linkedin = findViewById(R.id.linkedin);
         github = findViewById(R.id.github);
         backButton = findViewById(R.id.backButton);
-
         supportMe = findViewById(R.id.supportMeButton);
 
+        // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -37,7 +41,7 @@ public class AboutMeActivity extends AppCompatActivity {
         facebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/profile.php?id=100009386056819"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(FACEBOOK));
                 startActivity(browserIntent);
             }
         });
@@ -45,7 +49,7 @@ public class AboutMeActivity extends AppCompatActivity {
         linkedin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/michal-dzurik/"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LINKED_ID));
                 startActivity(browserIntent);
             }
         });
@@ -53,7 +57,7 @@ public class AboutMeActivity extends AppCompatActivity {
         github.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Michal-Dzurik"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(GIT_HUB));
                 startActivity(browserIntent);
             }
         });
@@ -61,7 +65,7 @@ public class AboutMeActivity extends AppCompatActivity {
         supportMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://buymeacoffee.com/dzurikm"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BUY_ME_A_COFFEE));
                 startActivity(browserIntent);
             }
         });

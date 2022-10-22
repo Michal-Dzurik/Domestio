@@ -1,7 +1,8 @@
 package sk.dzurikm.domestio.models;
 
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.*;
+
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class User implements Serializable {
@@ -34,7 +35,7 @@ public class User implements Serializable {
 
     public void cast(String id, Map<String, Object> data){
         this.id = id;
-        this.name = (String) data.get("name");
+        this.name = (String) data.get(FIELD_NAME);
     }
 
     @Override

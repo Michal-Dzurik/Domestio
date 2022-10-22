@@ -1,7 +1,7 @@
 package sk.dzurikm.domestio.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.*;
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -61,11 +61,11 @@ public class Room implements Serializable {
 
     public void cast(String id,Map<String, Object> data){
         this.id = id;
-        this.title = (String) data.get("title");
-        this.description = (String) data.get("description");
-        this.userIds = data.get("user_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("user_ids");
-        this.takIds = data.get("task_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("task_ids");
-        this.color = (String) data.get("color");
+        this.title = (String) data.get(FIELD_TITLE);
+        this.description = (String) data.get(FIELD_DESCRIPTION);
+        this.userIds = data.get(FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_USER_IDS);
+        this.takIds = data.get(FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_TASK_IDS);
+        this.color = (String) data.get(FIELD_COLOR);
     }
 
     public String getColor() {

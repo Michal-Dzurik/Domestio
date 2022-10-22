@@ -1,5 +1,9 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.*;
+import static sk.dzurikm.domestio.helpers.Helpers.Views.*;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,17 +35,22 @@ import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 import sk.dzurikm.domestio.views.alerts.ReauthenticateAlert;
 
 public class ProfileActivity extends AppCompatActivity {
-    private final String DOCUMENT_USERS = "Users";
 
+    // Views
     private ImageButton backButton,leaveButton;
     private TextView userNameText,userNameHint,userEmailHint;
     private String userEmail,userName;
     private Button nameEditButton,emailEditButton,passwordEditButton;
+
+    // Databse
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseUser user;
 
+    // Additional variables
     private boolean authenticated;
+
+    // Alerts
     private Alert signOutAlert;
     private InputAlert editNameAlert,editEmailAlert;
     private ReauthenticateAlert reauthenticateAlert;
@@ -54,21 +63,22 @@ public class ProfileActivity extends AppCompatActivity {
 
         authenticated = false;
 
+        // Database init
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
+        // Views
         backButton = findViewById(R.id.backButton);
         leaveButton = findViewById(R.id.leaveButton);
-
         userNameText = findViewById(R.id.userNameTextView);
         userEmailHint = findViewById(R.id.userEmailHint);
         userNameHint = findViewById(R.id.userNameHint);
-
         nameEditButton = findViewById(R.id.nameEditButton);
         emailEditButton = findViewById(R.id.emailEditButton);
         passwordEditButton = findViewById(R.id.passwordEditButton);
 
+        // Checking if user exists
         if (user != null) {
             // Name, email address, and profile photo Url
             userName = user.getDisplayName();
@@ -80,6 +90,7 @@ public class ProfileActivity extends AppCompatActivity {
             userEmailHint.setText(userEmail);
         }
 
+        // Setting up alerts
         setUpAlerts();
 
 
@@ -216,7 +227,7 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
 
-                            db.collection(DOCUMENT_USERS).whereEqualTo("id",auth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            db.collection(DOCUMENT_USERS).whereEqualTo(FIELD_ID,auth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()){
@@ -224,11 +235,9 @@ public class ProfileActivity extends AppCompatActivity {
                                         if (!snapshot.isEmpty()) {
 
                                             String id = snapshot.getDocuments().get(0).getId();
-
-                                            Log.i("Name found",id);
-
                                             HashMap<String,Object> updatedData = new HashMap<>();
-                                            updatedData.put("name",input);
+
+                                            updatedData.put(FIELD_NAME,input);
 
                                             if (id == null) somethingWentWrongMessage();
 
@@ -237,6 +246,8 @@ public class ProfileActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()){
                                                         editNameAlert.dismiss();
+
+                                                        // Changing hints in activity to be updated
                                                         changeNamesDisplayed(input);
                                                         Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully),Toast.LENGTH_SHORT).show();
 
@@ -267,6 +278,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        /* Alert init */
         // Making editEmailAlert
         editEmailAlert = new InputAlert(ProfileActivity.this);
         editEmailAlert.setTitle(getString(R.string.change_email));
@@ -283,9 +295,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String input = editEmailAlert.getInput().getText().toString();
-                Log.i("Email inputted",input);
 
-                // Set Email
+                // Validation
                 if(input.trim().equals("")) {
                     Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_is_empty),Toast.LENGTH_SHORT).show();
                     return;
@@ -318,7 +329,6 @@ public class ProfileActivity extends AppCompatActivity {
                         if (task.isSuccessful()){
                             editEmailAlert.dismiss();
 
-                            Log.i("Change email shit","LMao");
                             changeEmailsDisplayed(input);
 
                             Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
@@ -402,21 +412,4 @@ public class ProfileActivity extends AppCompatActivity {
         Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
     }
 
-    private void waitAndShow(InputAlert alert,int delay){
-        Helpers.Time.delay(new Runnable() {
-            @Override
-            public void run() {
-                alert.show();
-            }
-        },delay);
-    }
-
-    private void waitAndShow(PasswordChangeAlert alert,int delay){
-        Helpers.Time.delay(new Runnable() {
-            @Override
-            public void run() {
-                alert.show();
-            }
-        },delay);
-    }
 }

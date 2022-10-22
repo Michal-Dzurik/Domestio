@@ -1,5 +1,7 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.*;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -17,7 +19,6 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -30,9 +31,8 @@ import java.util.Map;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
+import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
-import sk.dzurikm.domestio.helpers.MultipleDone;
-import sk.dzurikm.domestio.helpers.listeners.OnDoneListener;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -40,28 +40,29 @@ import sk.dzurikm.domestio.services.NotificationService;
 import sk.dzurikm.domestio.views.dialogs.MenuDialog;
 
 public class HomeActivity extends AppCompatActivity {
-    private final String DOCUMENT_ROOMS = "Rooms";
-    private final String DOCUMENT_TASKS = "Tasks";
-    private final String DOCUMENT_USERS = "Users";
 
+    // Views
     RecyclerView horizontalRoomSlider,verticalTaskSlider;
     View loading;
     TextView userName;
     ImageButton menuButton, profileButton;
     TextView seeAllTasksButton,seeAllRoomsButton;
 
+    // Datasets
     ArrayList<String> roomsIDs,userRelatedUserIds;
-
-    HomeActivityRoomAdapter roomAdapter;
-    HomeActivityTaskAdapter taskAdapter;
 
     ArrayList<Room> roomData;
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
 
-    SnapHelper snapHelper;
-    MultipleDone multipleDone;
+    // Adapters
+    HomeActivityRoomAdapter roomAdapter;
+    HomeActivityTaskAdapter taskAdapter;
 
+    // Helpers
+    SnapHelper snapHelper;
+
+    // Database
     FirebaseFirestore db;
     FirebaseUser user;
     FirebaseAuth auth;
@@ -71,49 +72,46 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        /* Setting user name for greeting */
         userName = findViewById(R.id.userName);
         userName.setText(getIntent().getStringExtra("user_name"));
 
+        // Views with need of adapter
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
         verticalTaskSlider = findViewById(R.id.verticalTaskSlider);
 
+        // Views
         profileButton = findViewById(R.id.profileButton);
         menuButton = findViewById(R.id.menuButton);
         seeAllRoomsButton = findViewById(R.id.seeAllRoomsButton);
         seeAllTasksButton = findViewById(R.id.seeAllTasksButton);
-
         loading = findViewById(R.id.loading);
 
+        // Database initiations
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
+        // Login info
+        Log.i("Firebase user logged in UID",user.getUid());
 
-        Log.i("USER_ID",user.getUid());
-
-
-        snapHelper = new PagerSnapHelper();
-        multipleDone = new MultipleDone();
-        multipleDone.setOnDoneListener(new OnDoneListener() {
-            @Override
-            public void OnDone() {
-                hideLoading();
-            }
-        });
-
+        // Datasets init
         roomData = new ArrayList<>();
         roomsIDs = new ArrayList();
         userRelatedUserIds = new ArrayList();
-
         taskData = new ArrayList<Task>();
-
         usersData = new ArrayList<User>();
 
+        // Helpers init
+        snapHelper = new PagerSnapHelper();
+
+        // Loading data from database and setting them to datasets
         loadData();
 
+        // Dialogs init
         MenuDialog menuDialog = new MenuDialog(HomeActivity.this,HomeActivity.this.getSupportFragmentManager());
 
-        // Initializing listeners
+        // Setting up listeners
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,7 +133,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent yourRoomsActivityIntent = new Intent(HomeActivity.this,YourRoomsActivity.class );
-                yourRoomsActivityIntent.putExtra("rooms", roomData);
+                yourRoomsActivityIntent.putExtra(Constants.Firebase.Bundle.ROOMS, roomData);
 
                 startActivity(yourRoomsActivityIntent);
             }
@@ -145,7 +143,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent yourTasksActivityIntent = new Intent(HomeActivity.this,YourTasksActivity.class );
-                yourTasksActivityIntent.putExtra("tasks", taskData);
+                yourTasksActivityIntent.putExtra(Constants.Firebase.Bundle.TASKS, taskData);
 
                 startActivity(yourTasksActivityIntent);
             }
@@ -159,27 +157,33 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void hideLoading(){
+        // Creating adapters needed
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this,roomData);
         taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this,taskData);
 
+        // Settings up the adapters and helpers
         horizontalRoomSlider.setAdapter(roomAdapter);
         snapHelper.attachToRecyclerView(horizontalRoomSlider);
         verticalTaskSlider.setAdapter(taskAdapter);
 
+        // Starting Notification service
+        // It listens if something in DB was changed or added and send a notification about it
         startService(new Intent( this, NotificationService.class ) );
 
+        // Delay before showing home activity so there are no visual bugs
         Helpers.Time.delay(new Runnable() {
             @Override
             public void run() {
                 loading.startAnimation(AnimationUtils.loadAnimation(HomeActivity.this,R.anim.fade_out));
                 loading.getAnimation().setFillAfter(true);
             }
-        },1000);
+        },500);
     }
 
     private void loadRooms(){
+        // DB query
         Query roomQuery = db.collection(DOCUMENT_ROOMS)
-                .whereArrayContains("user_ids", user.getUid());
+                .whereArrayContains(Constants.Firebase.Room.FIELD_USER_IDS, user.getUid());
 
         roomQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -191,25 +195,25 @@ public class HomeActivity extends AppCompatActivity {
                                 roomData.clear();
                                 Map<String, Object> data = document.getData();
 
-                                // Room storing
+                                // Creating room and casting db results as data for model
                                 Room room = new Room();
                                 room.cast(document.getId(),data);
 
+                                // Adding room to the dataset
                                 roomData.add(room);
 
-                                // Tasks
-                                String id = document.getId();
-                                roomsIDs.add(id);
+                                // Adding room id to arraylist
+                                roomsIDs.add(document.getId());
 
-                                // Users
-                                ArrayList<String> userIds = data.get("user_ids") == null ? new ArrayList<String>() : (ArrayList) data.get("user_ids");
+                                // Adding User ids to arraylist
+                                ArrayList<String> userIds = data.get(Constants.Firebase.Room.FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(Constants.Firebase.Room.FIELD_USER_IDS);
                                 Helpers.List.addUnique(userRelatedUserIds,userIds);
 
 
                             }
 
                             loadUsers();
-                            System.out.println(String.valueOf(Arrays.toString(taskData.toArray())));
+                            Log.i("Firebase result", String.valueOf(Arrays.toString(taskData.toArray())));
 
                         } else {
                             Log.w("DB_RESULT", "Error getting documents.", task.getException());
@@ -245,7 +249,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadUsers(){
-
         db.collection(DOCUMENT_USERS).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -256,12 +259,13 @@ public class HomeActivity extends AppCompatActivity {
 
                                 Map<String, Object> data = document.getData();
 
-                                // Task storing
+                                // Creating task and casting from DB result to model
                                 User user = new User();
                                 user.cast(document.getId(),data);
 
+                                // Adding user to it's dataset
                                 usersData.add(user);
-                                Log.i("DB_RESULT_USER", String.valueOf(user));
+                                Log.i("Firebase result", String.valueOf(user));
 
                             }
 
@@ -301,10 +305,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadTasks(){
         Query taskQuery = db.collection(DOCUMENT_TASKS)
-                .whereIn("room_id", roomsIDs)
-                .whereEqualTo("receiving_user_id",user.getUid());
-
-        System.out.println(roomsIDs);
+                .whereIn(Constants.Firebase.Task.FIELD_ROOM_ID, roomsIDs)
+                .whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,user.getUid());
 
         taskQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -316,21 +318,20 @@ public class HomeActivity extends AppCompatActivity {
 
                                 Map<String, Object> data = document.getData();
 
-                                // Task storing
+                                // Creating task and casting from db result to model
                                 Task task = new Task();
                                 task.cast(document.getId(),data);
                                 task.setOwner(getUsersName(task.getOwnerId()));
                                 task.setRoom(getRoomsTitle(task.getRoomId()));
                                 task.setColor(getRoomsColor(task.getOwnerId()));
 
+                                // Adding task to it's dataset
                                 taskData.add(task);
-                                Log.i("DB_RESULT_TASKS", task.toString());
-
                             }
 
-                            System.out.println(String.valueOf(Arrays.toString(taskData.toArray())));
                             hideLoading();
 
+                            Log.i("Firebase result",String.valueOf(Arrays.toString(taskData.toArray())));
 
                         } else {
                             Log.w("DB_RESULT", "Error getting documents.", response.getException());
@@ -363,6 +364,11 @@ public class HomeActivity extends AppCompatActivity {
         });*/
     }
 
+    /**
+     *
+     * @param id user UID
+     * @return id name of user with  id
+     */
     private String getUsersName(String id){
         for (int i = 0; i < usersData.size(); i++) {
             User user = usersData.get(i);
@@ -372,6 +378,10 @@ public class HomeActivity extends AppCompatActivity {
         return "";
     }
 
+    /**
+     * @param id user UID
+     * @return title of room wit id
+     */
     private String getRoomsTitle(String id){
         for (int i = 0; i < roomData.size(); i++) {
             Room room = roomData.get(i);
@@ -381,6 +391,10 @@ public class HomeActivity extends AppCompatActivity {
         return "";
     }
 
+    /**
+     * @param id room UID
+     * @return color of room with id
+     */
     private String getRoomsColor(String id){
         for (int i = 0; i < roomData.size(); i++) {
             Room room = roomData.get(i);

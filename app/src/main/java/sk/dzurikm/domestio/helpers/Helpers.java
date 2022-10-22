@@ -4,10 +4,14 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import sk.dzurikm.domestio.views.alerts.InputAlert;
+import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 
 public class Helpers {
 
@@ -138,6 +142,30 @@ public class Helpers {
 
             return numbStr;
 
+        }
+    }
+
+    public static class Views{
+        public static String getTextOfView(TextView view) {
+            return view.getText().toString();
+        }
+
+        public static void waitAndShow(InputAlert alert, int delay){
+            Helpers.Time.delay(new Runnable() {
+                @Override
+                public void run() {
+                    alert.show();
+                }
+            },delay);
+        }
+
+        public static void waitAndShow(PasswordChangeAlert alert, int delay){
+            Helpers.Time.delay(new Runnable() {
+                @Override
+                public void run() {
+                    alert.show();
+                }
+            },delay);
         }
     }
 

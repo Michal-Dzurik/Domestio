@@ -1,7 +1,9 @@
 package sk.dzurikm.domestio.models;
 
-import com.google.firebase.Timestamp;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.*;
 
+
+import com.google.firebase.Timestamp;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -101,19 +103,19 @@ public class Task implements Serializable {
 
     public void cast(String id, Map<String, Object> data){
         this.id = id;
-        this.heading = (String) data.get("heading");
-        this.description = (String) data.get("description");
+        this.heading = (String) data.get(FIELD_HEADING);
+        this.description = (String) data.get(FIELD_DESCRIPTION);
 
-        Timestamp ts = (Timestamp) data.get("time");
+        Timestamp ts = (Timestamp) data.get(FIELD_TIME);
         assert ts != null;
         this.date = ts.toDate();
         this.time = Helpers.Time.getTimeDate(ts.getSeconds());
 
-        this.roomId = (String) data.get("room_id");
-        this.ownerId = (String) data.get("author_user_id");
-        this.receiverId = (String) data.get("receiving_user_id");
+        this.roomId = (String) data.get(FIELD_ROOM_ID);
+        this.ownerId = (String) data.get(FIELD_AUTHOR_ID);
+        this.receiverId = (String) data.get(FIELD_RECEIVER_ID);
 
-        this.done = (Boolean) data.get("done");
+        this.done = (Boolean) data.get(FIELD_DONE);
     }
 
     @Override
