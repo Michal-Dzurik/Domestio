@@ -117,14 +117,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/name"
                 android:textColor="?PrimaryTextColor"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/userNameHint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ann Milton"
-                android:textSize="15sp"/>
+                android:textSize="15sp" />
 
 
         </LinearLayout>

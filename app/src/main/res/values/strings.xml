@@ -83,4 +83,10 @@
     <string name="about_me">About me</string>
     <string name="tasks">Tasks</string>
     <string name="rooms">Rooms</string>
+    <string name="theme">Theme</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system">System</string>
+    <string name="select_theme">Select theme</string>
+    <string name="notifications">Notifications</string>
 </resources>
