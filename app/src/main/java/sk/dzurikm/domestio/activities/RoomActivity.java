@@ -45,6 +45,7 @@ public class RoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_room);
 
         Room room = (Room) getIntent().getExtras().get("room");
+        Log.i("CURRENT_ROOM",room.toString());
 
         // Views
         roomsRecycler = findViewById(R.id.tasksRecycler);

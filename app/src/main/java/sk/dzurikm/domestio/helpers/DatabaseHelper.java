@@ -11,13 +11,17 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import sk.dzurikm.domestio.models.Room;
@@ -30,7 +34,7 @@ public class DatabaseHelper {
     FirebaseAuth auth;
 
     // Additional variables
-    ArrayList<String> roomsIDs,userRelatedUserIds;
+    ArrayList<String> roomsIDs,userRelatedUserIds,tasksRelatedIds;
 
     // Datasets
     ArrayList<Room> roomData;
@@ -49,6 +53,7 @@ public class DatabaseHelper {
         userRelatedUserIds = new ArrayList();
         taskData = new ArrayList<Task>();
         usersData = new ArrayList<User>();
+        tasksRelatedIds = new ArrayList<>();
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -67,9 +72,8 @@ public class DatabaseHelper {
                             @Override
                             public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
-
                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                        roomData.clear();
+
                                         Map<String, Object> data = document.getData();
 
                                         // Creating room and casting db results as data for model
@@ -82,12 +86,17 @@ public class DatabaseHelper {
                                         // Adding room id to arraylist
                                         roomsIDs.add(document.getId());
 
+
                                         // Adding User ids to arraylist
                                         ArrayList<String> userIds = data.get(Constants.Firebase.Room.FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(Constants.Firebase.Room.FIELD_USER_IDS);
                                         Helpers.List.addUnique(userRelatedUserIds,userIds);
 
+                                        ArrayList<String> tasksIds = data.get(Constants.Firebase.Room.FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(Constants.Firebase.Room.FIELD_TASK_IDS);
+                                        Helpers.List.addUnique(tasksRelatedIds,tasksIds);
+
 
                                     }
+
 
                                     loadUsers(TYPE);
                                     Log.i("Firebase result", String.valueOf(Arrays.toString(taskData.toArray())));
@@ -194,12 +203,12 @@ public class DatabaseHelper {
 
         if (TYPE == Constants.Firebase.DATA_FOR_USER){
             taskQuery = db.collection(DOCUMENT_TASKS)
-                    .whereIn(Constants.Firebase.Task.FIELD_ROOM_ID, roomsIDs);
+                    .whereIn(FieldPath.documentId(), tasksRelatedIds);
             taskQuery.whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,user.getUid());
         }
         else{
             taskQuery = db.collection(DOCUMENT_TASKS)
-                    .whereEqualTo(Constants.Firebase.Task.FIELD_ROOM_ID, room.getId());
+                    .whereIn(FieldPath.documentId(), room.getTaskIds());
         }
 
         taskQuery.get()
@@ -216,8 +225,17 @@ public class DatabaseHelper {
                                 Task task = new Task();
                                 task.cast(document.getId(),data);
                                 task.setOwner(getUsersName(task.getOwnerId()));
-                                task.setRoom(getRoomsTitle(task.getRoomId()));
-                                task.setColor(getRoomsColor(task.getOwnerId()));
+
+                                if (TYPE == Constants.Firebase.DATA_FOR_USER){
+                                    HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{Constants.Firebase.Room.FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+
+                                    task.setRoom(roomInfo.get(Constants.Firebase.Room.FIELD_TITLE));
+                                    task.setColor(roomInfo.get(Constants.Firebase.Room.FIELD_COLOR));
+                                }
+                                else {
+                                    task.setRoom(room.getTitle());
+                                    task.setColor(room.getColor());
+                                }
 
                                 // Adding task to it's dataset
                                 taskData.add(task);
@@ -285,6 +303,38 @@ public class DatabaseHelper {
         return "";
     }
 
+    private HashMap<String,String> getRoomInfo(String id,String[] info){
+        Log.i("ID",id);Log.i("ROOMS",roomData.toString());
+
+        for (int i = 0; i < roomData.size(); i++) {
+            Room room = roomData.get(i);
+            if (room.getId().equals(id)) {
+                HashMap<String,String> map = new HashMap<>();
+                for (int j = 0; j < info.length; j++) {
+                    String key = info[j];
+
+                    // Dynamic getters construction
+                    try {
+                        String methodName = "get" + firstUppercase(key);
+                        Method method = Room.class.getMethod(methodName);
+                        map.put(key,(String) method.invoke(room));
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                return map;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @param id room UID
      * @return color of room with id
@@ -296,6 +346,10 @@ public class DatabaseHelper {
         }
 
         return "";
+    }
+
+    private String firstUppercase(String str){
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     public void setOnDataLoadedListener(OnDataLoadedListener onDataLoadedListener) {

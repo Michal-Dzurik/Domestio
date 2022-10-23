@@ -9,14 +9,14 @@ import java.util.Map;
 
 public class Room implements Serializable {
     String id,title,description,color;
-    ArrayList<String> userIds,takIds;
+    ArrayList<String> userIds, taskIds;
 
     public Room(String id, String title, String description, ArrayList<String> userIds, ArrayList<String> takIds) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.userIds = userIds;
-        this.takIds = takIds;
+        this.taskIds = takIds;
     }
 
     public Room() {
@@ -56,7 +56,7 @@ public class Room implements Serializable {
     }
 
     public int getTasksCount() {
-        return takIds.size();
+        return taskIds.size();
     }
 
     public void cast(String id,Map<String, Object> data){
@@ -64,7 +64,7 @@ public class Room implements Serializable {
         this.title = (String) data.get(FIELD_TITLE);
         this.description = (String) data.get(FIELD_DESCRIPTION);
         this.userIds = data.get(FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_USER_IDS);
-        this.takIds = data.get(FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_TASK_IDS);
+        this.taskIds = data.get(FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_TASK_IDS);
         this.color = (String) data.get(FIELD_COLOR);
     }
 
@@ -76,6 +76,10 @@ public class Room implements Serializable {
         this.color = color;
     }
 
+    public ArrayList<String> getTaskIds() {
+        return taskIds;
+    }
+
     @Override
     public String toString() {
         return "Room{" +
@@ -83,7 +87,7 @@ public class Room implements Serializable {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", userIds=" + userIds +
-                ", takIds=" + takIds +
+                ", takIds=" + taskIds +
                 ", color=" + color +
                 '}';
     }
