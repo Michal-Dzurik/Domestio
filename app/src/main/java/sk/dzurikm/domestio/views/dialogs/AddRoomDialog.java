@@ -3,23 +3,12 @@ package sk.dzurikm.domestio.views.dialogs;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -29,13 +18,15 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class AddRoomDialog extends BottomSheetDialogFragment {
-    private Context context;
-    private FragmentManager fragmentManager;
+    // Views
     private View colorPickInput;
     private TextView colorPickerText;
     private MaterialCardView colorPickerPreview;
-
     private View rootView;
+
+    // Needed variables
+    private Context context;
+    private FragmentManager fragmentManager;
 
     public AddRoomDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -54,12 +45,14 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
         rootView = View.inflate(getContext(), R.layout.add_room_dialog_layput, null);
         dialog.setContentView(rootView);
 
+        // Views
         colorPickInput = rootView.findViewById(R.id.pickColorInput);
         colorPickerText = rootView.findViewById(R.id.colorPickerText);
         colorPickerPreview = rootView.findViewById(R.id.colorPickerPreview);
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
+        // Setting up listeners
         colorPickInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

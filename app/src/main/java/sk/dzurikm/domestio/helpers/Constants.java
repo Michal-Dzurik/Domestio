@@ -47,6 +47,10 @@ public class Constants {
             public static final String USERS = "users";
             public static final String TASKS = "tasks";
         }
+
+        public static final int DATA_FOR_USER = 0;
+        public static final int DATA_FOR_ROOM = 1;
+        public static final int DATA_FOR_TASK = 1;
     }
 
     public static class Url{

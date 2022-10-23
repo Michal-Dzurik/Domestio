@@ -41,12 +41,15 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.User;
 
 public class AddTaskDialog extends BottomSheetDialogFragment {
-    private Context context;
-    private FragmentManager fragmentManager;
-    private Spinner ownerSelect,roomSelect;
 
+    // Views
+    private Spinner ownerSelect,roomSelect;
     private View rootView,datePickerButton;
     private TextView datePickerButtonText;
+
+    // Needed variables
+    private Context context;
+    private FragmentManager fragmentManager;
 
     public AddTaskDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -67,11 +70,13 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
+        // Views
         roomSelect = rootView.findViewById(R.id.roomSelect);
         ownerSelect = rootView.findViewById(R.id.ownerSelect);
         datePickerButton = rootView.findViewById(R.id.dateAndTimePickerButton);
         datePickerButtonText = rootView.findViewById(R.id.datePickerButtonText);
 
+        // Setting up listeners
         datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,6 +109,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     }
 
     private void fillSpinners(){
+        // TODO: fill them with an actual users and rooms
         List<Room> rooms = new LinkedList<>();
         rooms.add(new Room("lmasidnas","Hello"));
         rooms.add(new Room("lasde","Nol"));

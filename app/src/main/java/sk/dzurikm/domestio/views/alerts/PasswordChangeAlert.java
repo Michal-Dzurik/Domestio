@@ -11,14 +11,16 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-
 import sk.dzurikm.domestio.R;
 
 
 public class PasswordChangeAlert extends Dialog {
+
+    // Views
     private Button positiveButton,negativeButton;
     private EditText passwordInput,passwordRepeatInput;
+
+    // Listeners
     private View.OnClickListener negativeListener;
     private OnPasswordMatchListener passwordMatchListener;
 
@@ -35,6 +37,7 @@ public class PasswordChangeAlert extends Dialog {
         setContentView(R.layout.password_change_alert_layout);
         this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // Views
         positiveButton = this.findViewById(R.id.positiveButton);
         negativeButton = this.findViewById(R.id.negativeButton);
         passwordInput = this.findViewById(R.id.passwordInput);

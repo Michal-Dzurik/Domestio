@@ -89,4 +89,5 @@
     <string name="system">System</string>
     <string name="select_theme">Select theme</string>
     <string name="notifications">Notifications</string>
+    <string name="room_tasks">Room tasks</string>
 </resources>

@@ -16,10 +16,16 @@ import sk.dzurikm.domestio.R;
 
 
 public class InputAlert extends Dialog {
+
+    // Views
     private Button positiveButton,negativeButton;
     private TextView titleView;
     private EditText input;
+
+    // Additional variables
     private String title,hint, positiveButtonText, negativeButtonText;
+
+    // Listeners
     private View.OnClickListener positiveListener,negativeListener;
 
     public InputAlert(Context context) {
@@ -35,18 +41,20 @@ public class InputAlert extends Dialog {
         setContentView(R.layout.input_alert_layout);
         this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // Views
         positiveButton = this.findViewById(R.id.positiveButton);
         negativeButton = this.findViewById(R.id.negativeButton);
         input = this.findViewById(R.id.input);
         titleView = this.findViewById(R.id.title);
-        this.findViewById(R.id.content).setVisibility(View.GONE);
 
         // Setting values
+        this.findViewById(R.id.content).setVisibility(View.GONE);
         titleView.setText(title == null ? "Nothing here" : title);
         positiveButton.setText(positiveButtonText == null ? "OK" : positiveButtonText);
         negativeButton.setText(negativeButtonText == null ? "Dismiss" : negativeButtonText);
         input.setHint(hint);
 
+        // Setting up listeners
         positiveButton.setOnClickListener(positiveListener);
         negativeButton.setOnClickListener(negativeListener);
 

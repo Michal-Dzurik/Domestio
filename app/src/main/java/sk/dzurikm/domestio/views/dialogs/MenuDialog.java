@@ -1,16 +1,13 @@
 package sk.dzurikm.domestio.views.dialogs;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
@@ -18,18 +15,21 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.AboutMeActivity;
-import sk.dzurikm.domestio.activities.HomeActivity;
 import sk.dzurikm.domestio.activities.SettingsActivity;
 
 public class MenuDialog extends BottomSheetDialogFragment {
+
+    // Views
+    private View rootView;
+    private View addRoomButton,addTaskButton,aboutButton,settingsButton;
+
+    // Needed variables
     private Context context;
     private FragmentManager fragmentManager;
 
+    // Dialogs
     private AddRoomDialog addRoomDialog;
     private AddTaskDialog addTaskDialog;
-
-    private View rootView;
-    private View addRoomButton,addTaskButton,aboutButton,settingsButton;
 
     public MenuDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;

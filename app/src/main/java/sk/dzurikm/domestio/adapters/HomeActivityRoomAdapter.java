@@ -2,6 +2,7 @@ package sk.dzurikm.domestio.adapters;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.RoomActivity;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 
@@ -23,9 +25,11 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     private List<Room> data;
     private LayoutInflater layoutInflater;
     private ItemClickListener mClickListener;
+    private Context context;
 
     // data is passed into the constructor
     public HomeActivityRoomAdapter(Context context, List<Room> data) {
+        this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
     }
@@ -65,6 +69,17 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
                 .setText(String.valueOf(peopleCount));
         holder.getTasksCount()
                 .setText(String.valueOf(tasksCount));
+
+        holder.getCardBackground().setClickable(true);
+        holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, RoomActivity.class);
+                i.putExtra("room",currentRoom);
+
+                context.startActivity(i);
+            }
+        });
     }
 
 
@@ -97,7 +112,6 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
         public LinearLayout getCardBackground() {
             return cardBackground;
         }
-
 
         public LinearLayout getLeaveButton() {
             return leaveButton;

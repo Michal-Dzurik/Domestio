@@ -31,6 +31,8 @@
                 android:minHeight="170dp"
                 android:orientation="vertical"
                 android:padding="@dimen/room_card_padding"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="-5dp"
                     android:text="Family "
+                    android:clickable="false"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
@@ -50,11 +53,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="false"
                     android:textColor="?attr/PrimaryTextColorTransparent"
                     android:text="Lorem ipsum dolor sit amet  "
                      />
 
                 <LinearLayout
+                    android:clickable="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -84,6 +89,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:clickable="false"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">

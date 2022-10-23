@@ -15,9 +15,12 @@ import sk.dzurikm.domestio.R;
 
 public class Alert extends Dialog {
 
+    // Views
     private Button positiveButton,negativeButton;
     private TextView titleView, descriptionView;
     private String title, description, positiveButtonText, negativeButtonText;
+
+    // Listeners
     private View.OnClickListener positiveListener,negativeListener;
 
     public Alert(Context context) {
@@ -33,6 +36,7 @@ public class Alert extends Dialog {
         setContentView(R.layout.alert_layout);
         this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // Views
         positiveButton = this.findViewById(R.id.positiveButton);
         negativeButton = this.findViewById(R.id.negativeButton);
         titleView = this.findViewById(R.id.title);
@@ -44,6 +48,7 @@ public class Alert extends Dialog {
         positiveButton.setText(positiveButtonText == null ? "OK" : positiveButtonText);
         negativeButton.setText(negativeButtonText == null ? "Dismiss" : negativeButtonText);
 
+        // Setting listeners
         positiveButton.setOnClickListener(positiveListener);
         negativeButton.setOnClickListener(negativeListener);
     }

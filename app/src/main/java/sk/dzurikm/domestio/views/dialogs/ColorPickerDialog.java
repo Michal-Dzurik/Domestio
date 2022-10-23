@@ -21,16 +21,20 @@ import androidx.cardview.widget.CardView;
 import sk.dzurikm.domestio.R;
 
 public class ColorPickerDialog extends Dialog {
+
+    // Views
     private Button positiveButton,negativeButton;
     private TextView titleView;
-    private String title, positiveButtonText, negativeButtonText;
     private CardView colorPreview;
     private ImageView colorWheel;
-    private View.OnClickListener negativeListener;
-    private OnColorSelectedListener colorSelectedListener;
 
+    // Additional variables
+    private String title, positiveButtonText, negativeButtonText;
     Bitmap bitmap;
 
+    // Listeners
+    private View.OnClickListener negativeListener;
+    private OnColorSelectedListener colorSelectedListener;
 
     public ColorPickerDialog(@NonNull Context context) {
         super(context);
@@ -52,6 +56,8 @@ public class ColorPickerDialog extends Dialog {
         // Turning on and off some things to make it better
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.color_picker_dialog_layout);
+
+        // Views
         positiveButton = this.findViewById(R.id.positiveButton);
         negativeButton = this.findViewById(R.id.negativeButton);
         titleView = this.findViewById(R.id.title);
@@ -65,6 +71,11 @@ public class ColorPickerDialog extends Dialog {
         positiveButton.setText(positiveButtonText == null ? "OK" : positiveButtonText);
         negativeButton.setText(negativeButtonText == null ? "Dismiss" : negativeButtonText);
 
+        // So we can get color of pixel
+        colorWheel.setDrawingCacheEnabled(true);
+        colorWheel.buildDrawingCache(true);
+
+        // Setting up listeners
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,9 +83,6 @@ public class ColorPickerDialog extends Dialog {
             }
         });
         negativeButton.setOnClickListener(negativeListener);
-
-        colorWheel.setDrawingCacheEnabled(true);
-        colorWheel.buildDrawingCache(true);
 
         colorWheel.setOnTouchListener(new View.OnTouchListener() {
             @Override

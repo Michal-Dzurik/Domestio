@@ -26,11 +26,17 @@ import sk.dzurikm.domestio.R;
 
 
 public class ReauthenticateAlert extends Dialog {
+
+    // Views
     private Button positiveButton,negativeButton;
     private TextView titleView,content;
     private EditText input;
+
+    // Listeners
     private View.OnClickListener negativeListener;
     private OnCompleteListener<Void> positiveListener;
+
+    // Needed variables
     private Context context;
 
     public ReauthenticateAlert(Context context) {
@@ -47,6 +53,7 @@ public class ReauthenticateAlert extends Dialog {
         setContentView(R.layout.input_alert_layout);
         this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // Views
         positiveButton = this.findViewById(R.id.positiveButton);
         negativeButton = this.findViewById(R.id.negativeButton);
         input = this.findViewById(R.id.input);
