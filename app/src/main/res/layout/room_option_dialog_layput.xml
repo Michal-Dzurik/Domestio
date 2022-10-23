@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_dialog_background"
+    android:paddingHorizontal="5dp"
+    android:paddingVertical="35dp"
+    android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/home_body_margin"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/room_heading"
+                        android:textColor="?PrimaryTextColor"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/roomNameHint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Family"
+                        android:textSize="15sp" />
+
+
+                </LinearLayout>
+
+                <android.widget.Button
+                    android:id="@+id/roomNameEditButton"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="30dp"
+                    android:text="@string/edit"
+                    android:background="@drawable/edit_button_background"
+                    android:textColor="?MainColor"
+                    android:textAllCaps="false"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/home_body_margin"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/room_description"
+                        android:textColor="?PrimaryTextColor"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/roomDescriptionHint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Description"
+                        android:textSize="15sp" />
+
+
+                </LinearLayout>
+
+                <android.widget.Button
+                    android:id="@+id/roomDescriptionEditButton"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="30dp"
+                    android:text="@string/edit"
+                    android:background="@drawable/edit_button_background"
+                    android:textColor="?MainColor"
+                    android:textAllCaps="false"/>
+
+            </LinearLayout>
+
+</LinearLayout>

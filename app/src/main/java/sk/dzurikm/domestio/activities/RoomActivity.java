@@ -22,13 +22,14 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.dialogs.AddTaskDialog;
+import sk.dzurikm.domestio.views.dialogs.RoomOptionDialog;
 
 public class RoomActivity extends AppCompatActivity {
 
     // Views
     RecyclerView roomsRecycler;
     TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount;
-    ImageButton backButton,addTaskButton;
+    ImageButton backButton,addTaskButton,optionButton;
     LinearLayout cardBackground;
 
 
@@ -56,6 +57,7 @@ public class RoomActivity extends AppCompatActivity {
         backButton = findViewById(R.id.backButton);
         cardBackground = findViewById(R.id.cardBackground);
         addTaskButton = findViewById(R.id.addTaskButton);
+        optionButton = findViewById(R.id.optionButton);
 
         // Setting up values
         roomTitle.setText(room.getTitle());
@@ -83,6 +85,15 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        optionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager());
+                dialog.setRoom(room);
+                dialog.show(RoomActivity.this.getSupportFragmentManager(),"Room Option Dialog");
             }
         });
 
