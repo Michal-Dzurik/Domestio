@@ -91,4 +91,6 @@
     <string name="notifications">Notifications</string>
     <string name="room_tasks">Room tasks</string>
     <string name="room_name">Room Name</string>
+    <string name="change_room_description">Change room description</string>
+    <string name="change_room_heading">Change room heading</string>
 </resources>

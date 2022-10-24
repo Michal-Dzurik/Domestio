@@ -1,8 +1,11 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +14,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
@@ -39,13 +45,14 @@ public class RoomActivity extends AppCompatActivity {
     // Datasets
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
+    Room room;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
 
-        Room room = (Room) getIntent().getExtras().get("room");
+        room = (Room) getIntent().getExtras().get("room");
         Log.i("CURRENT_ROOM",room.toString());
 
         // Views
@@ -60,8 +67,7 @@ public class RoomActivity extends AppCompatActivity {
         optionButton = findViewById(R.id.optionButton);
 
         // Setting up values
-        roomTitle.setText(room.getTitle());
-        roomDescription.setText(room.getDescription());
+        updateRoomChangeableInfo(room);
         roomTaskCount.setText(String.valueOf(room.getTasksCount()));
         roomPeopleCount.setText(String.valueOf(room.getPeopleCount()));
         cardBackground.setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(room.getColor(),"AD")));
@@ -93,6 +99,15 @@ public class RoomActivity extends AppCompatActivity {
             public void onClick(View v) {
                 RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager());
                 dialog.setRoom(room);
+                dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
+                    @Override
+                    public void onRoomDataChangedListener(Room room) {
+                        updateRoomChangeableInfo(room);
+                        updateTaskRoomInfo(room);
+
+                        roomsRecycler.setAdapter(new HomeActivityTaskAdapter(RoomActivity.this,taskData));
+                    }
+                });
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Room Option Dialog");
             }
         });
@@ -104,5 +119,27 @@ public class RoomActivity extends AppCompatActivity {
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");
             }
         });
+    }
+
+    private void updateRoomChangeableInfo(Room room){
+        this.room = room;
+        roomTitle.setText(room.getTitle());
+        roomDescription.setText(room.getDescription());
+    }
+
+    private void updateTaskRoomInfo(Room room){
+        for (int i = 0; i < taskData.size(); i++) {
+            taskData.get(i).setRoom(room.getTitle());
+        }
+    }
+
+    @Override
+    public void finish() {
+        // Setting up room so activity can update its informations
+        Intent intent = getIntent();
+        intent.putExtra(Constants.Firebase.DOCUMENT_ROOMS,room);
+
+        setResult(Constants.Result.ROOM_CHANGED,intent);
+        super.finish();
     }
 }

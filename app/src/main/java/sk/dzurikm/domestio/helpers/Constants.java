@@ -60,4 +60,8 @@ public class Constants {
         public static final String BUY_ME_A_COFFEE = "https://buymeacoffee.com/dzurikm";
 
     }
+
+    public static class Result{
+        public static final int ROOM_CHANGED = 0;
+    }
 }

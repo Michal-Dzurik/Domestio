@@ -3,12 +3,15 @@ package sk.dzurikm.domestio.helpers;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_ROOMS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_TASKS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldPath;
@@ -276,6 +279,13 @@ public class DatabaseHelper {
         });*/
     }
 
+    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnSuccessListener onSuccessListener, OnFailureListener onFailureListener){
+        db.collection(COLLECTION)
+                .document(id)
+                .update(dataToChange)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
     /**
      *
      * @param id user UID
@@ -304,8 +314,6 @@ public class DatabaseHelper {
     }
 
     private HashMap<String,String> getRoomInfo(String id,String[] info){
-        Log.i("ID",id);Log.i("ROOMS",roomData.toString());
-
         for (int i = 0; i < roomData.size(); i++) {
             Room room = roomData.get(i);
             if (room.getId().equals(id)) {
@@ -348,9 +356,7 @@ public class DatabaseHelper {
         return "";
     }
 
-    private String firstUppercase(String str){
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
+
 
     public void setOnDataLoadedListener(OnDataLoadedListener onDataLoadedListener) {
         this.onDataLoadedListener = onDataLoadedListener;

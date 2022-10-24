@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -177,4 +178,36 @@ public class HomeActivity extends AppCompatActivity {
         super.onStart();
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode) {
+            case Constants.Result.ROOM_CHANGED:
+                onRoomChanged((Room) data.getExtras().get(Constants.Firebase.DOCUMENT_ROOMS));
+                break;
+        }
+    }
+
+    private void onRoomChanged(Room room){
+        for (int i = 0; i < roomData.size(); i++) {
+            if (roomData.get(i).getId().equals(room.getId())) {
+                roomData.set(i, room);
+                break;
+            }
+        }
+
+        for (int i = 0; i < taskData.size(); i++) {
+            if (taskData.get(i).getRoomId().equals(room.getId())) {
+                taskData.get(i).setRoom(room.getTitle());
+                break;
+            }
+        }
+
+        roomAdapter.notifyDataSetChanged();
+        taskAdapter.notifyDataSetChanged();
+
+    }
+
+
 }

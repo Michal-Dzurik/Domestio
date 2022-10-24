@@ -1,6 +1,7 @@
 package sk.dzurikm.domestio.adapters;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.RoomActivity;
+import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 
@@ -74,10 +76,12 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
         holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // starting activity Room with result code for changing data
                 Intent i = new Intent(context, RoomActivity.class);
                 i.putExtra("room",currentRoom);
 
-                context.startActivity(i);
+
+                ((Activity) context).startActivityForResult(i, Constants.Result.ROOM_CHANGED);
             }
         });
     }

@@ -27,6 +27,10 @@ public class Helpers {
         return value;
     }
 
+    public static String firstUppercase(String str){
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     public static class Time{
         public static long seconds(double seconds){
             return (long) (seconds * 1000L);
