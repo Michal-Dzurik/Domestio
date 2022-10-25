@@ -2,6 +2,7 @@ package sk.dzurikm.domestio.activities;
 
 import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -13,11 +14,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class LoginActivity extends AppCompatActivity {
@@ -25,6 +28,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText email,password;
     private Button backButton,loginButton;
     private FirebaseAuth mAuth;
+
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,12 @@ public class LoginActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.passwordInput);
         backButton = (Button) findViewById(R.id.backButton);
         loginButton = (Button) findViewById(R.id.loginButton);
+
+        // helpers
+        databaseHelper = new DatabaseHelper();
+
+        // db
+        mAuth = FirebaseAuth.getInstance();
 
         // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -60,26 +71,31 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     private void login(){
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword(getTextOfView(email), getTextOfView(password))
-                .addOnCompleteListener(LoginActivity.this, (OnCompleteListener<AuthResult>) task -> {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        onLoginSucceed();
+        String emailContent,passwordContent;
 
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("Firebase Auth", "signInUserWithEmail:failure", task.getException());
-                        Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.authentication_failed),
-                                Toast.LENGTH_SHORT).show();
+        emailContent = getTextOfView(email);
+        passwordContent = getTextOfView(password);
 
-                    }
+        databaseHelper.login(LoginActivity.this,emailContent,passwordContent,new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+                    onLoginSucceed();
 
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("Firebase Auth", "signInUserWithEmail:failure", task.getException());
+                    Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.authentication_failed),
+                            Toast.LENGTH_SHORT).show();
 
-                });
+                }
+            }
+        });
     }
 
     private void onLoginSucceed(){

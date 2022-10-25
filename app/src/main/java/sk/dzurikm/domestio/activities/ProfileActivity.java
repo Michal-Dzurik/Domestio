@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
@@ -56,6 +58,9 @@ public class ProfileActivity extends AppCompatActivity {
     private ReauthenticateAlert reauthenticateAlert;
     private PasswordChangeAlert passwordChangeAlert;
 
+    // Helpers
+    DatabaseHelper databaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +82,9 @@ public class ProfileActivity extends AppCompatActivity {
         nameEditButton = findViewById(R.id.nameEditButton);
         emailEditButton = findViewById(R.id.emailEditButton);
         passwordEditButton = findViewById(R.id.passwordEditButton);
+
+        // Helpers
+        databaseHelper = new DatabaseHelper();
 
         // Checking if user exists
         if (user != null) {
@@ -183,7 +191,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 auth.signOut();
 
-                Intent loginActivity = new Intent(ProfileActivity.this,LoginActivity.class);
+                Intent loginActivity = new Intent(ProfileActivity.this,RegisterActivity.class);
                 loginActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(loginActivity);
             }
@@ -217,64 +225,50 @@ public class ProfileActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Set Name
-                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(input)
-                        .build();
-
-                Objects.requireNonNull(auth.getCurrentUser()).updateProfile(profileUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
+                // Update name of the user
+                databaseHelper.updateUserName(input, new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot snapshot = task.getResult();
+                            if (!snapshot.isEmpty()) {
 
-                            db.collection(DOCUMENT_USERS).whereEqualTo(FIELD_ID,auth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()){
-                                        QuerySnapshot snapshot = task.getResult();
-                                        if (!snapshot.isEmpty()) {
+                                String id = snapshot.getDocuments().get(0).getId();
+                                HashMap<String, Object> updatedData = new HashMap<>();
 
-                                            String id = snapshot.getDocuments().get(0).getId();
-                                            HashMap<String,Object> updatedData = new HashMap<>();
+                                updatedData.put(FIELD_NAME, input);
 
-                                            updatedData.put(FIELD_NAME,input);
+                                if (id == null) somethingWentWrongMessage();
 
-                                            if (id == null) somethingWentWrongMessage();
+                                db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            editNameAlert.dismiss();
 
-                                            db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()){
-                                                        editNameAlert.dismiss();
+                                            // Changing hints in activity to be updated
+                                            changeNamesDisplayed(input);
+                                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
 
-                                                        // Changing hints in activity to be updated
-                                                        changeNamesDisplayed(input);
-                                                        Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully),Toast.LENGTH_SHORT).show();
-
-                                                    }
-                                                    else somethingWentWrongMessage();
-                                                }
-                                            });
-                                        }
-                                        else {
-                                            Log.i("Rewrite","NOT FOUND " + auth.getCurrentUser().getUid());
-                                            somethingWentWrongMessage();
-                                        }
+                                        } else somethingWentWrongMessage();
                                     }
-                                    else {
-                                        Log.i("Rewrite","UNSUCCESFFUL");
-                                        somethingWentWrongMessage();
-                                    }
-                                }
-                            });
-
+                                });
+                            } else {
+                                Log.i("Rewrite", "NOT FOUND " + auth.getCurrentUser().getUid());
+                                somethingWentWrongMessage();
+                            }
+                        } else {
+                            Log.i("Rewrite", "UNSUCCESFFUL");
+                            somethingWentWrongMessage();
                         }
-
-
-                        else somethingWentWrongMessage();
-
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        somethingWentWrongMessage();
                     }
                 });
+
             }
         });
 
@@ -306,7 +300,7 @@ public class ProfileActivity extends AppCompatActivity {
                     return;
                 }
 
-                Objects.requireNonNull(auth.getCurrentUser()).updateEmail(input).addOnCompleteListener(new OnCompleteListener<Void>() {
+                databaseHelper.updateUserEmail(input, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.getException() != null) {
@@ -345,7 +339,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onPasswordMach(String password) {
                 // Change password
-                Objects.requireNonNull(auth.getCurrentUser()).updatePassword(password).addOnCompleteListener(new OnCompleteListener<Void>() {
+                databaseHelper.updateUserPassword(password,new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.getException() != null) {

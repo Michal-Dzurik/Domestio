@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class YourTasksActivity extends AppCompatActivity {
     // Views
     RecyclerView recyclerView;
     ImageButton backButton;
+    TextView noTasksText;
 
     // Datasets
     List<Task> taskData;
@@ -35,12 +37,14 @@ public class YourTasksActivity extends AppCompatActivity {
         // Views
         recyclerView = findViewById(R.id.tasksRecycler);
         backButton = findViewById(R.id.backButton);
+        noTasksText = findViewById(R.id.noTasksText);
 
         // Getting some data from extra bundle
         Bundle extras = getIntent().getExtras();
         taskData = (List<Task>) extras.get(Constants.Firebase.Bundle.TASKS);
 
         // Setting up adapters
+        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
         adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData);
         recyclerView.setAdapter(adapter);
 

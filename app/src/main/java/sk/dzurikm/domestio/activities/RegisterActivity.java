@@ -24,12 +24,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class RegisterActivity extends AppCompatActivity {
     // Views
     private EditText name,email,password,passwordRepeat;
     private Button registerButton,loginButton;
+
+    // Helpers
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,10 @@ public class RegisterActivity extends AppCompatActivity {
         passwordRepeat = (EditText) findViewById(R.id.passwordRepeatInput);
         registerButton = (Button) findViewById(R.id.registerButton);
         loginButton = (Button) findViewById(R.id.loginButton);
+
+        // Helpers
+        databaseHelper = new DatabaseHelper();
+
 
         // Setting up listeners
         registerButton.setOnClickListener(new View.OnClickListener() {
@@ -73,46 +81,18 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void register() {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        databaseHelper.register(RegisterActivity.this,getTextOfView(name),getTextOfView(email),getTextOfView(password),new DatabaseHelper.OnRegisterListener() {
+            @Override
+            public void onRegisterSuccess() {
+                onRegistrationSucceed();
+            }
 
-        mAuth.createUserWithEmailAndPassword(getTextOfView(email), getTextOfView(password))
-                .addOnCompleteListener(RegisterActivity.this, (OnCompleteListener<AuthResult>) task -> {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d("Firebase Auth", "createUserWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
+            @Override
+            public void onRegisterFailed() {
+                Toast.makeText(RegisterActivity.this, RegisterActivity.this.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
 
-                        // Updating user info
-                        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(getTextOfView(name)).build();
-                        if (user != null) {
-                            user.updateProfile(profileUpdate);
-                        }
-
-                        Map<String,String> set = new HashMap<>();
-                        set.put("name",name.getText().toString());
-
-                        // User insertion for internal use
-                        db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                onRegistrationSucceed();
-                            }
-                        });
-
-
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("Firebase Auth", "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(RegisterActivity.this,
-                                RegisterActivity.this.getString(R.string.authentication_failed),
-                                Toast.LENGTH_SHORT).show();
-
-                    }
-
-
-                });
+            }
+        });
     }
 
     private void onRegistrationSucceed(){

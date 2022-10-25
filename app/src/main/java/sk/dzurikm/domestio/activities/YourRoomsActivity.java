@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class YourRoomsActivity extends AppCompatActivity {
     // Views
     RecyclerView recyclerView;
     ImageButton backButton;
+    TextView noRoomsText;
 
     // Datasets
     List<Room> roomData;
@@ -35,12 +37,14 @@ public class YourRoomsActivity extends AppCompatActivity {
         // Views
         recyclerView = findViewById(R.id.roomRecycler);
         backButton = findViewById(R.id.backButton);
+        noRoomsText = findViewById(R.id.noRoomsText);
 
         // Getting some data from extra bundle
         Bundle extras = getIntent().getExtras();
         roomData = (List<Room>) extras.get(Constants.Firebase.Bundle.ROOMS);
 
         // Setting up adapters
+        if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
         adapter = new HomeActivityRoomAdapter(YourRoomsActivity.this,roomData);
         recyclerView.setAdapter(adapter);
 

@@ -93,4 +93,6 @@
     <string name="room_name">Room Name</string>
     <string name="change_room_description">Change room description</string>
     <string name="change_room_heading">Change room heading</string>
+    <string name="you_are_not_in_any_room">You are not in any room</string>
+    <string name="you_have_no_tasks">You have no tasks</string>
 </resources>

@@ -3,17 +3,25 @@ package sk.dzurikm.domestio.helpers;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_ROOMS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_TASKS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_NAME;
+import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -26,7 +34,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.ProfileActivity;
+import sk.dzurikm.domestio.activities.RegisterActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -205,6 +217,10 @@ public class DatabaseHelper {
 
 
         if (TYPE == Constants.Firebase.DATA_FOR_USER){
+            if (tasksRelatedIds.size() == 0) {
+                onDataLoadedListener.onDataLoaded(roomData,taskData,usersData);
+                return;
+            }
             taskQuery = db.collection(DOCUMENT_TASKS)
                     .whereIn(FieldPath.documentId(), tasksRelatedIds);
             taskQuery.whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,user.getUid());
@@ -286,6 +302,79 @@ public class DatabaseHelper {
                 .addOnSuccessListener(onSuccessListener)
                 .addOnFailureListener(onFailureListener);
     }
+
+    public void login(Context context,String email, String password,OnCompleteListener onLoginCompleteListener){
+        auth = FirebaseAuth.getInstance();
+        auth.signInWithEmailAndPassword(email,password)
+                .addOnCompleteListener((Activity) context, onLoginCompleteListener);
+    }
+
+    public void register(Context context,String name,String email, String password,OnRegisterListener onRegisterListener){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener((Activity) context, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("Firebase Auth", "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+
+                            // Updating user info
+                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(name).build();
+                            if (user != null) {
+                                user.updateProfile(profileUpdate);
+                            }
+
+                            Map<String,String> set = new HashMap<>();
+                            set.put("name",name.toString());
+                            set.put("id",user.getUid());
+
+                            // User insertion for internal use
+                            db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    onRegisterListener.onRegisterSuccess();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    onRegisterListener.onRegisterFailed();
+                                }
+                            });
+                        }
+                        else onRegisterListener.onRegisterFailed();
+                    }
+                });
+    }
+
+    public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
+        // Set Name
+        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                .setDisplayName(newName)
+                .build();
+
+        Objects.requireNonNull(auth.getCurrentUser()).updateProfile(profileUpdate).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                db.collection(DOCUMENT_USERS).whereEqualTo(FIELD_ID,auth.getCurrentUser().getUid()).get().addOnCompleteListener(onCompleteListener);
+            }
+        }).addOnFailureListener(onFailureListener);
+
+    }
+
+    public void updateUserEmail(String newEmail,OnCompleteListener<Void> onCompleteListener){
+
+        Objects.requireNonNull(auth.getCurrentUser()).updateEmail(newEmail).addOnCompleteListener(onCompleteListener);
+
+    }
+
+    public void updateUserPassword(String password,OnCompleteListener<Void> onCompleteListener){
+        Objects.requireNonNull(auth.getCurrentUser()).updatePassword(password).addOnCompleteListener(onCompleteListener);
+    }
+
     /**
      *
      * @param id user UID
@@ -357,20 +446,27 @@ public class DatabaseHelper {
     }
 
 
-
     public void setOnDataLoadedListener(OnDataLoadedListener onDataLoadedListener) {
         this.onDataLoadedListener = onDataLoadedListener;
     }
 
+
+
     public void getData(int DATA_TYPE) {
         loadRooms(DATA_TYPE);
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public interface OnDataLoadedListener{
         public void onDataLoaded(ArrayList<Room> roomData,ArrayList<Task> taskData,ArrayList<User> userData);
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public interface OnRegisterListener{
+        public void onRegisterSuccess();
+        public void onRegisterFailed();
     }
+
 }

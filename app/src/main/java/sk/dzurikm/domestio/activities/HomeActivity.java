@@ -37,7 +37,7 @@ public class HomeActivity extends AppCompatActivity {
     View loading;
     TextView userName;
     ImageButton menuButton, profileButton;
-    TextView seeAllTasksButton,seeAllRoomsButton;
+    TextView seeAllTasksButton,seeAllRoomsButton,noTasksText,noRoomsText;
 
     // Datasets
     ArrayList<Room> roomData;
@@ -72,7 +72,8 @@ public class HomeActivity extends AppCompatActivity {
         seeAllRoomsButton = findViewById(R.id.seeAllRoomsButton);
         seeAllTasksButton = findViewById(R.id.seeAllTasksButton);
         loading = findViewById(R.id.loading);
-
+        noRoomsText = findViewById(R.id.noRoomsText);
+        noTasksText = findViewById(R.id.noTasksText);
 
         // Login info
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -148,6 +149,8 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void hideLoading(){
+        if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
+        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
         // Creating adapters needed
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this,roomData);
         taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this,taskData);
