@@ -2,9 +2,12 @@ package sk.dzurikm.domestio.helpers;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,6 +28,11 @@ public class Helpers {
         if (value == null || value.trim().equals("")) return defaultValue;
 
         return value;
+    }
+
+
+    public static String fromIntToColor(@ColorInt int color){
+        return String.format("#%06X", (0xFFFFFF & color));
     }
 
     public static String firstUppercase(String str){

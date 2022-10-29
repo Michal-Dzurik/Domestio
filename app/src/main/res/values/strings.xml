@@ -95,4 +95,14 @@
     <string name="change_room_heading">Change room heading</string>
     <string name="you_are_not_in_any_room">You are not in any room</string>
     <string name="you_have_no_tasks">You have no tasks</string>
+    <string name="add_member">Add member</string>
+    <string name="member_s_email">Member\'s email</string>
+    <string name="user_doesnt_exists">User doesn\'t exists</string>
+    <string name="user_is_now_member_of_this_room">User is now member of this room</string>
+    <string name="room_color">Room color</string>
+    <string name="show">Show</string>
+    <string name="members_list">Members list</string>
+    <string name="remove_room">Remove room</string>
+    <string name="do_you_really_wnat_t_leave">Do you really want to leave?</string>
+    <string name="leave_room">Leave room </string>
 </resources>

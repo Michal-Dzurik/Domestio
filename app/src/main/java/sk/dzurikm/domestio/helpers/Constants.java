@@ -22,6 +22,7 @@ public class Constants {
             public static final String FIELD_TASK_IDS = "task_ids";
             public static final String FIELD_TITLE = "title";
             public static final String FIELD_USER_IDS = "user_ids";
+            public static final String FIELD_ADMIN_ID = "room_admin_id";
 
         }
 
@@ -40,6 +41,7 @@ public class Constants {
         public static class User{
             public static final String FIELD_ID = "id";
             public static final String FIELD_NAME = "name";
+            public static final String FIELD_EMAIL = "email";
         }
 
         public static class Bundle{

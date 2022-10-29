@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class User implements Serializable {
-    private String id,name;
+    private String id,name,email;
 
     public User(String id, String name) {
         this.id = id;
@@ -32,10 +32,18 @@ public class User implements Serializable {
         this.name = name;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public void cast(String id, Map<String, Object> data){
         this.id = id;
         this.name = (String) data.get(FIELD_NAME);
+        this.email = (String) data.get(FIELD_EMAIL);
     }
 
     @Override

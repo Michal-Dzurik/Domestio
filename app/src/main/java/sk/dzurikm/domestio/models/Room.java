@@ -8,20 +8,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class Room implements Serializable {
-    String id,title,description,color;
+    String id,title,description,color,adminId;
     ArrayList<String> userIds, taskIds;
-
-    public Room(String id, String title, String description, ArrayList<String> userIds, ArrayList<String> takIds) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.userIds = userIds;
-        this.taskIds = takIds;
-    }
 
     public Room() {
     }
 
+    // This is constructor just for Room dropdown when creating task
     public Room(String id, String title) {
         this.id = id;
         this.title = title;
@@ -59,15 +52,6 @@ public class Room implements Serializable {
         return taskIds.size();
     }
 
-    public void cast(String id,Map<String, Object> data){
-        this.id = id;
-        this.title = (String) data.get(FIELD_TITLE);
-        this.description = (String) data.get(FIELD_DESCRIPTION);
-        this.userIds = data.get(FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_USER_IDS);
-        this.taskIds = data.get(FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_TASK_IDS);
-        this.color = (String) data.get(FIELD_COLOR);
-    }
-
     public String getColor() {
         return color;
     }
@@ -76,8 +60,30 @@ public class Room implements Serializable {
         this.color = color;
     }
 
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
     public ArrayList<String> getTaskIds() {
         return taskIds;
+    }
+
+    public void cast(String id,Map<String, Object> data){
+        this.id = id;
+        this.title = (String) data.get(FIELD_TITLE);
+        this.description = (String) data.get(FIELD_DESCRIPTION);
+        this.userIds = data.get(FIELD_USER_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_USER_IDS);
+        this.taskIds = data.get(FIELD_TASK_IDS) == null ? new ArrayList<String>() : (ArrayList) data.get(FIELD_TASK_IDS);
+        this.color = (String) data.get(FIELD_COLOR);
+        this.adminId = (String) data.get(FIELD_ADMIN_ID);
+    }
+
+    public boolean isAdmin(String uid){
+        return uid.equals(adminId);
     }
 
     @Override

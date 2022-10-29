@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_dialog_background"
+    android:paddingVertical="@dimen/home_body_margin"
+    android:paddingHorizontal="@dimen/home_body_margin"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingBottom="25dp">
+
+            <ImageButton
+                android:id="@+id/discardChangesButton"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/trash"
+                android:background="@drawable/leave_button_background" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_member"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="22sp"
+                android:textColor="?attr/PrimaryTextColor"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingTop="8dp"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/addMemberButton"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="11dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_plus"
+                android:background="@drawable/menu_button_background"/>
+
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/newMemberEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/member_s_email"
+            android:textSize="18sp"
+            android:inputType="text"
+            android:background="@null"/>
+
+
+</LinearLayout>

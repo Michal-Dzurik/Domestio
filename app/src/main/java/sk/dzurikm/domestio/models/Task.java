@@ -15,24 +15,14 @@ public class Task implements Serializable {
     String heading;
     String description;
     String time;
-    String ownerId;
+    String authorId;
     String roomId;
-    String owner;
+    String author;
     String room;
     String receiverId;
     Date date;
     String color;
     Boolean done;
-
-    public Task(String id,String task, String description, String time, String ownerId, String roomId,String receiverId) {
-        this.id = id;
-        this.heading = task;
-        this.description = description;
-        this.time = time;
-        this.ownerId = ownerId;
-        this.roomId = roomId;
-        this.receiverId = receiverId;
-    }
 
     public Task() {
     }
@@ -73,20 +63,20 @@ public class Task implements Serializable {
         return time;
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public String getAuthorId() {
+        return authorId;
     }
 
     public String getRoomId() {
         return roomId;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getRoom() {
@@ -112,13 +102,15 @@ public class Task implements Serializable {
         this.time = Helpers.Time.getTimeDate(ts.getSeconds());
 
         this.roomId = (String) data.get(FIELD_ROOM_ID);
-        this.ownerId = (String) data.get(FIELD_AUTHOR_ID);
+        this.authorId = (String) data.get(FIELD_AUTHOR_ID);
         this.receiverId = (String) data.get(FIELD_RECEIVER_ID);
 
         this.done = (Boolean) data.get(FIELD_DONE);
     }
 
-
+    public boolean isOwner(String uid){
+        return uid.equals(authorId);
+    }
 
     @Override
     public String toString() {
@@ -127,9 +119,9 @@ public class Task implements Serializable {
                 ", heading='" + heading + '\'' +
                 ", description='" + description + '\'' +
                 ", time='" + time + '\'' +
-                ", ownerId='" + ownerId + '\'' +
+                ", authorId='" + authorId + '\'' +
                 ", roomId='" + roomId + '\'' +
-                ", owner='" + owner + '\'' +
+                ", author='" + author + '\'' +
                 ", room='" + room + '\'' +
                 ", timestamp=" + new Timestamp(date) +
                 ", done=" + done +

@@ -49,4 +49,7 @@
 
     <dimen name="task_card_padding">20dp</dimen>
     <dimen name="task_card_radius">20dp</dimen>
+
+    <dimen name="task_height_collapsed">125dp</dimen>
+    <dimen name="task_height_not_collapsed">90dp</dimen>
 </resources>

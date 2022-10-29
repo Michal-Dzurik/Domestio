@@ -5,12 +5,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,6 +27,7 @@ import java.util.Map;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
+import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 
@@ -30,7 +35,10 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
 
     // Views
     private View rootView;
-    private TextView roomTitle,roomDescription, roomTitleHint,roomDescriptionHint, roomTitleButton,roomDescriptionButton;
+    private TextView roomTitle,roomDescription, roomTitleHint,roomDescriptionHint, roomTitleButton,roomDescriptionButton,roomColorHint;
+    private CardView roomColorPicker;
+    private Button membersListButton;
+    private LinearLayout removeRoomButton;
 
     // Needed variables
     private Context context;
@@ -39,6 +47,7 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
 
     // Alert
     private InputAlert changeRoomTitleAlert,changeRoomDescriptionAlert;
+    private ColorPickerDialog colorPickerDialog;
 
     // Helpers
     DatabaseHelper databaseHelper;
@@ -72,10 +81,16 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         roomDescription = rootView.findViewById(R.id.roomDescription);
         roomDescriptionButton = rootView.findViewById(R.id.roomDescriptionEditButton);
         roomDescriptionHint = rootView.findViewById(R.id.roomDescriptionHint);
+        roomColorPicker = rootView.findViewById(R.id.roomColorPicker);
+        roomColorHint = rootView.findViewById(R.id.roomColorHint);
+        membersListButton = rootView.findViewById(R.id.membersListButton);
+        removeRoomButton = rootView.findViewById(R.id.removeRoomButton);
 
         // Setting up the values
         roomTitleHint.setText(room.getTitle());
         roomDescriptionHint.setText(room.getDescription());
+        roomColorHint.setText(room.getColor());
+        roomColorPicker.setCardBackgroundColor(Color.parseColor(room.getColor()));
 
         // Helpers
         databaseHelper = new DatabaseHelper();
@@ -95,6 +110,27 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
             @Override
             public void onClick(View v) {
                 changeRoomTitleAlert.show();
+            }
+        });
+
+        roomColorPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorPickerDialog.show();
+            }
+        });
+
+        membersListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open user list
+            }
+        });
+
+        removeRoomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Remove room
             }
         });
 
@@ -148,7 +184,6 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 String roomDescription = changeRoomDescriptionAlert.getInput().getText().toString();
 
-
                 Map<String,Object> data = new HashMap<>();
                 data.put(Constants.Firebase.Room.FIELD_DESCRIPTION,roomDescription);
 
@@ -169,10 +204,50 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
                 });
             }
         });
+
         changeRoomDescriptionAlert.setNegativeButtonOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeRoomDescriptionAlert.dismiss();
+            }
+        });
+
+        colorPickerDialog = new ColorPickerDialog(context);
+        colorPickerDialog.setColorSelectedListener(new ColorPickerDialog.OnColorSelectedListener() {
+            @Override
+            public void colorSelected(int color) {
+                String stringColor = Helpers.fromIntToColor(color);
+                Map<String,Object> data = new HashMap<>();
+                data.put(Constants.Firebase.Room.FIELD_COLOR,stringColor);
+
+                Log.i("LMAO",stringColor);
+                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnSuccessListener() {
+                    @Override
+                    public void onSuccess(Object o) {
+
+                        room.setColor(stringColor);
+
+                        roomColorPicker.setCardBackgroundColor(color);
+                        roomColorHint.setText(stringColor);
+                        roomDataChangedListener.onRoomDataChangedListener(room);
+                        colorPickerDialog.dismiss();
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                roomColorHint.setText(Helpers.Colors.fromIntToColor(color));
+                colorPickerDialog.dismiss();
+            }
+        });
+
+        colorPickerDialog.setNegativeButtonOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorPickerDialog.dismiss();
             }
         });
     }

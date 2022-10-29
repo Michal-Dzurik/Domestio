@@ -4,8 +4,6 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_ROOMS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_TASKS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
-import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_NAME;
-import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.app.Activity;
@@ -23,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -37,8 +36,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.activities.ProfileActivity;
-import sk.dzurikm.domestio.activities.RegisterActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -243,7 +240,7 @@ public class DatabaseHelper {
                                 // Creating task and casting from db result to model
                                 Task task = new Task();
                                 task.cast(document.getId(),data);
-                                task.setOwner(getUsersName(task.getOwnerId()));
+                                task.setAuthor(getUsersName(task.getAuthorId()));
 
                                 if (TYPE == Constants.Firebase.DATA_FOR_USER){
                                     HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{Constants.Firebase.Room.FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
@@ -331,6 +328,7 @@ public class DatabaseHelper {
                             Map<String,String> set = new HashMap<>();
                             set.put("name",name.toString());
                             set.put("id",user.getUid());
+                            set.put("email",email);
 
                             // User insertion for internal use
                             db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -373,6 +371,49 @@ public class DatabaseHelper {
 
     public void updateUserPassword(String password,OnCompleteListener<Void> onCompleteListener){
         Objects.requireNonNull(auth.getCurrentUser()).updatePassword(password).addOnCompleteListener(onCompleteListener);
+    }
+
+    public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
+
+        db.collection(DOCUMENT_ROOMS).document(roomId)
+                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayUnion(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        // TODO send and email to user
+                        onCompleteListener.onComplete(task);
+                    }
+                });
+    }
+
+    public void removeMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
+
+        db.collection(DOCUMENT_ROOMS).document(roomId)
+                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        // TODO send and email to user
+                        onCompleteListener.onComplete(task);
+                    }
+                });
+    }
+
+    public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
+        if(room.getAdminId().equals(userId)){
+            // admin can only remove whole room no , leave
+        }
+
+        db.collection(DOCUMENT_ROOMS).document(room.getId())
+                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        // TODO send and email to user
+                        onCompleteListener.onComplete(task);
+                    }
+                });
+    }
+
+    public void leaveRoom(Room room,String userId, OnCompleteListener onCompleteListener){
+        removeUserFromRoom(room,userId,onCompleteListener);
     }
 
     /**

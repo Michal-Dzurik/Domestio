@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -57,6 +58,8 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        Log.i("LMAO",Helpers.fromIntToColor(Color.RED));
 
         /* Setting user name for greeting */
         userName = findViewById(R.id.userName);
@@ -203,6 +206,7 @@ public class HomeActivity extends AppCompatActivity {
         for (int i = 0; i < taskData.size(); i++) {
             if (taskData.get(i).getRoomId().equals(room.getId())) {
                 taskData.get(i).setRoom(room.getTitle());
+                taskData.get(i).setColor(room.getColor());
                 break;
             }
         }

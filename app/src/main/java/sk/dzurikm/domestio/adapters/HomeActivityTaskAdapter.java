@@ -4,13 +4,21 @@ package sk.dzurikm.domestio.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -23,17 +31,29 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
     private List<Task> data;
     private LayoutInflater layoutInflater;
+    private boolean empty;
+    private Context context;
 
     // data is passed into the constructor
     public HomeActivityTaskAdapter(Context context, List<Task> data) {
+        empty = false;
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
+        this.context = context;
     }
 
     // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = layoutInflater.inflate(R.layout.task_slider_layout, parent, false);
+        View view;
+        if (data.get(0).getId() == null){
+            empty = true;
+            view = layoutInflater.inflate(R.layout.task_slider_empty_layout, parent, false);
+        }
+        else {
+            view = layoutInflater.inflate(R.layout.task_slider_layout, parent, false);
+        }
+
         return new ViewHolder(view);
     }
 
@@ -42,46 +62,70 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     public void onBindViewHolder(ViewHolder holder, int position) {
         Task currentTask = data.get(position);
 
-        String heading,description,owner,time,room,color;
+        if (!empty){
+            String heading,description,owner,time,room,color;
 
-        heading = Helpers.stringValueOrDefault(currentTask.getHeading(),"Heading not provided");
-        description = Helpers.stringValueOrDefault(currentTask.getDescription(),"");
-        owner = Helpers.stringValueOrDefault(currentTask.getOwner(),"No owner");
-        time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
-        room = Helpers.stringValueOrDefault(currentTask.getRoom(),"No room");
-        color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
+            heading = Helpers.stringValueOrDefault(currentTask.getHeading(),"Heading not provided");
+            description = Helpers.stringValueOrDefault(currentTask.getDescription(),"");
+            owner = Helpers.stringValueOrDefault(currentTask.getAuthor(),"No owner");
+            time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
+            room = Helpers.stringValueOrDefault(currentTask.getRoom(),"No room");
+            color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
-        holder.getHeading()
-                .setText(heading);
+            holder.getHeading()
+                    .setText(heading);
 
-        if (description.equals("")){
-            holder.getDescription().setVisibility(View.GONE);
-        }
-        else {
-            holder.getDescription()
-                    .setText(description);
-        }
+            if (description.equals("")){
+                holder.getDescription().setVisibility(View.GONE);
+            }
+            else {
+                holder.getDescription()
+                        .setText(description);
+            }
 
-        holder.getCardBackground()
-                        .setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(color,"AD")));
+            holder.getCardBackground()
+                    .setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(color,"AD")));
 
-        holder.getOwner()
-                .setText(owner);
-        holder.getTime()
-                .setText(time);
-        holder.getRoom()
-                .setText(room);
+            holder.getOwner()
+                    .setText(owner);
+            holder.getTime()
+                    .setText(time);
+            holder.getRoom()
+                    .setText(room);
 
-        TextView doneButton = holder.getDoneButton();
+            TextView doneButton = holder.getDoneButton();
 
-        if (currentTask.getDone()){
-            doneButton.setPaintFlags(doneButton.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            final boolean[] collapsed = {false};
+
+            holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    MotionLayout motionLayout = holder.getMotionLayout();
+
+                    if (!collapsed[0]){
+                        motionLayout.transitionToEnd();
+
+                        collapsed[0] = true;
+                    }
+                    else {
+                        motionLayout.transitionToStart();
+
+                        collapsed[0] = false;
+                    }
+
+
+                }
+            });
+
+            if (currentTask.getDone()){
+                doneButton.setPaintFlags(doneButton.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         }
 
 
 
     }
-
 
 
     // total number of rows
@@ -94,7 +138,9 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder{
        private LinearLayout cardBackground;
+       private CardView additionalInfo;
        private TextView heading,description,time,owner,room,doneButton;
+       private MotionLayout motionLayout;
 
 
         ViewHolder(View view) {
@@ -107,6 +153,8 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             owner = view.findViewById(R.id.owner);
             room = view.findViewById(R.id.roomName);
             doneButton = view.findViewById(R.id.doneButton);
+            additionalInfo = view.findViewById(R.id.additionalInfo);
+            motionLayout = view.findViewById(R.id.motionLayout);
 
         }
 
@@ -136,6 +184,14 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
         public TextView getDoneButton() {
             return doneButton;
+        }
+
+        public CardView getAdditionalInfo() {
+            return additionalInfo;
+        }
+
+        public MotionLayout getMotionLayout() {
+            return motionLayout;
         }
     }
 

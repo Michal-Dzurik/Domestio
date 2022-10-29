@@ -9,7 +9,7 @@
     android:paddingVertical="35dp"
     android:orientation="vertical">
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -51,7 +51,7 @@
 
             </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
                 android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -93,5 +93,137 @@
                     android:textAllCaps="false"/>
 
             </LinearLayout>
+
+        <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/home_body_margin"
+        android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/room_color"
+                android:textColor="?PrimaryTextColor"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/roomColorHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Color"
+                android:textSize="15sp" />
+
+
+        </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/roomColorPicker"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?MainColor"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="6dp"
+                app:strokeColor="@color/white"
+                app:strokeWidth="1dp"/>
+
+    </LinearLayout>
+
+        <View
+            android:background="?SecondaryTextColor"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_height="2dp"/>
+
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/home_body_margin"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/members_list"
+                    android:textColor="?PrimaryTextColor"
+                    android:textSize="12sp"
+                    android:paddingVertical="10dp"/>
+
+
+            </LinearLayout>
+
+            <android.widget.Button
+                android:id="@+id/membersListButton"
+                android:gravity="center"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:text="@string/show"
+                android:background="@drawable/edit_button_background"
+                android:textColor="?MainColor"
+                android:textAllCaps="false"/>
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/removeRoomButton"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:backgroundTint="@color/red"
+            android:paddingVertical="7dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/support_button_background"
+            android:layout_marginHorizontal="@dimen/home_body_margin"
+            android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:src="@drawable/trash"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:background="@null"
+                app:tint="@color/white"
+                android:layout_marginRight="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remove_room"
+                android:lineHeight="20dp"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:paddingVertical="10dp"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 
 </LinearLayout>
