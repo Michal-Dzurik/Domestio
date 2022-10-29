@@ -11,6 +11,8 @@ public class Room implements Serializable {
     String id,title,description,color,adminId;
     ArrayList<String> userIds, taskIds;
 
+    private boolean justLeft = false;
+
     public Room() {
     }
 
@@ -62,6 +64,14 @@ public class Room implements Serializable {
 
     public void setAdminId(String adminId) {
         this.adminId = adminId;
+    }
+
+    public boolean hasJustLeft() {
+        return justLeft;
+    }
+
+    public void setJustLeft(boolean justLeft) {
+        this.justLeft = justLeft;
     }
 
     public String getAdminId() {

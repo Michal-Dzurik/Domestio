@@ -104,5 +104,9 @@
     <string name="members_list">Members list</string>
     <string name="remove_room">Remove room</string>
     <string name="do_you_really_wnat_t_leave">Do you really want to leave?</string>
-    <string name="leave_room">Leave room </string>
+    <string name="leave_room">Leave room</string>
+    <string name="members">Members</string>
+    <string name="remove">Remove</string>
+    <string name="do_you_want_to_remove_member">Do you really want to remove this member from this room?</string>
+    <string name="admin">Admin</string>
 </resources>

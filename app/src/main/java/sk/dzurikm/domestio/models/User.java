@@ -40,8 +40,8 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public void cast(String id, Map<String, Object> data){
-        this.id = id;
+    public void cast(Map<String, Object> data){
+        this.id = (String) data.get(FIELD_ID);
         this.name = (String) data.get(FIELD_NAME);
         this.email = (String) data.get(FIELD_EMAIL);
     }

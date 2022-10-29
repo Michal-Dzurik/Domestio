@@ -166,7 +166,7 @@ public class DatabaseHelper {
 
                                 // Creating task and casting from DB result to model
                                 User user = new User();
-                                user.cast(document.getId(),data);
+                                user.cast(data);
 
                                 // Adding user to it's dataset
                                 usersData.add(user);
@@ -376,7 +376,7 @@ public class DatabaseHelper {
     public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
 
         db.collection(DOCUMENT_ROOMS).document(roomId)
-                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayUnion(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user
@@ -385,10 +385,9 @@ public class DatabaseHelper {
                 });
     }
 
-    public void removeMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
-
+    public void removeUserFromRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
         db.collection(DOCUMENT_ROOMS).document(roomId)
-                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user
@@ -398,12 +397,8 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
-        if(room.getAdminId().equals(userId)){
-            // admin can only remove whole room no , leave
-        }
-
         db.collection(DOCUMENT_ROOMS).document(room.getId())
-                .update(Constants.Firebase.Room.FIELD_TASK_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user

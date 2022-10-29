@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 
 public class RoomOptionDialog extends BottomSheetDialogFragment {
@@ -55,10 +57,14 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
     // Listeners
     RoomDataChangedListener roomDataChangedListener;
 
+    // Needed variables
+    ArrayList<User> users;
 
-    public RoomOptionDialog(Context context, FragmentManager fragmentManager) {
+
+    public RoomOptionDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users) {
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.users = users;
     }
 
     @Override
@@ -124,6 +130,9 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
             @Override
             public void onClick(View v) {
                 // Open user list
+                getDialog().dismiss();
+                ListMembersDialog listMembersDialog = new ListMembersDialog(context,fragmentManager,users,room);
+                listMembersDialog.show(fragmentManager,"List of members");
             }
         });
 

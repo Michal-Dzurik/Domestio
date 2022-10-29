@@ -42,7 +42,6 @@ public class RoomActivity extends AppCompatActivity {
     LinearLayout cardBackground;
     Button addMemberButton;
 
-
     // Helpers
     DatabaseHelper databaseHelper;
     FirebaseAuth auth;
@@ -54,6 +53,9 @@ public class RoomActivity extends AppCompatActivity {
 
     // Adapters
     HomeActivityTaskAdapter taskAdapter;
+
+    // Variables needed
+    private boolean left = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +126,7 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
-                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager());
+                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),usersData);
                     dialog.setRoom(room);
                     dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
                         @Override
@@ -135,12 +137,13 @@ public class RoomActivity extends AppCompatActivity {
                             taskAdapter.notifyDataSetChanged();
                         }
                     });
+
                     dialog.show(RoomActivity.this.getSupportFragmentManager(),"Room Option Dialog");
                 }
                 else {
                     // You wanna leave ? Than leave
                     Alert alert = new Alert(RoomActivity.this);
-                    alert.setTitle(getString(R.string.leave_room) + room.getTitle());
+                    alert.setTitle(getString(R.string.leave_room) + " " + room.getTitle());
                     alert.setDescription(getString(R.string.do_you_really_wnat_t_leave));
                     alert.setPositiveButtonText(getString(R.string.yes));
                     alert.setNegativeButtonText(getString(R.string.no));
@@ -154,7 +157,16 @@ public class RoomActivity extends AppCompatActivity {
                     alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Toast.makeText(RoomActivity.this,"OKE",Toast.LENGTH_SHORT).show();
+                            databaseHelper.leaveRoom(room, auth.getUid(), new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                                    if (task.isSuccessful()){
+                                        left = true;
+                                        finish();
+                                    }
+                                    else {}
+                                }
+                            });
                             alert.dismiss();
                         }
                     });
@@ -234,6 +246,8 @@ public class RoomActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
+        room.setJustLeft(left);
+
         // Setting up room so activity can update its information's
         Intent intent = getIntent();
         intent.putExtra(Constants.Firebase.DOCUMENT_ROOMS,room);

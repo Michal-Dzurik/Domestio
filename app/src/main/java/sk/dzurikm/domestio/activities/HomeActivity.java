@@ -38,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
     View loading;
     TextView userName;
     ImageButton menuButton, profileButton;
-    TextView seeAllTasksButton,seeAllRoomsButton,noTasksText,noRoomsText;
+    TextView noTasksText,noRoomsText;
 
     // Datasets
     ArrayList<Room> roomData;
@@ -72,8 +72,6 @@ public class HomeActivity extends AppCompatActivity {
         // Views
         profileButton = findViewById(R.id.profileButton);
         menuButton = findViewById(R.id.menuButton);
-        seeAllRoomsButton = findViewById(R.id.seeAllRoomsButton);
-        seeAllTasksButton = findViewById(R.id.seeAllTasksButton);
         loading = findViewById(R.id.loading);
         noRoomsText = findViewById(R.id.noRoomsText);
         noTasksText = findViewById(R.id.noTasksText);
@@ -111,26 +109,6 @@ public class HomeActivity extends AppCompatActivity {
                 Intent profileActivityIntent = new Intent(HomeActivity.this,ProfileActivity.class );
 
                 startActivity(profileActivityIntent);
-            }
-        });
-
-        seeAllRoomsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent yourRoomsActivityIntent = new Intent(HomeActivity.this,YourRoomsActivity.class );
-                yourRoomsActivityIntent.putExtra(Constants.Firebase.Bundle.ROOMS, roomData);
-
-                startActivity(yourRoomsActivityIntent);
-            }
-        });
-
-        seeAllTasksButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent yourTasksActivityIntent = new Intent(HomeActivity.this,YourTasksActivity.class );
-                yourTasksActivityIntent.putExtra(Constants.Firebase.Bundle.TASKS, taskData);
-
-                startActivity(yourTasksActivityIntent);
             }
         });
 
@@ -190,7 +168,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
             case Constants.Result.ROOM_CHANGED:
-                onRoomChanged((Room) data.getExtras().get(Constants.Firebase.DOCUMENT_ROOMS));
+                Room room = (Room) data.getExtras().get(Constants.Firebase.DOCUMENT_ROOMS);
+                if (room.hasJustLeft()){
+                    // remove room from list and update everything
+                    cleanAfterLeftRoom(room);
+                }else onRoomChanged(room);
+
                 break;
         }
     }
@@ -214,6 +197,28 @@ public class HomeActivity extends AppCompatActivity {
         roomAdapter.notifyDataSetChanged();
         taskAdapter.notifyDataSetChanged();
 
+    }
+
+    private void cleanAfterLeftRoom(Room room){
+        for (int i = 0; i < roomData.size(); i++) {
+            if (roomData.get(i).getId().equals(room.getId())) {
+                roomData.remove(i);
+
+                roomAdapter.notifyDataSetChanged();
+                removeAllTasksWithRoomId(room.getId());
+                break;
+            }
+        }
+    }
+
+    private void removeAllTasksWithRoomId(String id){
+        for (int i = 0; i < taskData.size(); i++) {
+            if (taskData.get(i).getRoomId().equals(id)){
+                taskData.remove(i);
+            }
+        }
+
+        taskAdapter.notifyDataSetChanged();
     }
 
 
