@@ -45,7 +45,12 @@ public class YourRoomsActivity extends AppCompatActivity {
 
         // Setting up adapters
         if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
-        adapter = new HomeActivityRoomAdapter(YourRoomsActivity.this,roomData);
+        adapter = new HomeActivityRoomAdapter(YourRoomsActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
+            @Override
+            public void onRoomLeave(Room room) {
+                // TODO need to program if need to use
+            }
+        });
         recyclerView.setAdapter(adapter);
 
         // Setting up listeners

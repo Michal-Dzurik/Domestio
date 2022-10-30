@@ -8,19 +8,26 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.RoomActivity;
 import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.views.alerts.Alert;
 
 public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRoomAdapter.ViewHolder> {
 
@@ -29,11 +36,20 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     private ItemClickListener mClickListener;
     private Context context;
 
+    // Firebase
+    FirebaseAuth auth;
+
+    // Listeners
+    OnRoomLeaveListener onRoomLeaveListener;
+
     // data is passed into the constructor
-    public HomeActivityRoomAdapter(Context context, List<Room> data) {
+    public HomeActivityRoomAdapter(Context context, List<Room> data,OnRoomLeaveListener onRoomLeaveListener) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
+        this.onRoomLeaveListener = onRoomLeaveListener;
+
+        auth = FirebaseAuth.getInstance();
     }
 
     // inflates the row layout from xml when needed
@@ -72,6 +88,48 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
         holder.getTasksCount()
                 .setText(String.valueOf(tasksCount));
 
+        if (!currentRoom.isAdmin(auth.getUid())){
+            holder.getLeaveButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // You wanna leave ? Than leave
+                    Alert alert = new Alert(context);
+                    alert.setTitle(context.getString(R.string.leave_room) + " " + currentRoom.getTitle());
+                    alert.setDescription(context.getString(R.string.do_you_really_wnat_t_leave));
+                    alert.setPositiveButtonText(context.getString(R.string.yes));
+                    alert.setNegativeButtonText(context.getString(R.string.no));
+                    alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alert.dismiss();
+                        }
+                    });
+                    alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alert.dismiss();
+                            DatabaseHelper helper = new DatabaseHelper();
+                            helper.leaveRoom(currentRoom, auth.getUid(), new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+                                    if (task.isSuccessful()){
+                                        onRoomLeaveListener.onRoomLeave(currentRoom);
+
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    alert.show();
+                }
+            });
+        }
+        else {
+            holder.getLeaveIcon().setVisibility(View.GONE);
+            holder.getAdminBadge().setVisibility(View.VISIBLE);
+        }
+
         holder.getCardBackground().setClickable(true);
         holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +156,8 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder{
        private LinearLayout cardBackground,leaveButton;
-       private TextView title,description,peopleCount,tasksCount;
+       private TextView title,description,peopleCount,tasksCount,adminBadge;
+       private ImageView leaveIcon;
 
 
         ViewHolder(View view) {
@@ -110,6 +169,9 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
             description = view.findViewById(R.id.description);
             peopleCount = view.findViewById(R.id.peopleNumber);
             tasksCount = view.findViewById(R.id.tasksNumber);
+
+            leaveIcon = view.findViewById(R.id.leaveButtonIcon);
+            adminBadge = view.findViewById(R.id.adminBadge);
 
         }
 
@@ -136,6 +198,14 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
         public TextView getTasksCount() {
             return tasksCount;
         }
+
+        public ImageView getLeaveIcon() {
+            return leaveIcon;
+        }
+
+        public TextView getAdminBadge() {
+            return adminBadge;
+        }
     }
 
     // convenience method for getting data at click position
@@ -152,4 +222,9 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }
+
+    public interface OnRoomLeaveListener{
+        public void onRoomLeave(Room room);
+    }
+
 }

@@ -150,7 +150,8 @@
             <TextView
                 android:id="@+id/adminBadge"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
                 android:layout_gravity="center"
                 android:textColor="?ComponentIconTint"
                 android:visibility="gone"

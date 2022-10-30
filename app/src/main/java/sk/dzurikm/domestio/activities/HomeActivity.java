@@ -131,7 +131,12 @@ public class HomeActivity extends AppCompatActivity {
         if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
         if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
         // Creating adapters needed
-        roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this,roomData);
+        roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
+            @Override
+            public void onRoomLeave(Room room) {
+                cleanAfterLeftRoom(room);
+            }
+        });
         taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this,taskData);
 
         // Settings up the adapters and helpers
