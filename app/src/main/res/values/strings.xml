@@ -109,4 +109,9 @@
     <string name="remove">Remove</string>
     <string name="do_you_want_to_remove_member">Do you really want to remove this member from this room?</string>
     <string name="admin">Admin</string>
+    <string name="missing_informations">Missing information\'s</string>
+    <string name="password_is_too_short">Password is too short</string>
+    <string name="characters">characters</string>
+    <string name="your_tasks">Your tasks</string>
+    <string name="name_is_not_valid">Name is not valid</string>
 </resources>

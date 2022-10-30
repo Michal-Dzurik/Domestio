@@ -1,5 +1,7 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
 import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
@@ -30,6 +35,9 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private DatabaseHelper databaseHelper;
+
+    // Validation
+    private Helpers.Validation validation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,9 @@ public class LoginActivity extends AppCompatActivity {
         // db
         mAuth = FirebaseAuth.getInstance();
 
+        // validation
+        validation = Helpers.Validation.getInstance(LoginActivity.this);
+
         // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,11 +74,6 @@ public class LoginActivity extends AppCompatActivity {
                 // Validate form data
                 if (loginDataValid()){
                     login();
-                }
-                else {
-                    // Show Toast with error
-                    Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.informations_are_not_valid),Toast.LENGTH_SHORT).show();
-
                 }
             }
         });
@@ -111,8 +117,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean loginDataValid(){
-        return Helpers.Validation.email(getTextOfView(email)) &&
-                Helpers.Validation.password(getTextOfView(password));
+        HashMap<String,String> map = new HashMap<>();
+        map.put(EMAIL,getTextOfView(email));
+        map.put(PASSWORD,getTextOfView(password));
+
+        ArrayList<String> errors = validation.validate(map);
+
+        if (errors != null){
+            // print errors
+            Toast.makeText(LoginActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+        }
+
+        return errors == null;
     }
 
 

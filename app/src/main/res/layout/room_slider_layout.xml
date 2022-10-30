@@ -140,10 +140,24 @@
             android:paddingRight="15dp">
 
             <ImageView
+                android:id="@+id/leaveButtonIcon"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_leave" />
+                android:src="@drawable/ic_leave"
+                app:tint="?ComponentIconTint" />
+
+            <TextView
+                android:id="@+id/adminBadge"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:textColor="?ComponentIconTint"
+                android:visibility="gone"
+                android:text="A"/>
+
         </LinearLayout>
+
+
     </androidx.cardview.widget.CardView>
 </LinearLayout>

@@ -219,8 +219,8 @@ public class DatabaseHelper {
                 return;
             }
             taskQuery = db.collection(DOCUMENT_TASKS)
-                    .whereIn(FieldPath.documentId(), tasksRelatedIds);
-            taskQuery.whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,user.getUid());
+                    .whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,user.getUid());
+            System.out.println(user.getUid());
         }
         else{
             taskQuery = db.collection(DOCUMENT_TASKS)
@@ -417,6 +417,7 @@ public class DatabaseHelper {
      * @return id name of user with  id
      */
     private String getUsersName(String id){
+
         for (int i = 0; i < usersData.size(); i++) {
             User user = usersData.get(i);
             if (user.getId().equals(id)) return user.getName();

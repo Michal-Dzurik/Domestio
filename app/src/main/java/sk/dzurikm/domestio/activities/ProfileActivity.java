@@ -2,6 +2,8 @@ package sk.dzurikm.domestio.activities;
 
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.*;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
 import static sk.dzurikm.domestio.helpers.Helpers.Views.*;
 
 import androidx.annotation.NonNull;
@@ -25,7 +27,9 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
@@ -61,6 +65,9 @@ public class ProfileActivity extends AppCompatActivity {
     // Helpers
     DatabaseHelper databaseHelper;
 
+    // Validation
+    Helpers.Validation validation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +92,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Helpers
         databaseHelper = new DatabaseHelper();
+
+        // Validation
+        validation = Helpers.Validation.getInstance(ProfileActivity.this);
 
         // Checking if user exists
         if (user != null) {
@@ -220,54 +230,60 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String input = editNameAlert.getInput().getText().toString();
 
-                if(input.trim().equals("")) {
-                    Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_is_empty),Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                // Validation
+                HashMap<String,String> map = new HashMap<>();
+                map.put(NAME,input);
 
-                // Update name of the user
-                databaseHelper.updateUserName(input, new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot snapshot = task.getResult();
-                            if (!snapshot.isEmpty()) {
+                ArrayList<String> errors = validation.validate(map);
 
-                                String id = snapshot.getDocuments().get(0).getId();
-                                HashMap<String, Object> updatedData = new HashMap<>();
+                if (errors == null){
+                    // Update name of the user
+                    databaseHelper.updateUserName(input, new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                QuerySnapshot snapshot = task.getResult();
+                                if (!snapshot.isEmpty()) {
 
-                                updatedData.put(FIELD_NAME, input);
+                                    String id = snapshot.getDocuments().get(0).getId();
+                                    HashMap<String, Object> updatedData = new HashMap<>();
 
-                                if (id == null) somethingWentWrongMessage();
+                                    updatedData.put(FIELD_NAME, input);
 
-                                db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            editNameAlert.dismiss();
+                                    if (id == null) somethingWentWrongMessage();
 
-                                            // Changing hints in activity to be updated
-                                            changeNamesDisplayed(input);
-                                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
+                                    db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                editNameAlert.dismiss();
 
-                                        } else somethingWentWrongMessage();
-                                    }
-                                });
+                                                // Changing hints in activity to be updated
+                                                changeNamesDisplayed(input);
+                                                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
+
+                                            } else somethingWentWrongMessage();
+                                        }
+                                    });
+                                } else {
+                                    Log.i("Rewrite", "NOT FOUND " + auth.getCurrentUser().getUid());
+                                    somethingWentWrongMessage();
+                                }
                             } else {
-                                Log.i("Rewrite", "NOT FOUND " + auth.getCurrentUser().getUid());
+                                Log.i("Rewrite", "UNSUCCESFFUL");
                                 somethingWentWrongMessage();
                             }
-                        } else {
-                            Log.i("Rewrite", "UNSUCCESFFUL");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
                             somethingWentWrongMessage();
                         }
-                    }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        somethingWentWrongMessage();
-                    }
-                });
+                    });
+                }
+                else Toast.makeText(ProfileActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+
+
 
             }
         });
@@ -288,48 +304,48 @@ public class ProfileActivity extends AppCompatActivity {
         editEmailAlert.setPositiveButtonOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String input = editEmailAlert.getInput().getText().toString();
+                String input = editEmailAlert.getInput().getText().toString().trim();
 
                 // Validation
-                if(input.trim().equals("")) {
-                    Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_is_empty),Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else if (!Helpers.Validation.email(input)) {
-                    Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_is_not_valid),Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                HashMap<String,String> map = new HashMap<>();
+                map.put(EMAIL,input);
 
-                databaseHelper.updateUserEmail(input, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.getException() != null) {
-                            // Reauthenticate
-                            editEmailAlert.dismiss();
-                            reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
-                                        reauthenticateAlert.dismiss();
-                                        waitAndShow(editEmailAlert,200);
-                                        authenticated = true;
+                ArrayList<String> errors = validation.validate(map);
+
+                if (errors == null){
+                    databaseHelper.updateUserEmail(input, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.getException() != null) {
+                                // Reauthenticate
+                                editEmailAlert.dismiss();
+                                reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
+                                            reauthenticateAlert.dismiss();
+                                            waitAndShow(editEmailAlert,200);
+                                            authenticated = true;
+                                        }
+                                        else somethingWentWrongMessage();
                                     }
-                                    else somethingWentWrongMessage();
-                                }
-                            });
-                            reauthenticateAlert.show();
-                        }
-                        if (task.isSuccessful()){
-                            editEmailAlert.dismiss();
+                                });
+                                reauthenticateAlert.show();
+                            }
+                            if (task.isSuccessful()){
+                                editEmailAlert.dismiss();
 
-                            changeEmailsDisplayed(input);
+                                changeEmailsDisplayed(input);
 
-                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
+                            }
+                            else somethingWentWrongMessage();
                         }
-                        else somethingWentWrongMessage();
-                    }
-                });
+                    });
+                }
+                else Toast.makeText(ProfileActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+
             }
         });
 

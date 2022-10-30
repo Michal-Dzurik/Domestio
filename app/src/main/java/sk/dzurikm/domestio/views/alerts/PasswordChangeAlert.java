@@ -1,5 +1,8 @@
 package sk.dzurikm.domestio.views.alerts;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,7 +14,12 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.Helpers;
 
 
 public class PasswordChangeAlert extends Dialog {
@@ -23,6 +31,9 @@ public class PasswordChangeAlert extends Dialog {
     // Listeners
     private View.OnClickListener negativeListener;
     private OnPasswordMatchListener passwordMatchListener;
+
+    // Validation
+    Helpers.Validation validation;
 
     public PasswordChangeAlert(Context context) {
         super(context);
@@ -43,19 +54,39 @@ public class PasswordChangeAlert extends Dialog {
         passwordInput = this.findViewById(R.id.passwordInput);
         passwordRepeatInput = this.findViewById(R.id.passwordRepeatInput);
 
+        // Validation
+        validation = Helpers.Validation.getInstance(getContext());
+
         // Setting values
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String password = passwordInput.getText().toString();
-                String passwordRepeat = passwordRepeatInput.getText().toString();
+                String password = passwordInput.getText().toString().trim();
+                String passwordRepeat = passwordRepeatInput.getText().toString().trim();
 
-                if (password.trim().equals("") || passwordRepeat.trim().equals("")) passwordMatchListener.onPasswordDontMatch();
-                else if (password.equals(passwordRepeat) && password.trim().length() >= 6 && passwordRepeat.trim().length() >= 6) passwordMatchListener.onPasswordMach(password);
+                if (password.equals("") || passwordRepeat.equals("")) passwordMatchListener.onPasswordDontMatch();
+
+                HashMap<String,String> map = new HashMap<>();
+                map.put(PASSWORD_REPEAT,password + PASSWORD_REPEAT_DELIMITER + passwordRepeat);
+                ArrayList<String> errors = validation.validate(map);
+
+                if (errors == null){
+                    passwordMatchListener.onPasswordMach(password);
+                }
                 else passwordMatchListener.onPasswordNotValid();
             }
         });
-        negativeButton.setOnClickListener(negativeListener);
+
+        if (negativeListener == null) {
+            negativeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+        }
+        else negativeButton.setOnClickListener(negativeListener);
+
 
         setOnDismissListener(new OnDismissListener() {
             @Override

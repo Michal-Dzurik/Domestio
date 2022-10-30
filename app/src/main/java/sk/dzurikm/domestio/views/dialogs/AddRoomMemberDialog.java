@@ -1,5 +1,8 @@
 package sk.dzurikm.domestio.views.dialogs;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Helpers.Views.waitAndShow;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -12,13 +15,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.ProfileActivity;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class AddRoomMemberDialog extends BottomSheetDialogFragment {
@@ -33,6 +43,9 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
 
     // Listeners
     private OnEmailValidListener onEmailValidListener;
+
+    // Validation
+    Helpers.Validation validation;
 
     public AddRoomMemberDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -58,16 +71,26 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
+        // Validation
+        validation = Helpers.Validation.getInstance(context);
+
         // Setting up listeners
         addNewMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = newRoomMemberEmail.getText().toString();
+                String email = newRoomMemberEmail.getText().toString().trim();
 
-                if (Helpers.Validation.email(email)){
+                // Validation
+                HashMap<String,String> map = new HashMap<>();
+                map.put(EMAIL,email);
+
+                ArrayList<String> errors = validation.validate(map);
+
+                if (errors == null){
                     onEmailValidListener.onEmailValid(email);
                 }
-                else Toast.makeText(context,context.getString(R.string.email_is_not_valid),Toast.LENGTH_SHORT).show();
+                else Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+
             }
 
         });

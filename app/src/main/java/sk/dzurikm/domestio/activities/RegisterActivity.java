@@ -2,6 +2,11 @@ package sk.dzurikm.domestio.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
 import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 
 import android.content.Intent;
@@ -20,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +40,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Helpers
     DatabaseHelper databaseHelper;
+
+    // validation
+    Helpers.Validation validation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +60,9 @@ public class RegisterActivity extends AppCompatActivity {
         // Helpers
         databaseHelper = new DatabaseHelper();
 
+        // Validation
+        validation = Helpers.Validation.getInstance(RegisterActivity.this);
+
 
         // Setting up listeners
         registerButton.setOnClickListener(new View.OnClickListener() {
@@ -60,10 +72,6 @@ public class RegisterActivity extends AppCompatActivity {
                 if (registrationDataValid()){
                     // Register
                     register();
-                }
-                else {
-                    // Show Toast with error
-                    Toast.makeText(RegisterActivity.this, RegisterActivity.this.getString(R.string.informations_are_not_valid),Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -106,9 +114,20 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean registrationDataValid(){
-        return Helpers.Validation.email(getTextOfView(email)) &&
-                Helpers.Validation.name(getTextOfView(name)) &&
-                Helpers.Validation.passwords(getTextOfView(password),getTextOfView(passwordRepeat));
+        HashMap<String,String> map = new HashMap<>();
+        map.put(EMAIL,getTextOfView(email));
+        map.put(PASSWORD,getTextOfView(password));
+        map.put(PASSWORD_REPEAT, getTextOfView(password) + PASSWORD_REPEAT_DELIMITER + getTextOfView(passwordRepeat));
+        map.put(NAME,getTextOfView(name));
+
+        ArrayList<String> errors = validation.validate(map);
+
+        if (errors != null){
+            // print errors
+            Toast.makeText(RegisterActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+        }
+
+        return errors == null;
     }
 
 }

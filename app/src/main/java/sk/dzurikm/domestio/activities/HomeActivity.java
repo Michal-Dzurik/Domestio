@@ -59,8 +59,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        Log.i("LMAO",Helpers.fromIntToColor(Color.RED));
-
         /* Setting user name for greeting */
         userName = findViewById(R.id.userName);
         userName.setText(getIntent().getStringExtra("user_name"));
@@ -206,6 +204,9 @@ public class HomeActivity extends AppCompatActivity {
 
                 roomAdapter.notifyDataSetChanged();
                 removeAllTasksWithRoomId(room.getId());
+
+                if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+                if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
                 break;
             }
         }

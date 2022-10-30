@@ -50,9 +50,10 @@ public class Constants {
             public static final String TASKS = "tasks";
         }
 
+
         public static final int DATA_FOR_USER = 0;
         public static final int DATA_FOR_ROOM = 1;
-        public static final int DATA_FOR_TASK = 1;
+        public static final int DATA_FOR_TASK = 2;
     }
 
     public static class Url{
@@ -66,4 +67,21 @@ public class Constants {
     public static class Result{
         public static final int ROOM_CHANGED = 0;
     }
+
+    public static class Validation{
+        public static final String NAME = "name";
+
+        public static final String EMAIL = "email";
+
+        public static final String PASSWORD = "pass";
+        public static final int PASS_MIN_LENGTH = 6;
+        public static final String PASSWORD_REPEAT_DELIMITER = " ";
+
+        public static final String PASSWORD_REPEAT = "pass_r";
+    }
+
+    public static class TextPrint{
+
+    }
+
 }

@@ -1,10 +1,16 @@
 package sk.dzurikm.domestio.helpers;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASS_MIN_LENGTH;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorSpace;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -12,7 +18,10 @@ import androidx.annotation.ColorInt;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 
@@ -29,7 +38,6 @@ public class Helpers {
 
         return value;
     }
-
 
     public static String fromIntToColor(@ColorInt int color){
         return String.format("#%06X", (0xFFFFFF & color));
@@ -61,47 +69,96 @@ public class Helpers {
     }
 
     public static class Validation{
-        public static boolean email(String email){
-            email = email.trim();
+        private Context context;
 
-            if (email.equals("")) return false;
+
+        public Validation(Context context) {
+            this.context = context;
+        }
+
+        public static Validation getInstance(Context context){
+            return new Validation(context);
+        }
+
+        public ArrayList<String> validate(HashMap<String,String> data){
+            ArrayList<String> errors = new ArrayList<>();
+
+            for (Map.Entry<String, String> set :
+                    data.entrySet()) {
+
+                String value = set.getValue();
+                String validation = set.getKey();
+
+                String validationError = null;
+
+                if (validation == null || value == null || validation.trim().equals("") || value.trim().equals("")) {
+                    errors.add(context.getString(R.string.missing_informations));
+
+                    break;
+                }
+                else validationError = validate(validation,value);
+
+                if (validationError != null) errors.add(validationError);
+            }
+
+            System.out.println(errors);
+            return errors.size() == 0 ? null : errors;
+        }
+
+        private String validate(String validation,String value){
+            System.out.println(validation);
+            switch (validation){
+                case EMAIL:
+                    return email(value);
+                case PASSWORD:
+                    return password(value);
+                case PASSWORD_REPEAT:
+                    return passwords(value);
+                case NAME:
+                    return name(value);
+            }
+
+            return null;
+        }
+
+        public String email(String email){
+            email = email.trim();
 
             String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
             java.util.regex.Matcher m = p.matcher(email);
-            Log.i("Validation", "Password match "  + String.valueOf(m.matches()));
-            return m.matches();
+
+            return m.matches() ? null : context.getString(R.string.email_is_not_valid) ;
         }
 
-        public static boolean name(String name){
-            name = name.trim();
 
-            if (name.equals("")) return false;
+        public String name(String name){
+            name = name.trim();
 
             String[] names = name.split(" ");
 
-            return names.length >= 2;
+            return names.length >= 2 ? null : context.getString(R.string.name_is_not_valid);
         }
 
-        public static boolean passwords(String password,String passwordRepeated){
+
+        public String passwords(String password){
             password = password.trim();
-            passwordRepeated = passwordRepeated.trim();
+            String[] passArr = password.split(PASSWORD_REPEAT_DELIMITER);
 
-            if (password.equals("") || passwordRepeated.equals("")) {
-                Log.i("Validation","password not correct");
-                return false;
-            }
-
-            return password.equals(passwordRepeated);
+            String passErrors = password(passArr[0]);
+            if (passErrors == null)
+                return passArr[0].equals(passArr[1]) ? null : "Passwords do not match";
+            else return passErrors;
 
         }
 
-        public static boolean password(String password){
+
+        public String password(String password){
             password = password.trim();
 
-            if (password.equals("")) return false;
+            if (password.length() < PASS_MIN_LENGTH) return context.getString(R.string.password_is_too_short) + "( min. " + PASS_MIN_LENGTH + " " + context.getString(R.string.characters) + " )"  ;
 
-            return true;
+            return null;
 
         }
 
