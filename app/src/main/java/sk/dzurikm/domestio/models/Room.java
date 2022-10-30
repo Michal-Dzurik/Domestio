@@ -82,7 +82,19 @@ public class Room implements Serializable {
         return taskIds;
     }
 
-    public void cast(String id,Map<String, Object> data){
+    public void setUserIds(ArrayList<String> userIds) {
+        this.userIds = userIds;
+    }
+
+    public ArrayList<String> getUserIds() {
+        return userIds;
+    }
+
+    public void setTaskIds(ArrayList<String> taskIds) {
+        this.taskIds = taskIds;
+    }
+
+    public void cast(String id, Map<String, Object> data){
         this.id = id;
         this.title = (String) data.get(FIELD_TITLE);
         this.description = (String) data.get(FIELD_DESCRIPTION);

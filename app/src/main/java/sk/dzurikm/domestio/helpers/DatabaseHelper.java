@@ -3,13 +3,19 @@ package sk.dzurikm.domestio.helpers;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_ROOMS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_TASKS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_ADMIN_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_COLOR;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_DESCRIPTION;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TASK_IDS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TITLE;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -20,6 +26,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -223,8 +229,9 @@ public class DatabaseHelper {
             System.out.println(user.getUid());
         }
         else{
-            taskQuery = db.collection(DOCUMENT_TASKS)
-                    .whereIn(FieldPath.documentId(), room.getTaskIds());
+            taskQuery = db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID, room.getId());
+
+            System.out.println(room.getId());
         }
 
         taskQuery.get()
@@ -243,9 +250,9 @@ public class DatabaseHelper {
                                 task.setAuthor(getUsersName(task.getAuthorId()));
 
                                 if (TYPE == Constants.Firebase.DATA_FOR_USER){
-                                    HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{Constants.Firebase.Room.FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+                                    HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
 
-                                    task.setRoom(roomInfo.get(Constants.Firebase.Room.FIELD_TITLE));
+                                    task.setRoom(roomInfo.get(FIELD_TITLE));
                                     task.setColor(roomInfo.get(Constants.Firebase.Room.FIELD_COLOR));
                                 }
                                 else {
@@ -290,14 +297,6 @@ public class DatabaseHelper {
                 }
             }
         });*/
-    }
-
-    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnSuccessListener onSuccessListener, OnFailureListener onFailureListener){
-        db.collection(COLLECTION)
-                .document(id)
-                .update(dataToChange)
-                .addOnSuccessListener(onSuccessListener)
-                .addOnFailureListener(onFailureListener);
     }
 
     public void login(Context context,String email, String password,OnCompleteListener onLoginCompleteListener){
@@ -346,6 +345,38 @@ public class DatabaseHelper {
                         else onRegisterListener.onRegisterFailed();
                     }
                 });
+    }
+
+    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnSuccessListener onSuccessListener, OnFailureListener onFailureListener){
+        db.collection(COLLECTION)
+                .document(id)
+                .update(dataToChange)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    public String addRoom(Room room, OnRoomAddedListener roomAddedListener){
+
+        Map<String, Object> roomMap = new HashMap<>();
+        roomMap.put(FIELD_TITLE,room.getTitle());
+        roomMap.put(FIELD_DESCRIPTION,room.getDescription());
+        roomMap.put(FIELD_ADMIN_ID,room.getAdminId());
+        roomMap.put(FIELD_USER_IDS,room.getUserIds());
+        roomMap.put(FIELD_TASK_IDS, room.getTaskIds());
+        roomMap.put(FIELD_COLOR, room.getColor());
+
+
+        DocumentReference document = db.collection(DOCUMENT_ROOMS).document();
+        document.set(roomMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                room.setId(document.getId());
+                roomAddedListener.onRoomAdded(task,room);
+            }
+        });
+
+        return document.getId();
+
     }
 
     public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
@@ -504,6 +535,10 @@ public class DatabaseHelper {
     public interface OnRegisterListener{
         public void onRegisterSuccess();
         public void onRegisterFailed();
+    }
+
+    public interface OnRoomAddedListener {
+        public void onRoomAdded(com.google.android.gms.tasks.Task task, Room room);
     }
 
 }

@@ -116,6 +116,8 @@ public class Helpers {
                     return passwords(value);
                 case NAME:
                     return name(value);
+                default:
+                    break;
             }
 
             return null;

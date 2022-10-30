@@ -16,6 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.AboutMeActivity;
 import sk.dzurikm.domestio.activities.SettingsActivity;
+import sk.dzurikm.domestio.models.Room;
 
 public class MenuDialog extends BottomSheetDialogFragment {
 
@@ -31,9 +32,13 @@ public class MenuDialog extends BottomSheetDialogFragment {
     private AddRoomDialog addRoomDialog;
     private AddTaskDialog addTaskDialog;
 
-    public MenuDialog(Context context, FragmentManager fragmentManager) {
+    // Listeners
+    private AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener;
+
+    public MenuDialog(Context context, FragmentManager fragmentManager, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.onRoomCreatedListener = onRoomCreatedListener;
     }
 
     @Override
@@ -53,7 +58,13 @@ public class MenuDialog extends BottomSheetDialogFragment {
         aboutButton = rootView.findViewById(R.id.aboutButton);
         settingsButton = rootView.findViewById(R.id.settingsButton);
 
-        addRoomDialog = new AddRoomDialog(context,fragmentManager);
+        addRoomDialog = new AddRoomDialog(context, fragmentManager, new AddRoomDialog.OnRoomCreatedListener() {
+            @Override
+            public void onRoomCreate(Room room) {
+                dialog.dismiss();
+                onRoomCreatedListener.onRoomCreate(room);
+            }
+        });
         addTaskDialog = new AddTaskDialog(context,fragmentManager);
 
 

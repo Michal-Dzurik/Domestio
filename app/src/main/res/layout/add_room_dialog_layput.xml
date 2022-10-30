@@ -19,6 +19,7 @@
             android:paddingBottom="25dp">
 
             <ImageButton
+                android:id="@+id/closeButton"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:padding="11dp"
@@ -40,6 +41,7 @@
                 android:layout_weight="1"/>
 
             <ImageButton
+                android:id="@+id/addRoomButton"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:padding="11dp"
@@ -99,7 +101,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="@color/white"
-            android:text="No color selected"/>
+            android:text="@string/no_color_selected"/>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/colorPickerPreview"

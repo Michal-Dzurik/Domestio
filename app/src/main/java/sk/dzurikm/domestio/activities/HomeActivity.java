@@ -29,6 +29,7 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.services.NotificationService;
+import sk.dzurikm.domestio.views.dialogs.AddRoomDialog;
 import sk.dzurikm.domestio.views.dialogs.MenuDialog;
 
 public class HomeActivity extends AppCompatActivity {
@@ -52,7 +53,6 @@ public class HomeActivity extends AppCompatActivity {
     // Helpers
     SnapHelper snapHelper;
     DatabaseHelper databaseHelper;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +90,16 @@ public class HomeActivity extends AppCompatActivity {
         loadData();
 
         // Dialogs init
-        MenuDialog menuDialog = new MenuDialog(HomeActivity.this,HomeActivity.this.getSupportFragmentManager());
+        MenuDialog menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), new AddRoomDialog.OnRoomCreatedListener() {
+            @Override
+            public void onRoomCreate(Room room) {
+                // update room
+
+                System.out.println(room.toString());
+                roomData.add(room);
+                roomAdapter.notifyDataSetChanged();
+            }
+        });
 
         // Setting up listeners
         menuButton.setOnClickListener(new View.OnClickListener() {

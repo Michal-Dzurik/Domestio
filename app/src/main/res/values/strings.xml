@@ -114,4 +114,6 @@
     <string name="characters">characters</string>
     <string name="your_tasks">Your tasks</string>
     <string name="name_is_not_valid">Name is not valid</string>
+    <string name="no_color_selected">No color selected</string>
+    <string name="color_wasn_selected">Color wasn\'t selected</string>
 </resources>

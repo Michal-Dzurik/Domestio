@@ -69,6 +69,13 @@ public class Constants {
     }
 
     public static class Validation{
+
+        public static class Room{
+            public static final String TITLE = Firebase.Room.FIELD_TITLE;
+            public static final String DESCRIPTION = Firebase.Room.FIELD_DESCRIPTION;
+
+        }
+
         public static final String NAME = "name";
 
         public static final String EMAIL = "email";
