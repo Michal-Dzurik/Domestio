@@ -126,7 +126,7 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
-                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),usersData);
+                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),filterUsersForThisRoom());
                     dialog.setRoom(room);
                     dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
                         @Override
@@ -242,6 +242,16 @@ public class RoomActivity extends AppCompatActivity {
         }
 
         return null;
+    }
+
+    private ArrayList<User> filterUsersForThisRoom(){
+        ArrayList<User> filtered = new ArrayList<>();
+
+        for (int i = 0; i < usersData.size(); i++) {
+            if (room.getUserIds().contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
+        }
+
+        return filtered;
     }
 
     @Override
