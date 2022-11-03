@@ -1,5 +1,14 @@
 package sk.dzurikm.domestio.views.dialogs;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.DESCRIPTION;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.HEADING;
+import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -12,14 +21,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -28,16 +40,22 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.RegisterActivity;
 import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
 import sk.dzurikm.domestio.adapters.UserSpinnerAdapter;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 
 public class AddTaskDialog extends BottomSheetDialogFragment {
@@ -45,15 +63,37 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     // Views
     private Spinner ownerSelect,roomSelect;
     private View rootView,datePickerButton;
-    private TextView datePickerButtonText;
+    private TextView datePickerButtonText,heading,description;
+    private ImageButton closeButton,addTaskButton;
 
     // Needed variables
     private Context context;
     private FragmentManager fragmentManager;
+    private Long timestamp;
+    private Room selectedRoom;
+    private User selectedUser;
 
-    public AddTaskDialog(Context context, FragmentManager fragmentManager) {
+    // Users and rooms
+    private ArrayList<User> userList;
+    private ArrayList<Room> roomList;
+
+    // Validation
+    Helpers.Validation validation;
+
+    // Helpers
+    DatabaseHelper databaseHelper;
+
+    // Firebase
+    FirebaseAuth auth;
+
+    public AddTaskDialog(Context context, FragmentManager fragmentManager,ArrayList<User> userList,ArrayList<Room> roomList) {
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.userList = userList;
+        this.roomList = roomList;
+
+        selectedRoom = null;
+        selectedUser = null;
     }
 
     @Override
@@ -75,6 +115,15 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         ownerSelect = rootView.findViewById(R.id.ownerSelect);
         datePickerButton = rootView.findViewById(R.id.dateAndTimePickerButton);
         datePickerButtonText = rootView.findViewById(R.id.datePickerButtonText);
+        closeButton = rootView.findViewById(R.id.closeButton);
+        addTaskButton = rootView.findViewById(R.id.addTaskButton);
+        heading = rootView.findViewById(R.id.headingInput);
+        description = rootView.findViewById(R.id.descriptionInput);
+
+        // Validation and helpers
+        validation = Helpers.Validation.getInstance(context);
+        databaseHelper = new DatabaseHelper();
+        auth = FirebaseAuth.getInstance();
 
         // Setting up listeners
         datePickerButton.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +152,34 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             }
         });
 
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
+
+        addTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HashMap<String,String> map = new HashMap<>();
+                map.put(HEADING,getTextOfView(heading));
+                map.put(DESCRIPTION,getTextOfView(description));
+
+                ArrayList<String> errors = validation.validate(map);
+
+                if (errors != null){
+                    // print errors
+                    Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    if (timestamp != null && selectedRoom != null && selectedUser != null){
+                        addTaskToDatabase();
+                    }
+                    else Toast.makeText(context,R.string.missing_informations,Toast.LENGTH_SHORT);
+                }
+            }
+        });
 
         fillSpinners();
 
@@ -110,41 +187,68 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
     private void fillSpinners(){
         // TODO: fill them with an actual users and rooms
-        List<Room> rooms = new LinkedList<>();
-        rooms.add(new Room("lmasidnas","Hello"));
-        rooms.add(new Room("lasde","Nol"));
-        RoomSpinnerAdapter roomAdapter = new RoomSpinnerAdapter((Activity) context, rooms);
+        RoomSpinnerAdapter roomAdapter = new RoomSpinnerAdapter((Activity) context, roomList);
         roomSelect.setAdapter(roomAdapter);
 
-        List<User> users = new LinkedList<>();
-        users.add(new User("lmasidnas","Midzo"));
-        users.add(new User("lasde","Mama"));
-        UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, users);
-        ownerSelect.setAdapter(userAdapter);
+        if (!roomList.isEmpty()){
+            selectedRoom = roomList.get(0);
 
-        roomSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.i("Room Id SELCTED",rooms.get(position).getId());
-            }
+            UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.select_room)))));
+            ownerSelect.setAdapter(userAdapter);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            roomSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (!userList.isEmpty()){
 
-            }
-        });
+                        selectedRoom = roomList.get(position);
+                        selectedUser = null;
 
-        ownerSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.i("Owner Id SELCTED",users.get(position).getId());
-            }
+                        ArrayList<User> users = filterUsersByRoom(roomList.get(position),userList);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                        if(!users.isEmpty()){
+                            UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, users);
+                            ownerSelect.setAdapter(userAdapter);
 
-            }
-        });
+                            ownerSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    selectedUser = users.get(position);
+                                }
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+
+                                }
+                            });
+                        }
+                        else {
+                            UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.no_users)))));
+                            ownerSelect.setAdapter(userAdapter);
+                        }
+                    }
+                    else {
+                        UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.no_users)))));
+                        ownerSelect.setAdapter(userAdapter);
+                    }
+
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }
+        else {
+            UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.no_rooms)))));
+            ownerSelect.setAdapter(userAdapter);
+        }
+
+
+
+
     }
 
 
@@ -161,7 +265,41 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
         long secondsSinceEpoch = odt.toEpochSecond() ;
 
+        timestamp = secondsSinceEpoch;
         datePickerButtonText.setText(datetime);
+
+    }
+
+    private ArrayList<User> filterUsersByRoom(Room room,ArrayList<User> users){
+        ArrayList<User> filtered = new ArrayList<>();
+        for (int i = 0; i < users.size(); i++) {
+            if (room.getUserIds().contains(users.get(i).getId()) && !users.get(i).getId().equals(auth.getUid())) filtered.add(users.get(i));
+        }
+
+        return filtered;
+    }
+
+    private void addTaskToDatabase(){
+        System.out.println("r - " + selectedRoom.getId());
+        System.out.println("u - " + selectedUser.getId());
+        Task task = new Task();
+        task.setRoomId(selectedRoom.getId());
+        task.setAuthorId(auth.getUid());
+        task.setHeading(getTextOfView(heading));
+        task.setDescription(getTextOfView(description));
+        task.setDone(false);
+        task.setReceiverId(selectedUser.getId());
+        task.setTimestamp(timestamp);
+
+        databaseHelper.addTask(task, new DatabaseHelper.OnTaskAddedListener() {
+            @Override
+            public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task) {
+                if (t.isSuccessful()){
+                    getDialog().dismiss();
+                }
+                else System.out.println("JUJ");
+            }
+        });
 
     }
 

@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
@@ -179,7 +180,7 @@ public class RoomActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager());
+                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(), usersData, new ArrayList<Room>(Collections.singleton(room)));
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");
             }
         });
@@ -231,7 +232,7 @@ public class RoomActivity extends AppCompatActivity {
 
     private void updateTaskRoomInfo(Room room){
         for (int i = 0; i < taskData.size(); i++) {
-            taskData.get(i).setRoom(room.getTitle());
+            taskData.get(i).setRoomName(room.getTitle());
         }
     }
 

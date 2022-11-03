@@ -18,11 +18,12 @@ public class Task implements Serializable {
     String authorId;
     String roomId;
     String author;
-    String room;
     String receiverId;
+    String roomName;
     Date date;
     String color;
     Boolean done;
+    Long timestamp;
 
     public Task() {
     }
@@ -59,6 +60,49 @@ public class Task implements Serializable {
         return description;
     }
 
+    public void setHeading(String heading) {
+        this.heading = heading;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public void setDone(Boolean done) {
+        this.done = done;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        Timestamp ts = new Timestamp(new Date(timestamp));
+        this.date = ts.toDate();
+        this.time = Helpers.Time.getTimeDate(ts.getSeconds());
+        this.timestamp = timestamp;
+    }
+
     public String getTime() {
         return time;
     }
@@ -79,14 +123,6 @@ public class Task implements Serializable {
         this.author = author;
     }
 
-    public String getRoom() {
-        return room;
-    }
-
-    public void setRoom(String room) {
-        this.room = room;
-    }
-
     public String getReceiverId() {
         return receiverId;
     }
@@ -100,6 +136,7 @@ public class Task implements Serializable {
         assert ts != null;
         this.date = ts.toDate();
         this.time = Helpers.Time.getTimeDate(ts.getSeconds());
+        this.timestamp = ts.getSeconds();
 
         this.roomId = (String) data.get(FIELD_ROOM_ID);
         this.authorId = (String) data.get(FIELD_AUTHOR_ID);
@@ -112,6 +149,10 @@ public class Task implements Serializable {
         return uid.equals(authorId);
     }
 
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -122,9 +163,12 @@ public class Task implements Serializable {
                 ", authorId='" + authorId + '\'' +
                 ", roomId='" + roomId + '\'' +
                 ", author='" + author + '\'' +
-                ", room='" + room + '\'' +
                 ", timestamp=" + new Timestamp(date) +
                 ", done=" + done +
                 '}';
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

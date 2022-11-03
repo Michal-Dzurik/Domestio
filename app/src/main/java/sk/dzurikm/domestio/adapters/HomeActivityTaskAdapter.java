@@ -69,7 +69,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             description = Helpers.stringValueOrDefault(currentTask.getDescription(),"");
             owner = Helpers.stringValueOrDefault(currentTask.getAuthor(),"No owner");
             time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
-            room = Helpers.stringValueOrDefault(currentTask.getRoom(),"No room");
+            room = Helpers.stringValueOrDefault(currentTask.getRoomName(),"No room");
             color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
             holder.getHeading()

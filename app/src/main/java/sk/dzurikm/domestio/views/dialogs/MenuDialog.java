@@ -13,10 +13,14 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
+
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.AboutMeActivity;
 import sk.dzurikm.domestio.activities.SettingsActivity;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.Task;
+import sk.dzurikm.domestio.models.User;
 
 public class MenuDialog extends BottomSheetDialogFragment {
 
@@ -28,6 +32,9 @@ public class MenuDialog extends BottomSheetDialogFragment {
     private Context context;
     private FragmentManager fragmentManager;
 
+    ArrayList<Room> roomData;
+    ArrayList<User> usersData;
+
     // Dialogs
     private AddRoomDialog addRoomDialog;
     private AddTaskDialog addTaskDialog;
@@ -35,10 +42,13 @@ public class MenuDialog extends BottomSheetDialogFragment {
     // Listeners
     private AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener;
 
-    public MenuDialog(Context context, FragmentManager fragmentManager, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener) {
+    public MenuDialog(Context context, FragmentManager fragmentManager,ArrayList<Room> roomData,
+    ArrayList<User> usersData, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.onRoomCreatedListener = onRoomCreatedListener;
+        this.usersData = usersData;
+        this.roomData = roomData;
     }
 
     @Override
@@ -65,7 +75,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
                 onRoomCreatedListener.onRoomCreate(room);
             }
         });
-        addTaskDialog = new AddTaskDialog(context,fragmentManager);
+        addTaskDialog = new AddTaskDialog(context,fragmentManager,usersData, roomData );
 
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);

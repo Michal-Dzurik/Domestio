@@ -54,6 +54,9 @@ public class HomeActivity extends AppCompatActivity {
     SnapHelper snapHelper;
     DatabaseHelper databaseHelper;
 
+    // Dialogs
+    MenuDialog menuDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,17 +92,7 @@ public class HomeActivity extends AppCompatActivity {
         // Loading data from database and setting them to datasets
         loadData();
 
-        // Dialogs init
-        MenuDialog menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), new AddRoomDialog.OnRoomCreatedListener() {
-            @Override
-            public void onRoomCreate(Room room) {
-                // update room
 
-                System.out.println(room.toString());
-                roomData.add(room);
-                roomAdapter.notifyDataSetChanged();
-            }
-        });
 
         // Setting up listeners
         menuButton.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +121,18 @@ public class HomeActivity extends AppCompatActivity {
                 HomeActivity.this.roomData = roomData;
                 HomeActivity.this.taskData = taskData;
                 HomeActivity.this.usersData = userData;
+
+                // Dialogs init
+                menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(),roomData,usersData, new AddRoomDialog.OnRoomCreatedListener() {
+                    @Override
+                    public void onRoomCreate(Room room) {
+                        // update room
+
+                        System.out.println(room.toString());
+                        roomData.add(room);
+                        roomAdapter.notifyDataSetChanged();
+                    }
+                });
 
                 hideLoading();
             }
@@ -200,7 +205,7 @@ public class HomeActivity extends AppCompatActivity {
 
         for (int i = 0; i < taskData.size(); i++) {
             if (taskData.get(i).getRoomId().equals(room.getId())) {
-                taskData.get(i).setRoom(room.getTitle());
+                taskData.get(i).setRoomName(room.getTitle());
                 taskData.get(i).setColor(room.getColor());
                 break;
             }

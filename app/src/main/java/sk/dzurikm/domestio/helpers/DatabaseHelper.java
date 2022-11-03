@@ -9,6 +9,7 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_DESCRIPT
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TASK_IDS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TITLE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
@@ -27,7 +28,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -252,11 +252,11 @@ public class DatabaseHelper {
                                 if (TYPE == Constants.Firebase.DATA_FOR_USER){
                                     HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
 
-                                    task.setRoom(roomInfo.get(FIELD_TITLE));
+                                    task.setRoomName(roomInfo.get(FIELD_TITLE));
                                     task.setColor(roomInfo.get(Constants.Firebase.Room.FIELD_COLOR));
                                 }
                                 else {
-                                    task.setRoom(room.getTitle());
+                                    task.setRoomName(room.getTitle());
                                     task.setColor(room.getColor());
                                 }
 
@@ -377,6 +377,28 @@ public class DatabaseHelper {
 
         return document.getId();
 
+    }
+
+    public String addTask(Task task,OnTaskAddedListener onTaskAddedListener){
+        Map<String, Object> tasksMap = new HashMap<>();
+        tasksMap.put(FIELD_HEADING,task.getHeading());
+        tasksMap.put(Constants.Firebase.Task.FIELD_DESCRIPTION,task.getDescription());
+        tasksMap.put(Constants.Firebase.Task.FIELD_AUTHOR_ID,task.getAuthorId());
+        tasksMap.put(Constants.Firebase.Task.FIELD_DONE,task.getDone());
+        tasksMap.put(Constants.Firebase.Task.FIELD_RECEIVER_ID,task.getReceiverId());
+        tasksMap.put(FIELD_ROOM_ID,task.getRoomId());
+        tasksMap.put(Constants.Firebase.Task.FIELD_TIME,Helpers.Time.getTimeDateForDB(task.getTimestamp()));
+
+        DocumentReference document = db.collection(DOCUMENT_TASKS).document();
+        document.set(tasksMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> t) {
+                task.setId(document.getId());
+                onTaskAddedListener.onTaskAdded(t, task);
+            }
+        });
+
+        return document.getId();
     }
 
     public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
@@ -539,6 +561,10 @@ public class DatabaseHelper {
 
     public interface OnRoomAddedListener {
         public void onRoomAdded(com.google.android.gms.tasks.Task task, Room room);
+    }
+
+    public interface OnTaskAddedListener {
+        public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task);
     }
 
 }

@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.helpers;
 
+import static java.text.DateFormat.getDateTimeInstance;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASS_MIN_LENGTH;
@@ -15,6 +16,9 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 
+import com.google.firebase.Timestamp;
+
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +69,10 @@ public class Helpers {
             } catch(Exception e) {
                 return "date";
             }
+        }
+
+        public static Timestamp getTimeDateForDB(long timeStamp){
+            return new Timestamp(new Date(timeStamp));
         }
     }
 
