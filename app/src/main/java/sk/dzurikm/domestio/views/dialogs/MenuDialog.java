@@ -41,14 +41,16 @@ public class MenuDialog extends BottomSheetDialogFragment {
 
     // Listeners
     private AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener;
+    private AddTaskDialog.OnTaskAddedListener onTaskAddedListener;
 
-    public MenuDialog(Context context, FragmentManager fragmentManager,ArrayList<Room> roomData,
-    ArrayList<User> usersData, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener) {
+    public MenuDialog(Context context, FragmentManager fragmentManager, ArrayList<Room> roomData,
+                      ArrayList<User> usersData, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener, AddTaskDialog.OnTaskAddedListener onTaskAddedListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.onRoomCreatedListener = onRoomCreatedListener;
         this.usersData = usersData;
         this.roomData = roomData;
+        this.onTaskAddedListener = onTaskAddedListener;
     }
 
     @Override
@@ -75,7 +77,12 @@ public class MenuDialog extends BottomSheetDialogFragment {
                 onRoomCreatedListener.onRoomCreate(room);
             }
         });
-        addTaskDialog = new AddTaskDialog(context,fragmentManager,usersData, roomData );
+        addTaskDialog = new AddTaskDialog(context, fragmentManager, usersData, roomData, new AddTaskDialog.OnTaskAddedListener() {
+            @Override
+            public void onTaskAdded(Task task) {
+                onTaskAddedListener.onTaskAdded(task);
+            }
+        });
 
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);

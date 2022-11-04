@@ -108,6 +108,22 @@ public class Room implements Serializable {
         return uid.equals(adminId);
     }
 
+    public void addTaskId(String taskID){
+        taskIds.add(taskID);
+    }
+
+    public void removeTaskId(String taskID){
+        taskIds.remove(taskID);
+    }
+
+    public void addUserId(String userID){
+        userIds.add(userID);
+    }
+
+    public void removeUserId(String userID){
+        userIds.remove(userID);
+    }
+
     @Override
     public String toString() {
         return "Room{" +

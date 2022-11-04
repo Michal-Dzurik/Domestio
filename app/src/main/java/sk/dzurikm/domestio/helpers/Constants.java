@@ -79,6 +79,9 @@ public class Constants {
         public static class Task{
             public static final String HEADING = Firebase.Task.FIELD_HEADING;
             public static final String DESCRIPTION = Firebase.Task.FIELD_DESCRIPTION;
+            public static final String TIME = "time";
+            public static final String USER_ID = "userID";
+            public static final String ROOM_ID = "roomID";
         }
 
         public static final String NAME = "name";

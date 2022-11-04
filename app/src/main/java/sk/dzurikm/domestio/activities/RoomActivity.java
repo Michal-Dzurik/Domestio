@@ -180,7 +180,12 @@ public class RoomActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(), usersData, new ArrayList<Room>(Collections.singleton(room)));
+                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager(), usersData, new ArrayList<Room>(Collections.singleton(room)), new AddTaskDialog.OnTaskAddedListener() {
+                    @Override
+                    public void onTaskAdded(Task task) {
+                        // Add task id to room and increment count of them
+                    }
+                });
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");
             }
         });
@@ -202,6 +207,8 @@ public class RoomActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
                                     if (task.isSuccessful()){
                                         dialog.dismiss();
+                                        room.addUserId(id);
+                                        updateRoomChangeableInfo(room);
                                         Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
                                     }
                                 }
@@ -221,6 +228,8 @@ public class RoomActivity extends AppCompatActivity {
         roomTitle.setText(room.getTitle());
         roomDescription.setText(room.getDescription());
         cardBackground.setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(room.getColor(),"AD")));
+        roomTaskCount.setText(String.valueOf(room.getTasksCount()));
+        roomPeopleCount.setText(String.valueOf(room.getPeopleCount()));
 
         if (taskAdapter != null) {
             for (int i = 0; i < taskData.size(); i++) {

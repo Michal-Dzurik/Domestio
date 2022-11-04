@@ -1,12 +1,10 @@
 package sk.dzurikm.domestio.views.dialogs;
 
-import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.DESCRIPTION;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.HEADING;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.ROOM_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.TIME;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.USER_ID;
 import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 
 import android.annotation.SuppressLint;
@@ -33,9 +31,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
+
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -44,12 +40,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Timer;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.activities.RegisterActivity;
 import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
 import sk.dzurikm.domestio.adapters.UserSpinnerAdapter;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
@@ -86,11 +78,15 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     // Firebase
     FirebaseAuth auth;
 
-    public AddTaskDialog(Context context, FragmentManager fragmentManager,ArrayList<User> userList,ArrayList<Room> roomList) {
+    // Listeners
+    OnTaskAddedListener onTaskAddedListener;
+
+    public AddTaskDialog(Context context, FragmentManager fragmentManager,ArrayList<User> userList,ArrayList<Room> roomList, OnTaskAddedListener onTaskAddedListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.userList = userList;
         this.roomList = roomList;
+        this.onTaskAddedListener = onTaskAddedListener;
 
         selectedRoom = null;
         selectedUser = null;
@@ -162,9 +158,13 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println(selectedUser + "  \n  " + selectedRoom);
                 HashMap<String,String> map = new HashMap<>();
                 map.put(HEADING,getTextOfView(heading));
                 map.put(DESCRIPTION,getTextOfView(description));
+                map.put(TIME, String.valueOf(timestamp));
+                map.put(USER_ID, selectedUser != null ? selectedUser.getId() : null);
+                map.put(ROOM_ID, selectedRoom != null ? selectedRoom.getId() : null);
 
                 ArrayList<String> errors = validation.validate(map);
 
@@ -173,10 +173,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    if (timestamp != null && selectedRoom != null && selectedUser != null){
-                        addTaskToDatabase();
-                    }
-                    else Toast.makeText(context,R.string.missing_informations,Toast.LENGTH_SHORT);
+                    addTaskToDatabase();
                 }
             }
         });
@@ -280,8 +277,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     }
 
     private void addTaskToDatabase(){
-        System.out.println("r - " + selectedRoom.getId());
-        System.out.println("u - " + selectedUser.getId());
         Task task = new Task();
         task.setRoomId(selectedRoom.getId());
         task.setAuthorId(auth.getUid());
@@ -296,11 +291,16 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task) {
                 if (t.isSuccessful()){
                     getDialog().dismiss();
+                    onTaskAddedListener.onTaskAdded(task);
                 }
                 else System.out.println("JUJ");
             }
         });
 
+    }
+
+    public interface OnTaskAddedListener{
+        public void onTaskAdded(Task task);
     }
 
 }

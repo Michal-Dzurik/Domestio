@@ -7,6 +7,9 @@ import static sk.dzurikm.domestio.helpers.Constants.Validation.PASS_MIN_LENGTH;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.ROOM_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.TIME;
+import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.USER_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -124,8 +127,13 @@ public class Helpers {
                     return passwords(value);
                 case NAME:
                     return name(value);
-                default:
-                    break;
+                case TIME:
+                    return (value != null && !value.trim().equals("") && java.lang.Integer.parseInt(value) >= 0) ? null : context.getString(R.string.you_didnt_set_the_time);
+                case USER_ID:
+                    return (value != null && !value.trim().equals("")) ? null : context.getString(R.string.user_not_selected);
+                case ROOM_ID:
+                    return (value != null && !value.trim().equals("")) ? null : context.getString(R.string.room_not_selected);
+
             }
 
             return null;

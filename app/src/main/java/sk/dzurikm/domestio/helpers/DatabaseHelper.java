@@ -17,6 +17,7 @@ import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -394,7 +395,15 @@ public class DatabaseHelper {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> t) {
                 task.setId(document.getId());
-                onTaskAddedListener.onTaskAdded(t, task);
+
+                db.collection(DOCUMENT_ROOMS).document(task.getRoomId()).update(FIELD_TASK_IDS,FieldValue.arrayUnion(task.getId())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> t) {
+                        if (t.isSuccessful()) onTaskAddedListener.onTaskAdded(t, task);
+
+                    }
+                });
+
             }
         });
 

@@ -119,4 +119,7 @@
     <string name="select_room">Select room</string>
     <string name="no_rooms">No rooms</string>
     <string name="no_users">No users</string>
+    <string name="you_didnt_set_the_time">You didn\'t set the time</string>
+    <string name="user_not_selected">User is not selected</string>
+    <string name="room_not_selected">Room is not selected</string>
 </resources>

@@ -30,6 +30,7 @@ import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.services.NotificationService;
 import sk.dzurikm.domestio.views.dialogs.AddRoomDialog;
+import sk.dzurikm.domestio.views.dialogs.AddTaskDialog;
 import sk.dzurikm.domestio.views.dialogs.MenuDialog;
 
 public class HomeActivity extends AppCompatActivity {
@@ -123,7 +124,7 @@ public class HomeActivity extends AppCompatActivity {
                 HomeActivity.this.usersData = userData;
 
                 // Dialogs init
-                menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(),roomData,usersData, new AddRoomDialog.OnRoomCreatedListener() {
+                menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), roomData, usersData, new AddRoomDialog.OnRoomCreatedListener() {
                     @Override
                     public void onRoomCreate(Room room) {
                         // update room
@@ -131,6 +132,12 @@ public class HomeActivity extends AppCompatActivity {
                         System.out.println(room.toString());
                         roomData.add(room);
                         roomAdapter.notifyDataSetChanged();
+                    }
+                }, new AddTaskDialog.OnTaskAddedListener() {
+                    @Override
+                    public void onTaskAdded(Task task) {
+                        // Add id to room and then notify adapter
+                        HomeActivity.this.onTaskAdded(task);
                     }
                 });
 
@@ -239,6 +246,16 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         taskAdapter.notifyDataSetChanged();
+    }
+
+    private void onTaskAdded(Task task){
+        for (int i = 0; i < roomData.size(); i++) {
+            if (roomData.get(i).getId().equals(task.getRoomId())){
+                roomData.get(i).addTaskId(task.getId());
+                roomAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
     }
 
 
