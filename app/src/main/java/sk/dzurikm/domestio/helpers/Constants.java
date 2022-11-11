@@ -23,6 +23,8 @@ public class Constants {
             public static final String FIELD_TITLE = "title";
             public static final String FIELD_USER_IDS = "user_ids";
             public static final String FIELD_ADMIN_ID = "room_admin_id";
+            public static final String FIELD_CREATED_AT = "created_at";
+            public static final String FIELD_MODIFIED_AT = "modified_at";
 
         }
 
@@ -36,12 +38,16 @@ public class Constants {
             public static final String FIELD_RECEIVER_ID = "receiving_user_id";
             public static final String FIELD_ROOM_ID = "room_id";
             public static final String FIELD_TIME = "time";
+            public static final String FIELD_CREATED_AT = "created_at";
+            public static final String FIELD_MODIFIED_AT = "modified_at";
         }
 
         public static class User{
             public static final String FIELD_ID = "id";
             public static final String FIELD_NAME = "name";
             public static final String FIELD_EMAIL = "email";
+            public static final String FIELD_CREATED_AT = "created_at";
+            public static final String FIELD_MODIFIED_AT = "modified_at";
         }
 
         public static class Bundle{

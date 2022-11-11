@@ -10,8 +10,12 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TASK_IDS
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TITLE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_HEADING;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_CREATED_AT;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_NAME;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.app.Activity;
@@ -134,30 +138,6 @@ public class DatabaseHelper {
         }
 
 
-        /*roomQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null)
-                    Log.w("DB", "ERROR : ", error);
-
-                if (value != null && !value.isEmpty()) {
-                    for (DocumentChange doc : value.getDocumentChanges()) {
-                        switch (doc.getType()){
-                            case ADDED:
-                                Log.w("DB", "ADDED : " + doc.getDocument().getData());
-                                break;
-                            case REMOVED:
-                                Log.w("DB", "REMOVED : " + doc.getDocument().getData());
-                                break;
-                            case MODIFIED:
-                                Log.w("DB", "MODIFIED : " + doc.getDocument().getData());
-                                break;
-                        }
-                    }
-                }
-            }
-        });*/
-
     }
 
     public void loadUsers(int TYPE){
@@ -190,30 +170,6 @@ public class DatabaseHelper {
                     }
                 });
 
-
-        /*taskQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null)
-                    Log.w("DB", "ERROR : ", error);
-
-                if (value != null && !value.isEmpty()) {
-                    for (DocumentChange doc : value.getDocumentChanges()) {
-                        switch (doc.getType()){
-                            case ADDED:
-                                Log.w("DB", "ADDED : " + doc.getDocument().getData());
-                                break;
-                            case REMOVED:
-                                Log.w("DB", "REMOVED : " + doc.getDocument().getData());
-                                break;
-                            case MODIFIED:
-                                Log.w("DB", "MODIFIED : " + doc.getDocument().getData());
-                                break;
-                        }
-                    }
-                }
-            }
-        });*/
     }
 
     public void loadTasks(int TYPE){
@@ -275,29 +231,30 @@ public class DatabaseHelper {
                     }
                 });
 
-        /*taskQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null)
-                    Log.w("DB", "ERROR : ", error);
+    }
 
-                if (value != null && !value.isEmpty()) {
-                    for (DocumentChange doc : value.getDocumentChanges()) {
-                        switch (doc.getType()){
-                            case ADDED:
-                                Log.w("DB", "ADDED : " + doc.getDocument().getData());
-                                break;
-                            case REMOVED:
-                                Log.w("DB", "REMOVED : " + doc.getDocument().getData());
-                                break;
-                            case MODIFIED:
-                                Log.w("DB", "MODIFIED : " + doc.getDocument().getData());
-                                break;
-                        }
+    public void loadTasksForRoom(Room room, TasksForRoomLoadedListener tasksForRoomLoadedListener){
+        db.collection(DOCUMENT_TASKS).whereArrayContainsAny(FIELD_TASK_IDS,room.getTaskIds()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
+                if (t.isSuccessful()){
+                    ArrayList<Task> data = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : t.getResult()){
+                        Map<String, Object> dat = document.getData();
+
+                        // Creating task and casting from db result to model
+                        Task task = new Task();
+                        task.cast(document.getId(),dat);
+                        task.setAuthor(getUsersName(task.getAuthorId()));
+                        task.setColor(getRoomsColor(task.getRoomId()));
+
+                        data.add(task);
+                        taskData.add(task);
                     }
+                    tasksForRoomLoadedListener.onTasksLoaded(data);
                 }
             }
-        });*/
+        });
     }
 
     public void login(Context context,String email, String password,OnCompleteListener onLoginCompleteListener){
@@ -325,10 +282,12 @@ public class DatabaseHelper {
                                 user.updateProfile(profileUpdate);
                             }
 
-                            Map<String,String> set = new HashMap<>();
-                            set.put("name",name.toString());
-                            set.put("id",user.getUid());
-                            set.put("email",email);
+                            Map<String,Object> set = new HashMap<>();
+                            set.put(FIELD_NAME,name.toString());
+                            set.put(FIELD_ID,user.getUid());
+                            set.put(FIELD_EMAIL,email);
+                            set.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
+                            set.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
                             // User insertion for internal use
                             db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -349,6 +308,8 @@ public class DatabaseHelper {
     }
 
     public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnSuccessListener onSuccessListener, OnFailureListener onFailureListener){
+        dataToChange.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+
         db.collection(COLLECTION)
                 .document(id)
                 .update(dataToChange)
@@ -365,6 +326,8 @@ public class DatabaseHelper {
         roomMap.put(FIELD_USER_IDS,room.getUserIds());
         roomMap.put(FIELD_TASK_IDS, room.getTaskIds());
         roomMap.put(FIELD_COLOR, room.getColor());
+        roomMap.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
+        roomMap.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
 
         DocumentReference document = db.collection(DOCUMENT_ROOMS).document();
@@ -389,6 +352,8 @@ public class DatabaseHelper {
         tasksMap.put(Constants.Firebase.Task.FIELD_RECEIVER_ID,task.getReceiverId());
         tasksMap.put(FIELD_ROOM_ID,task.getRoomId());
         tasksMap.put(Constants.Firebase.Task.FIELD_TIME,Helpers.Time.getTimeDateForDB(task.getTimestamp()));
+        tasksMap.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
+        tasksMap.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
         DocumentReference document = db.collection(DOCUMENT_TASKS).document();
         document.set(tasksMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -437,8 +402,11 @@ public class DatabaseHelper {
 
     public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
 
+        Map<String, Object> update = new HashMap<>();
+        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId));
+        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
         db.collection(DOCUMENT_ROOMS).document(roomId)
-                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user
@@ -448,8 +416,12 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
+        Map<String, Object> update = new HashMap<>();
+        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
+        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
+
         db.collection(DOCUMENT_ROOMS).document(roomId)
-                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user
@@ -459,8 +431,12 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
+        Map<String, Object> update = new HashMap<>();
+        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
+        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
+
         db.collection(DOCUMENT_ROOMS).document(room.getId())
-                .update(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                         // TODO send and email to user
@@ -574,6 +550,10 @@ public class DatabaseHelper {
 
     public interface OnTaskAddedListener {
         public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task);
+    }
+
+    public interface TasksForRoomLoadedListener {
+        public void onTasksLoaded(ArrayList<Task> data);
     }
 
 }

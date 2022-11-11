@@ -6,22 +6,35 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.app.ActivityManager;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
+import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
@@ -58,6 +71,9 @@ public class HomeActivity extends AppCompatActivity {
     // Dialogs
     MenuDialog menuDialog;
 
+    // Broadcast receivers
+    DataChangedReceiver dataChangedReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +94,8 @@ public class HomeActivity extends AppCompatActivity {
         noRoomsText = findViewById(R.id.noRoomsText);
         noTasksText = findViewById(R.id.noTasksText);
 
+        loading.setVisibility(View.VISIBLE);
+
         // Login info
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -93,6 +111,58 @@ public class HomeActivity extends AppCompatActivity {
         // Loading data from database and setting them to datasets
         loadData();
 
+        // Broadcasts
+        dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
+            @Override
+            public void onDataChanged(HashMap<String, Object> data, String collection,String documentID, DocumentChange.Type type) {
+                switch (collection){
+                    case Constants.Firebase.DOCUMENT_ROOMS:
+                        Room room = new Room();
+                        room.cast(documentID,data);
+
+                        switch (type){
+                            case ADDED:
+                                break;
+                            case MODIFIED:
+                                onRoomChanged(room);
+                                break;
+                            case REMOVED:
+                                cleanAfterLeftRoom(room);
+                                break;
+                        }
+
+                        break;
+
+                    case Constants.Firebase.DOCUMENT_TASKS:
+                        Task task = new Task();
+                        task.cast(documentID,data);
+
+                        System.out.println(type);
+                        switch (type){
+                            case ADDED:
+                                HomeActivity.this.addTask(task);
+                                break;
+                            case MODIFIED:
+                                HomeActivity.this.updateTask(task);
+                                break;
+                            case REMOVED:
+                                HomeActivity.this.removeTask(task);
+                                break;
+                        }
+
+                        break;
+
+                    case Constants.Firebase.DOCUMENT_USERS:
+                        User user = new User();
+                        user.cast(data);
+
+                        break;
+                }
+            }
+
+        });
+        IntentFilter intentSFilter = new IntentFilter("DATA_CHANGED");
+        registerReceiver(dataChangedReceiver, intentSFilter);
 
 
         // Setting up listeners
@@ -147,10 +217,15 @@ public class HomeActivity extends AppCompatActivity {
         databaseHelper.getData(Constants.Firebase.DATA_FOR_USER);
     }
 
+    private void hideNoDataMessages(){
+        if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
+        else noRoomsText.setVisibility(View.GONE);
+        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+        else noTasksText.setVisibility(View.GONE);
+    }
 
     private void hideLoading(){
-        if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
-        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+        hideNoDataMessages();
         // Creating adapters needed
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
             @Override
@@ -198,8 +273,26 @@ public class HomeActivity extends AppCompatActivity {
                     cleanAfterLeftRoom(room);
                 }else onRoomChanged(room);
 
+                ArrayList<Task> tasks = (ArrayList<Task>) data.getExtras().get(Constants.Firebase.DOCUMENT_TASKS);
+                if (!tasks.isEmpty()){
+                    for (int i = 0; i < tasks.size(); i++) {
+                        taskData.add(tasks.get(i));
+                    }
+
+                    taskAdapter.notifyDataSetChanged();
+                }
                 break;
         }
+    }
+
+    private void addRoom(Room room){
+        roomData.add(room);
+        databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
+            @Override
+            public void onTasksLoaded(ArrayList<Task> data) {
+                taskData.addAll(data);
+            }
+        });
     }
 
     private void onRoomChanged(Room room){
@@ -251,12 +344,87 @@ public class HomeActivity extends AppCompatActivity {
     private void onTaskAdded(Task task){
         for (int i = 0; i < roomData.size(); i++) {
             if (roomData.get(i).getId().equals(task.getRoomId())){
+                System.out.println(roomData.get(i));
                 roomData.get(i).addTaskId(task.getId());
+                roomAdapter.notifyDataSetChanged();
+                taskAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+    }
+
+    private void addTask(Task task){
+        for (int i = 0; i < roomData.size(); i++) {
+            if (roomData.get(i).getId().equals(task.getRoomId())){
+                roomData.get(i).addTaskId(task.getId());
+                roomAdapter.notifyDataSetChanged();
+
+                break;
+            }
+        }
+
+        task.setColor(getRoomsColor(task.getRoomId()));
+        taskData.add(task);
+        taskAdapter.notifyDataSetChanged();
+
+        hideNoDataMessages();
+    }
+
+    private String getRoomsColor(String id){
+        for (int i = 0; i < roomData.size(); i++) {
+            Room room = roomData.get(i);
+            if (room.getId().equals(id)) return room.getColor();
+        }
+
+        return "";
+    }
+
+    private void removeTask(Task task){
+        for (int i = 0; i < taskData.size(); i++) {
+            if (taskData.get(i).getId().equals(task.getId())){
+                taskData.remove(i);
+                taskAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+
+        for (int i = 0; i < roomData.size(); i++) {
+            if (roomData.get(i).getId().equals(task.getRoomId())){
+                roomData.get(i).removeTaskId(task.getId());
                 roomAdapter.notifyDataSetChanged();
                 break;
             }
         }
     }
 
+    private void updateTask(Task task){
+        for (int i = 0; i < taskData.size(); i++) {
+            if (taskData.get(i).getId().equals(task.getId())){
+                taskData.get(i).update(task);
+                taskAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+    }
 
+    private void addUser(User user){
+        usersData.add(user);
+    }
+
+    private void updatedUser(User user){
+        for (int i = 0; i < usersData.size(); i++) {
+            if (usersData.get(i).getId().equals(user.getId())){
+                user.update(user);
+            }
+        }
+    }
+
+
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(dataChangedReceiver);
+
+        super.onDestroy();
+    }
 }

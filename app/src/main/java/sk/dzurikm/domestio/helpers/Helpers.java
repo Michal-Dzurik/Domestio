@@ -1,6 +1,6 @@
 package sk.dzurikm.domestio.helpers;
 
-import static java.text.DateFormat.getDateTimeInstance;
+import static android.provider.Settings.System.getString;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASS_MIN_LENGTH;
@@ -12,16 +12,21 @@ import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.TIME;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.USER_ID;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.Timestamp;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -254,6 +259,43 @@ public class Helpers {
                 }
             },delay);
         }
+    }
+
+    public static class Notifications{
+
+        public static NotificationCompat.Builder create(Context context, String title, String text, PendingIntent clickIntent){
+            createNotificationChannel(context);
+            return new NotificationCompat.Builder(context, "DomestioNotifications")
+                    .setSmallIcon(R.drawable.logo)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setContentIntent(clickIntent)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+        }
+
+        private static void createNotificationChannel(Context context) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                CharSequence name = "DomestioNotifications";
+                String description = "Domestio Notification channel";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel("DomestioNotifications", name, importance);
+                channel.setDescription(description);
+                // Register the channel with the system; you can't change the importance
+                // or other notification behaviors after this
+                NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        public static void show(Context context,int id,NotificationCompat.Builder notification){
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+            // notificationId is a unique int for each notification that you must define
+            notificationManager.notify(id, notification.build());
+        }
+
     }
 
 }

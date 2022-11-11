@@ -1,6 +1,7 @@
 package sk.dzurikm.domestio.activities;
 
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.*;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -249,6 +251,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     HashMap<String, Object> updatedData = new HashMap<>();
 
                                     updatedData.put(FIELD_NAME, input);
+                                    updatedData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
                                     if (id == null) somethingWentWrongMessage();
 

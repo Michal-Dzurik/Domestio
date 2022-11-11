@@ -51,6 +51,8 @@ public class RoomActivity extends AppCompatActivity {
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
     Room room;
+    ArrayList<Task> taskDataAdded;
+
 
     // Adapters
     HomeActivityTaskAdapter taskAdapter;
@@ -85,6 +87,8 @@ public class RoomActivity extends AppCompatActivity {
         ArrayList<Task> emptyData = new ArrayList<Task>();
         emptyData.add(new Task());
         roomsRecycler.setAdapter(new HomeActivityTaskAdapter(RoomActivity.this,emptyData));
+        taskDataAdded = new ArrayList<>();
+
 
         // Setting up values
         updateRoomChangeableInfo(room);
@@ -184,6 +188,9 @@ public class RoomActivity extends AppCompatActivity {
                     @Override
                     public void onTaskAdded(Task task) {
                         // Add task id to room and increment count of them
+                        taskData.add(task);
+                        taskAdapter.notifyDataSetChanged();
+                        taskDataAdded.add(task);
                     }
                 });
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");
@@ -271,6 +278,7 @@ public class RoomActivity extends AppCompatActivity {
         // Setting up room so activity can update its information's
         Intent intent = getIntent();
         intent.putExtra(Constants.Firebase.DOCUMENT_ROOMS,room);
+        intent.putExtra(Constants.Firebase.DOCUMENT_TASKS,taskDataAdded);
 
         setResult(Constants.Result.ROOM_CHANGED,intent);
         super.finish();

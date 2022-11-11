@@ -54,4 +54,9 @@ public class User implements Serializable {
                 ", email='" + email + '\'' +
                 '}';
     }
+
+    public void update(User user) {
+        this.email = user.getEmail();
+        this.name = user.getName();
+    }
 }

@@ -171,4 +171,15 @@ public class Task implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
+
+    public void update(Task task) {
+        this.timestamp = task.getTimestamp();
+        this.heading = task.getHeading();
+        this.description = task.getDescription();
+        this.date = task.getDate();
+        this.time = task.getTime();
+        this.done = task.getDone();
+        this.color = task.getColor();
+        this.roomName = task.getRoomName();
+    }
 }
