@@ -36,6 +36,7 @@ import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -67,6 +68,7 @@ public class HomeActivity extends AppCompatActivity {
     // Helpers
     SnapHelper snapHelper;
     DatabaseHelper databaseHelper;
+    DCO dco;
 
     // Dialogs
     MenuDialog menuDialog;
@@ -100,7 +102,7 @@ public class HomeActivity extends AppCompatActivity {
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         // Datasets init
-        roomData = new ArrayList<>();
+        roomData = new ArrayList<Room>();
         taskData = new ArrayList<Task>();
         usersData = new ArrayList<User>();
 
@@ -122,12 +124,13 @@ public class HomeActivity extends AppCompatActivity {
 
                         switch (type){
                             case ADDED:
+                                dco.addRoom(room);
                                 break;
                             case MODIFIED:
-                                onRoomChanged(room);
+                                dco.onRoomChanged(room);
                                 break;
                             case REMOVED:
-                                cleanAfterLeftRoom(room);
+                                dco.cleanAfterLeftRoom(room);
                                 break;
                         }
 
@@ -140,13 +143,13 @@ public class HomeActivity extends AppCompatActivity {
                         System.out.println(type);
                         switch (type){
                             case ADDED:
-                                HomeActivity.this.addTask(task);
+                                dco.addTask(task);
                                 break;
                             case MODIFIED:
-                                HomeActivity.this.updateTask(task);
+                                dco.updateTask(task);
                                 break;
                             case REMOVED:
-                                HomeActivity.this.removeTask(task);
+                                dco.removeTask(task);
                                 break;
                         }
 
@@ -200,14 +203,13 @@ public class HomeActivity extends AppCompatActivity {
                         // update room
 
                         System.out.println(room.toString());
-                        roomData.add(room);
-                        roomAdapter.notifyDataSetChanged();
+                        dco.addRoom(room);
                     }
                 }, new AddTaskDialog.OnTaskAddedListener() {
                     @Override
                     public void onTaskAdded(Task task) {
                         // Add id to room and then notify adapter
-                        HomeActivity.this.onTaskAdded(task);
+                        dco.onTaskAdded(task);
                     }
                 });
 
@@ -230,10 +232,35 @@ public class HomeActivity extends AppCompatActivity {
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
             @Override
             public void onRoomLeave(Room room) {
-                cleanAfterLeftRoom(room);
+                dco.cleanAfterLeftRoom(room);
             }
         });
         taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this,taskData);
+
+        // Setting up DCO
+        dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+
+                if (usersData != null) {
+                    HomeActivity.this.usersData = usersData;
+                }
+
+                if (taskData != null) {
+                    HomeActivity.this.taskData = taskData;
+                    taskAdapter.notifyDataSetChanged();
+                    hideNoDataMessages();
+                }
+
+                if (roomData != null) {
+                    HomeActivity.this.roomData = roomData;
+                    roomAdapter.notifyDataSetChanged();
+                    hideNoDataMessages();
+                }
+
+            }
+        });
+
 
         // Settings up the adapters and helpers
         horizontalRoomSlider.setAdapter(roomAdapter);
@@ -270,156 +297,19 @@ public class HomeActivity extends AppCompatActivity {
                 Room room = (Room) data.getExtras().get(Constants.Firebase.DOCUMENT_ROOMS);
                 if (room.hasJustLeft()){
                     // remove room from list and update everything
-                    cleanAfterLeftRoom(room);
-                }else onRoomChanged(room);
+                    dco.cleanAfterLeftRoom(room);
+                }else dco.onRoomChanged(room);
 
                 ArrayList<Task> tasks = (ArrayList<Task>) data.getExtras().get(Constants.Firebase.DOCUMENT_TASKS);
                 if (!tasks.isEmpty()){
                     for (int i = 0; i < tasks.size(); i++) {
-                        taskData.add(tasks.get(i));
+                        dco.addTask(tasks.get(i));
                     }
 
-                    taskAdapter.notifyDataSetChanged();
                 }
                 break;
         }
     }
-
-    private void addRoom(Room room){
-        roomData.add(room);
-        databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
-            @Override
-            public void onTasksLoaded(ArrayList<Task> data) {
-                taskData.addAll(data);
-            }
-        });
-    }
-
-    private void onRoomChanged(Room room){
-        for (int i = 0; i < roomData.size(); i++) {
-            if (roomData.get(i).getId().equals(room.getId())) {
-                roomData.set(i, room);
-                break;
-            }
-        }
-
-        for (int i = 0; i < taskData.size(); i++) {
-            if (taskData.get(i).getRoomId().equals(room.getId())) {
-                taskData.get(i).setRoomName(room.getTitle());
-                taskData.get(i).setColor(room.getColor());
-                break;
-            }
-        }
-
-        roomAdapter.notifyDataSetChanged();
-        taskAdapter.notifyDataSetChanged();
-
-    }
-
-    private void cleanAfterLeftRoom(Room room){
-        for (int i = 0; i < roomData.size(); i++) {
-            if (roomData.get(i).getId().equals(room.getId())) {
-                roomData.remove(i);
-
-                roomAdapter.notifyDataSetChanged();
-                removeAllTasksWithRoomId(room.getId());
-
-                if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
-                if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
-                break;
-            }
-        }
-    }
-
-    private void removeAllTasksWithRoomId(String id){
-        for (int i = 0; i < taskData.size(); i++) {
-            if (taskData.get(i).getRoomId().equals(id)){
-                taskData.remove(i);
-            }
-        }
-
-        taskAdapter.notifyDataSetChanged();
-    }
-
-    private void onTaskAdded(Task task){
-        for (int i = 0; i < roomData.size(); i++) {
-            if (roomData.get(i).getId().equals(task.getRoomId())){
-                System.out.println(roomData.get(i));
-                roomData.get(i).addTaskId(task.getId());
-                roomAdapter.notifyDataSetChanged();
-                taskAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-    }
-
-    private void addTask(Task task){
-        for (int i = 0; i < roomData.size(); i++) {
-            if (roomData.get(i).getId().equals(task.getRoomId())){
-                roomData.get(i).addTaskId(task.getId());
-                roomAdapter.notifyDataSetChanged();
-
-                break;
-            }
-        }
-
-        task.setColor(getRoomsColor(task.getRoomId()));
-        taskData.add(task);
-        taskAdapter.notifyDataSetChanged();
-
-        hideNoDataMessages();
-    }
-
-    private String getRoomsColor(String id){
-        for (int i = 0; i < roomData.size(); i++) {
-            Room room = roomData.get(i);
-            if (room.getId().equals(id)) return room.getColor();
-        }
-
-        return "";
-    }
-
-    private void removeTask(Task task){
-        for (int i = 0; i < taskData.size(); i++) {
-            if (taskData.get(i).getId().equals(task.getId())){
-                taskData.remove(i);
-                taskAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-
-        for (int i = 0; i < roomData.size(); i++) {
-            if (roomData.get(i).getId().equals(task.getRoomId())){
-                roomData.get(i).removeTaskId(task.getId());
-                roomAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-    }
-
-    private void updateTask(Task task){
-        for (int i = 0; i < taskData.size(); i++) {
-            if (taskData.get(i).getId().equals(task.getId())){
-                taskData.get(i).update(task);
-                taskAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-    }
-
-    private void addUser(User user){
-        usersData.add(user);
-    }
-
-    private void updatedUser(User user){
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getId().equals(user.getId())){
-                user.update(user);
-            }
-        }
-    }
-
-
 
     @Override
     protected void onDestroy() {
