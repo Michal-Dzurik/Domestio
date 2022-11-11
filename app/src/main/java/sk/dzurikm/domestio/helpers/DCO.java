@@ -47,7 +47,9 @@ public class DCO {
         databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
             @Override
             public void onTasksLoaded(ArrayList<Task> data) {
-                taskData.addAll(data);
+                if (data != null)
+                    taskData.addAll(data);
+
                 onDataChangeListener.onChange(usersData,roomData,taskData);
             }
         });

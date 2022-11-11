@@ -234,6 +234,11 @@ public class DatabaseHelper {
     }
 
     public void loadTasksForRoom(Room room, TasksForRoomLoadedListener tasksForRoomLoadedListener){
+        if (room.getTaskIds() == null || room.getTaskIds().isEmpty()) {
+            tasksForRoomLoadedListener.onTasksLoaded(null);
+            return;
+        }
+
         db.collection(DOCUMENT_TASKS).whereArrayContainsAny(FIELD_TASK_IDS,room.getTaskIds()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
