@@ -16,6 +16,7 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_CREATED_
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_NAME;
+import static sk.dzurikm.domestio.helpers.Helpers.DataSet.getRoomInfo;
 import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.app.Activity;
@@ -64,8 +65,6 @@ public class DatabaseHelper {
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
 
-    Room room;
-
     // Listeners
     OnDataLoadedListener onDataLoadedListener;
 
@@ -83,7 +82,11 @@ public class DatabaseHelper {
         user = auth.getCurrentUser();
     }
 
-    public void loadRooms(int TYPE){
+    int TYPE;
+    String id;
+
+
+    public void loadRooms(){
         // DB query
 
         switch (TYPE){
@@ -121,7 +124,7 @@ public class DatabaseHelper {
                                     }
 
 
-                                    loadUsers(TYPE);
+                                    loadUsers();
                                     Log.i("Firebase result", String.valueOf(Arrays.toString(taskData.toArray())));
 
                                 } else {
@@ -132,7 +135,7 @@ public class DatabaseHelper {
                         });
                 break;
             case Constants.Firebase.DATA_FOR_ROOM:
-                loadUsers(TYPE);
+                loadUsers();
                 break;
 
         }
@@ -140,7 +143,7 @@ public class DatabaseHelper {
 
     }
 
-    public void loadUsers(int TYPE){
+    public void loadUsers(){
         db.collection(DOCUMENT_USERS).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -162,7 +165,7 @@ public class DatabaseHelper {
                             }
 
                             Log.i("DB_RESULT", String.valueOf(Arrays.toString(usersData.toArray())));
-                            loadTasks(TYPE);
+                            loadTasks();
 
                         } else {
                             Log.w("DB_RESULT", "Error getting documents.", response.getException());
@@ -172,7 +175,7 @@ public class DatabaseHelper {
 
     }
 
-    public void loadTasks(int TYPE){
+    public void loadTasks(){
         Query taskQuery;
 
 
@@ -186,9 +189,7 @@ public class DatabaseHelper {
             System.out.println(user.getUid());
         }
         else{
-            taskQuery = db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID, room.getId());
-
-            System.out.println(room.getId());
+            taskQuery = db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID, id);
         }
 
         taskQuery.get()
@@ -206,16 +207,12 @@ public class DatabaseHelper {
                                 task.cast(document.getId(),data);
                                 task.setAuthor(getUsersName(task.getAuthorId()));
 
-                                if (TYPE == Constants.Firebase.DATA_FOR_USER){
-                                    HashMap<String,String> roomInfo = getRoomInfo(task.getRoomId(), new String[]{FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+                                String roomID = TYPE == Constants.Firebase.DATA_FOR_USER ? task.getRoomId() : id;
 
-                                    task.setRoomName(roomInfo.get(FIELD_TITLE));
-                                    task.setColor(roomInfo.get(Constants.Firebase.Room.FIELD_COLOR));
-                                }
-                                else {
-                                    task.setRoomName(room.getTitle());
-                                    task.setColor(room.getColor());
-                                }
+                                HashMap<String,String> roomInfo = getRoomInfo(roomData,roomID, new String[]{FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+
+                                task.setRoomName(roomInfo.get(FIELD_TITLE));
+                                task.setColor(roomInfo.get(Constants.Firebase.Room.FIELD_COLOR));
 
                                 // Adding task to it's dataset
                                 taskData.add(task);
@@ -230,6 +227,7 @@ public class DatabaseHelper {
                         }
                     }
                 });
+
 
     }
 
@@ -482,35 +480,6 @@ public class DatabaseHelper {
         return "";
     }
 
-    private HashMap<String,String> getRoomInfo(String id,String[] info){
-        for (int i = 0; i < roomData.size(); i++) {
-            Room room = roomData.get(i);
-            if (room.getId().equals(id)) {
-                HashMap<String,String> map = new HashMap<>();
-                for (int j = 0; j < info.length; j++) {
-                    String key = info[j];
-
-                    // Dynamic getters construction
-                    try {
-                        String methodName = "get" + firstUppercase(key);
-                        Method method = Room.class.getMethod(methodName);
-                        map.put(key,(String) method.invoke(room));
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                return map;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * @param id room UID
@@ -532,13 +501,13 @@ public class DatabaseHelper {
 
 
 
-    public void getData(int DATA_TYPE) {
-        loadRooms(DATA_TYPE);
+    public void getData(int DATA_TYPE,String id) {
+        this.TYPE = TYPE;
+        this.id = id;
+
+        loadRooms();
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
-    }
 
     public interface OnDataLoadedListener{
         public void onDataLoaded(ArrayList<Room> roomData,ArrayList<Task> taskData,ArrayList<User> userData);

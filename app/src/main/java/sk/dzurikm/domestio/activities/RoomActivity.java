@@ -29,6 +29,7 @@ import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -57,17 +58,13 @@ public class RoomActivity extends AppCompatActivity {
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
     Room room;
-    ArrayList<Task> taskDataAdded;
 
     // Broadcasts
     DataChangedReceiver dataChangedReceiver;
 
-
     // Adapters
     HomeActivityTaskAdapter taskAdapter;
 
-    // Variables needed
-    private boolean left = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,14 +87,12 @@ public class RoomActivity extends AppCompatActivity {
                         Room room = new Room();
                         room.cast(documentID,data);
 
-                        System.out.println(type.name());
-
                         switch (type){
                             case ADDED:
                                 dco.addRoom(room);
                                 break;
                             case MODIFIED:
-                                dco.updateRoomChangeableInfo(room);
+                                dco.updateRoomChangeableInfo(taskData,room);
                                 break;
                             case REMOVED:
 
@@ -110,7 +105,11 @@ public class RoomActivity extends AppCompatActivity {
                         Task task = new Task();
                         task.cast(documentID,data);
 
-                        System.out.println(type);
+                        task.setAuthor(Helpers.DataSet.getAuthorName(usersData,task.getAuthorId()));
+                        task.setRoomName(RoomActivity.this.room.getTitle());
+                        task.setColor(RoomActivity.this.room.getColor());
+
+
                         switch (type){
                             case ADDED:
                                 dco.addTask(task);
@@ -129,6 +128,15 @@ public class RoomActivity extends AppCompatActivity {
                         User user = new User();
                         user.cast(data);
 
+                    switch (type){
+                        case ADDED:
+                            dco.addUser(user);
+                            break;
+                        case MODIFIED:
+                            dco.updatedUser(user);
+                            break;
+                    }
+
                         break;
                 }
             }
@@ -136,6 +144,7 @@ public class RoomActivity extends AppCompatActivity {
         });
         IntentFilter intentSFilter = new IntentFilter("DATA_CHANGED");
         registerReceiver(dataChangedReceiver, intentSFilter);
+
 
         // Views
         roomsRecycler = findViewById(R.id.tasksRecycler);
@@ -149,19 +158,11 @@ public class RoomActivity extends AppCompatActivity {
         optionButton = findViewById(R.id.optionButton);
         addMemberButton = findViewById(R.id.addMemberButton);
 
-        // Setting up empty adapter
-        ArrayList<Task> emptyData = new ArrayList<Task>();
-        emptyData.add(new Task());
-        roomsRecycler.setAdapter(new HomeActivityTaskAdapter(RoomActivity.this,emptyData));
-        taskDataAdded = new ArrayList<>();
-        taskData = new ArrayList<>();
-        usersData = new ArrayList<>();
-
         // Helpers
-        dco = new DCO(room, taskData, usersData, new DCO.OnDataChangeListener() {
+        dco = new DCO(new DCO.OnDataChangeListener() {
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
-                Room newRoom = dco.getRoom();
+                Room newRoom = dco.getRoom(room.getId());
                 System.out.println(newRoom);
 
                 if (usersData != null){
@@ -169,7 +170,9 @@ public class RoomActivity extends AppCompatActivity {
                 }
 
                 if (taskData != null){
-                    RoomActivity.this.taskData = taskData;
+                    RoomActivity.this.taskData = dco.filterTasksForThisRoom(room.getId());
+                    taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,RoomActivity.this.taskData);
+                    roomsRecycler.setAdapter(taskAdapter);
                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
                 }
 
@@ -185,8 +188,13 @@ public class RoomActivity extends AppCompatActivity {
             }
         });
 
+        // Setting up empty adapter
+        taskData = dco.filterTasksForThisRoom(room.getId());
+        taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData);
+        roomsRecycler.setAdapter(taskAdapter);
+
         // Setting up values
-        dco.updateRoomChangeableInfo(room);
+        dco.updateRoomChangeableInfo(taskData,room);
         roomTaskCount.setText(String.valueOf(room.getTasksCount()));
         roomPeopleCount.setText(String.valueOf(room.getPeopleCount()));
         cardBackground.setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(room.getColor(),"AD")));
@@ -201,21 +209,6 @@ public class RoomActivity extends AppCompatActivity {
 
         // helpers
         databaseHelper = new DatabaseHelper();
-        databaseHelper.setRoom(room);
-        databaseHelper.setOnDataLoadedListener(new DatabaseHelper.OnDataLoadedListener() {
-            @Override
-            public void onDataLoaded(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> userData) {
-                RoomActivity.this.taskData = taskData;
-                RoomActivity.this.usersData = userData;
-
-                taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData);
-                roomsRecycler.setAdapter(taskAdapter);
-
-                dco.setTaskData(taskData);
-                dco.setUsersData(userData);
-            }
-        });
-        databaseHelper.getData(Constants.Firebase.DATA_FOR_ROOM);
 
         // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -229,12 +222,12 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
-                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom());
+                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom(room.getId()));
                     dialog.setRoom(room);
                     dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
                         @Override
                         public void onRoomDataChangedListener(Room room) {
-                            dco.updateRoomChangeableInfo(room);
+                            dco.updateRoomChangeableInfo(taskData,room);
                             dco.updateTaskRoomInfo(room);
 
                         }
@@ -259,16 +252,7 @@ public class RoomActivity extends AppCompatActivity {
                     alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            databaseHelper.leaveRoom(room, auth.getUid(), new OnCompleteListener() {
-                                @Override
-                                public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
-                                    if (task.isSuccessful()){
-                                        left = true;
-                                        finish();
-                                    }
-                                    else {}
-                                }
-                            });
+                            dco.leaveRoom(room,auth.getUid());
                             alert.dismiss();
                         }
                     });
@@ -286,7 +270,6 @@ public class RoomActivity extends AppCompatActivity {
                     public void onTaskAdded(Task task) {
                         // Add task id to room and increment count of them
                         dco.addTask(task);
-                        taskDataAdded.add(task);
                     }
                 });
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");
@@ -311,7 +294,7 @@ public class RoomActivity extends AppCompatActivity {
                                     if (task.isSuccessful()){
                                         dialog.dismiss();
                                         room.addUserId(id);
-                                        dco.updateRoomChangeableInfo(room);
+                                        dco.updateRoomChangeableInfo(taskData,room);
                                         Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
                                     }
                                 }
@@ -326,15 +309,14 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+    }
+
+    @Override
     public void finish() {
-        room.setJustLeft(left);
-
-        // Setting up room so activity can update its information's
-        Intent intent = getIntent();
-        intent.putExtra(Constants.Firebase.DOCUMENT_ROOMS,room);
-        intent.putExtra(Constants.Firebase.DOCUMENT_TASKS,taskDataAdded);
-
-        setResult(Constants.Result.ROOM_CHANGED,intent);
+        unregisterReceiver(dataChangedReceiver);
         super.finish();
     }
 }

@@ -105,17 +105,7 @@ public class NotificationService extends Service {
                     for (DocumentChange doc : value.getDocumentChanges()) {
                         Log.w("DB", doc.getType().name() + " : " + doc.getDocument().getData());
                         processData(DOCUMENT_TASKS, (HashMap<String, Object>) doc.getDocument().getData(),doc.getDocument().getId(),doc.getType());
-                        //doc.getDocument().getData().get();
-                        /*Task taskAdded = new Task();
-                        try{
-                            taskAdded.cast(doc.getDocument().getId(),doc.getDocument().getData());
 
-                            // Checking if task is for this user
-                            if (taskAdded.getReceiverId().equals(auth.getUid())){
-                                // Notify and add task others
-                                ;
-                            }
-                        }catch (Error e){}*/
                     }
                 }
             }
@@ -183,7 +173,29 @@ public class NotificationService extends Service {
     }
 
     private void processData(String COLLECTION, HashMap<String,Object> data,String documentID, DocumentChange.Type type){
-        if (isNew(data)){
+        if ( type == REMOVED) {
+            sendChangedData(COLLECTION, data, documentID, type);
+
+            switch (COLLECTION) {
+                case DOCUMENT_ROOMS:
+                    Room room = new Room();
+                    room.cast(documentID, data);
+                    roomData.remove(room);
+                    break;
+                case DOCUMENT_TASKS:
+                    Task task = new Task();
+                    task.cast(documentID,data);
+                    taskData.remove(task);
+                    break;
+                case DOCUMENT_USERS:
+                    User user = new User();
+                    user.cast(data);
+                    usersData.remove(user);
+                    break;
+            }
+        }
+
+        else if (isNew(data)){
                 // Notifications it self
                 // send notification
                 Intent intent;
@@ -198,6 +210,11 @@ public class NotificationService extends Service {
                         intent = new Intent(this, SplashScreenActivity.class);
                         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
+                        if (type == REMOVED) {
+
+                            break;
+                        }
+
                         if (isRoomNew(room) ) {
                             roomData.add(room);
                             // If i haven't created room then notify me
@@ -205,7 +222,7 @@ public class NotificationService extends Service {
                                 sendNotification("New room here!", "You are now member of room " + room.getTitle() + ". " + "Go check it out", pendingIntent);
                         }
                         else {
-                            if (type == REMOVED) break;
+
 
                             // If i haven't changed room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid()))

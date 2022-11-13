@@ -71,7 +71,8 @@ public class Constants {
     }
 
     public static class Result{
-        public static final int ROOM_CHANGED = 0;
+        public static final int ROOM_ACTIVITY = 0;
+        public static final int PROFILE_ACTIVITY = 1;
     }
 
     public static class Validation{
@@ -102,7 +103,11 @@ public class Constants {
     }
 
     public static class TextPrint{
-
+        public static class Task{
+            public static final int ROOM_NAME_MAX_CHAR = 6;
+            public static final int USER_NAME_MAX_CHAR = 6;
+            public static final int HEADING_NAME_MAX_CHAR = 18;
+        }
     }
 
 }

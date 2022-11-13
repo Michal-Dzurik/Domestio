@@ -1,7 +1,11 @@
 package sk.dzurikm.domestio.helpers;
 
-import android.graphics.Color;
-import android.view.View;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.util.ArrayList;
 
@@ -16,29 +20,74 @@ public class DCO {
     private ArrayList<Task> taskData;
     private ArrayList<User> usersData;
 
-    private Room room;
 
     private OnDataChangeListener onDataChangeListener;
     
     private DatabaseHelper databaseHelper;
 
+    public DCO(OnDataChangeListener onDataChangeListener) {
+        this.onDataChangeListener = new OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                onDataChangeListener.onChange(usersData,roomData,taskData);
+
+                saveToStorage();
+            }
+        };
+
+        loadFromStorage();
+
+        databaseHelper = new DatabaseHelper();
+    }
+
     public DCO(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> usersData, OnDataChangeListener onDataChangeListener) {
         this.roomData = roomData;
         this.taskData = taskData;
         this.usersData = usersData;
-        this.onDataChangeListener = onDataChangeListener;
+        this.onDataChangeListener = new OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                onDataChangeListener.onChange(usersData,roomData,taskData);
+
+                saveToStorage();
+            }
+        };
+
+        saveToStorage();
         
         databaseHelper = new DatabaseHelper();
     }
 
-    public DCO(Room room, ArrayList<Task> taskData, ArrayList<User> usersData, OnDataChangeListener onDataChangeListener) {
+    public DCO(ArrayList<Task> taskData, ArrayList<User> usersData, OnDataChangeListener onDataChangeListener) {
         this.roomData = null;
-        this.room = room;
         this.taskData = taskData;
         this.usersData = usersData;
-        this.onDataChangeListener = onDataChangeListener;
+        this.onDataChangeListener = new OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                onDataChangeListener.onChange(usersData,roomData,taskData);
+
+                saveToStorage();
+            }
+        };
+
+        saveToStorage();
 
         databaseHelper = new DatabaseHelper();
+    }
+
+    private void saveToStorage(){
+        DataStorage.rooms = roomData;
+        DataStorage.tasks = taskData;
+        DataStorage.users = usersData;
+    }
+
+    private void loadFromStorage(){
+        roomData = DataStorage.rooms;
+        taskData = DataStorage.tasks ;
+        usersData = DataStorage.users;
+
+        Log.i("Loading from storage result", String.valueOf(taskData));
     }
 
     public void addRoom(Room room){
@@ -116,7 +165,7 @@ public class DCO {
     }
 
     public void addTask(Task task){
-        if (roomData != null) {
+
             for (int i = 0; i < roomData.size(); i++) {
                 if (roomData.get(i).getId().equals(task.getRoomId())){
                     roomData.get(i).addTaskId(task.getId());
@@ -124,13 +173,7 @@ public class DCO {
                     break;
                 }
             }
-
             task.setColor(getRoomsColor(task.getRoomId()));
-        }
-
-        else{
-            task.setColor(room.getColor());
-        }
 
 
         taskData.add(task);
@@ -197,9 +240,18 @@ public class DCO {
 
 
     // Room Activity
+    public void updateRoomChangeableInfo( ArrayList<Task> taskData,Room room){
+        System.out.println(room);
+
+        for (int i = 0; i < taskData.size(); i++) {
+            taskData.get(i).setColor(room.getColor());
+        }
+
+        onDataChangeListener.onChange(usersData,roomData,DCO.this.taskData);
+    }
+
     public void updateRoomChangeableInfo(Room room){
         System.out.println(room);
-        this.room = room;
 
         for (int i = 0; i < taskData.size(); i++) {
             taskData.get(i).setColor(room.getColor());
@@ -225,19 +277,38 @@ public class DCO {
         return null;
     }
 
-    public ArrayList<User> filterUsersForThisRoom(){
+    public ArrayList<User> filterUsersForThisRoom(String id){
         ArrayList<User> filtered = new ArrayList<>();
 
         for (int i = 0; i < usersData.size(); i++) {
-            if (room.getUserIds().contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
+            if (id.contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
         }
 
         return filtered;
     }
 
-    public Room getRoom() {
-        return room;
+    public ArrayList<Task> filterTasksForThisRoom(String id){
+        ArrayList<Task> filtered = new ArrayList<>();
+
+        for (int i = 0; i < taskData.size(); i++) {
+            if (id.equals(taskData.get(i).getRoomId())) filtered.add(taskData.get(i));
+        }
+
+        return filtered;
     }
+
+    public void leaveRoom(Room room,String uid){
+        databaseHelper.leaveRoom(room, uid, new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                if (task.isSuccessful()){
+                    cleanAfterLeftRoom(room);
+                }
+                else {}
+            }
+        });
+    }
+
 
     public void setRoomData(ArrayList<Room> roomData) {
         this.roomData = roomData;
@@ -251,8 +322,25 @@ public class DCO {
         this.usersData = usersData;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+
+    public ArrayList<Room> getRoomData() {
+        return roomData;
+    }
+
+    public ArrayList<Task> getTaskData() {
+        return taskData;
+    }
+
+    public ArrayList<User> getUsersData() {
+        return usersData;
+    }
+
+    public Room getRoom(String id) {
+        for (int i = 0; i < roomData.size(); i++) {
+            if (id.equals(roomData.get(i).getId())) return roomData.get(i);
+        }
+
+        return null;
     }
 
     public interface OnDataChangeListener{

@@ -1,6 +1,5 @@
 package sk.dzurikm.domestio.helpers;
 
-import static android.provider.Settings.System.getString;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASS_MIN_LENGTH;
@@ -27,6 +26,8 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.Timestamp;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,10 +35,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
 
 public class Helpers {
+
+    public static String limitLetters(String str,int letterNumb){
+        if (str.length() <= letterNumb) return str;
+
+        String[] arr = str.split(" ");
+
+        if (arr[0].length() <= letterNumb) return arr[0];
+
+        StringBuilder limitedStr = new StringBuilder();
+        for (int i = 0; i < letterNumb; i++) {
+            limitedStr.append(str.charAt(i));
+        }
+
+        return limitedStr.toString() + "…";
+    }
 
     public static int positiveValueOrDefault(int value,int defaultValue){
         if (value < 0) return defaultValue;
@@ -296,6 +314,63 @@ public class Helpers {
             notificationManager.notify(id, notification.build());
         }
 
+    }
+
+    public static class DataSet{
+        public static String getAuthorName(ArrayList<User> usersData, String uid){
+            for (int i = 0; i < usersData.size(); i++) {
+                if (usersData.get(i).getId().equals(uid)) return usersData.get(i).getName();
+            }
+
+            return null;
+        }
+
+        public static String getRoomTitle(ArrayList<Room> roomData, String id){
+            for (int i = 0; i < roomData.size(); i++) {
+                if (roomData.get(i).getId().equals(id)) return roomData.get(i).getTitle();
+            }
+
+            return null;
+        }
+
+        public static HashMap<String,String> getRoomInfo(ArrayList<Room> roomData, String id, String[] info){
+            for (int i = 0; i < roomData.size(); i++) {
+                Room room = roomData.get(i);
+                if (room.getId().equals(id)) {
+                    HashMap<String,String> map = new HashMap<>();
+                    for (int j = 0; j < info.length; j++) {
+                        String key = info[j];
+
+                        // Dynamic getters construction
+                        try {
+                            String methodName = "get" + firstUppercase(key);
+                            Method method = Room.class.getMethod(methodName);
+                            map.put(key,(String) method.invoke(room));
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    return map;
+                }
+            }
+
+            return null;
+        }
+
+    }
+
+    public static String getAuthorName(ArrayList<User> usersData, String uid){
+        for (int i = 0; i < usersData.size(); i++) {
+            if (usersData.get(i).equals(uid)) return usersData.get(i).getName();
+        }
+
+        return null;
     }
 
 }

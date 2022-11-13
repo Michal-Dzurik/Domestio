@@ -21,9 +21,12 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Task;
 
@@ -33,6 +36,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     private LayoutInflater layoutInflater;
     private boolean empty;
     private Context context;
+    private FirebaseAuth auth;
 
     // data is passed into the constructor
     public HomeActivityTaskAdapter(Context context, List<Task> data) {
@@ -40,6 +44,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
         this.context = context;
+        this.auth = FirebaseAuth.getInstance();
     }
 
     // inflates the row layout from xml when needed
@@ -65,11 +70,11 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         if (!empty){
             String heading,description,owner,time,room,color;
 
-            heading = Helpers.stringValueOrDefault(currentTask.getHeading(),"Heading not provided");
+            heading = Helpers.limitLetters(Helpers.stringValueOrDefault(currentTask.getHeading(),"Heading not provided"), Constants.TextPrint.Task.HEADING_NAME_MAX_CHAR);
             description = Helpers.stringValueOrDefault(currentTask.getDescription(),"");
-            owner = Helpers.stringValueOrDefault(currentTask.getAuthor(),"No owner");
+            owner = Helpers.limitLetters(Helpers.stringValueOrDefault(currentTask.getAuthor(),"No owner"),Constants.TextPrint.Task.USER_NAME_MAX_CHAR);
             time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
-            room = Helpers.stringValueOrDefault(currentTask.getRoomName(),"No room");
+            room = Helpers.limitLetters(Helpers.stringValueOrDefault(currentTask.getRoomName(),"No room"),Constants.TextPrint.Task.ROOM_NAME_MAX_CHAR);
             color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
             holder.getHeading()
@@ -115,6 +120,18 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                     }
 
 
+                }
+            });
+
+            holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // TODO make alert to remove this if you are author
+                    if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+                        // Open dialog with action delete
+                    }
+
+                    return true;
                 }
             });
 

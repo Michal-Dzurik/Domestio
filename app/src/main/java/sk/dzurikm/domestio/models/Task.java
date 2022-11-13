@@ -165,6 +165,7 @@ public class Task implements Serializable {
                 ", author='" + author + '\'' +
                 ", timestamp=" + new Timestamp(date) +
                 ", done=" + done +
+                ", color=" + (color == null ? "Nothing" : color) +
                 '}';
     }
 

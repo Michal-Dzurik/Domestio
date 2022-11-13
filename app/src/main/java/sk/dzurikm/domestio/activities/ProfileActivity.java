@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,19 +25,23 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
+import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
@@ -70,6 +75,13 @@ public class ProfileActivity extends AppCompatActivity {
     // Validation
     Helpers.Validation validation;
 
+    // DCO
+    DCO dco;
+
+    // Broadcasts
+    DataChangedReceiver dataChangedReceiver;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +93,84 @@ public class ProfileActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+
+        // Helpers
+        dco = new DCO(new DCO.OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<sk.dzurikm.domestio.models.Task> taskData) {
+                // Don't need to change anything in this activity so it is blank
+            }
+        });
+
+        // Broadcasts
+        dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
+            @Override
+            public void onDataChanged(HashMap<String, Object> data, String collection, String documentID, DocumentChange.Type type) {
+
+                switch (collection){
+                    case Constants.Firebase.DOCUMENT_ROOMS:
+                        Room room = new Room();
+                        room.cast(documentID,data);
+
+                        switch (type){
+                            case ADDED:
+                                dco.addRoom(room);
+                                break;
+                            case MODIFIED:
+                                dco.updateRoomChangeableInfo(room);
+                                break;
+                            case REMOVED:
+
+                                break;
+                        }
+
+                        break;
+
+                    case Constants.Firebase.DOCUMENT_TASKS:
+                        sk.dzurikm.domestio.models.Task task = new sk.dzurikm.domestio.models.Task();
+                        task.cast(documentID,data);
+
+                        task.setAuthor(Helpers.DataSet.getAuthorName(DataStorage.users,task.getAuthorId()));
+
+                        HashMap<String,String> dat = Helpers.DataSet.getRoomInfo(DataStorage.rooms,task.getRoomId(), new String[]{Constants.Firebase.Room.FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+                        task.setRoomName(dat.get(Constants.Firebase.Room.FIELD_TITLE));
+                        task.setColor(dat.get(Constants.Firebase.Room.FIELD_COLOR));
+
+
+                        switch (type){
+                            case ADDED:
+                                dco.addTask(task);
+                                break;
+                            case MODIFIED:
+                                dco.updateTask(task);
+                                break;
+                            case REMOVED:
+                                dco.removeTask(task);
+                                break;
+                        }
+
+                        break;
+
+                    case Constants.Firebase.DOCUMENT_USERS:
+                        User user = new User();
+                        user.cast(data);
+
+                        switch (type){
+                            case ADDED:
+                                dco.addUser(user);
+                                break;
+                            case MODIFIED:
+                                dco.updatedUser(user);
+                                break;
+                        }
+
+                        break;
+                }
+            }
+
+        });
+        IntentFilter intentSFilter = new IntentFilter("DATA_CHANGED");
+        registerReceiver(dataChangedReceiver, intentSFilter);
 
         // Views
         backButton = findViewById(R.id.backButton);
@@ -262,7 +352,9 @@ public class ProfileActivity extends AppCompatActivity {
                                                 editNameAlert.dismiss();
 
                                                 // Changing hints in activity to be updated
-                                                changeNamesDisplayed(input);
+                                                User userToChange = new User();
+                                                userToChange.setName(input);
+                                                changeNamesDisplayed(userToChange);
                                                 Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
 
                                             } else somethingWentWrongMessage();
@@ -339,7 +431,9 @@ public class ProfileActivity extends AppCompatActivity {
                             if (task.isSuccessful()){
                                 editEmailAlert.dismiss();
 
-                                changeEmailsDisplayed(input);
+                                User userToUpdate = new User();
+                                userToUpdate.setEmail(input);
+                                changeEmailsDisplayed(userToUpdate);
 
                                 Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
                             }
@@ -412,17 +506,25 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    private void changeNamesDisplayed(String name){
-        userNameHint.setText(name);
-        userNameText.setText(name);
+    private void changeNamesDisplayed(User user){
+        userNameHint.setText(user.getName());
+        userNameText.setText(user.getName());
+
+        dco.updatedUser(user);
     }
 
-    private void changeEmailsDisplayed(String email){
-        userEmailHint.setText(email);
+    private void changeEmailsDisplayed(User user){
+        userEmailHint.setText(user.getEmail());
+        dco.updatedUser(user);
     }
 
     private void somethingWentWrongMessage(){
         Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void finish() {
+        unregisterReceiver(dataChangedReceiver);
+        super.finish();
+    }
 }

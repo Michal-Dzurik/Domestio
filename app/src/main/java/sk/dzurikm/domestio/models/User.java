@@ -56,7 +56,7 @@ public class User implements Serializable {
     }
 
     public void update(User user) {
-        this.email = user.getEmail();
-        this.name = user.getName();
+        if (user.getEmail() != null) this.email = user.getEmail();
+        if (user.getName() != null) this.name = user.getName();
     }
 }

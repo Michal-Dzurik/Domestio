@@ -1,35 +1,28 @@
 package sk.dzurikm.domestio.activities;
 
+import static sk.dzurikm.domestio.helpers.Constants.Result.PROFILE_ACTIVITY;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.app.ActivityManager;
-import android.app.PendingIntent;
+import android.app.appsearch.StorageInfo;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
@@ -37,6 +30,7 @@ import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -75,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // Broadcast receivers
     DataChangedReceiver dataChangedReceiver;
+    IntentFilter intentSFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +92,10 @@ public class HomeActivity extends AppCompatActivity {
         noTasksText = findViewById(R.id.noTasksText);
 
         loading.setVisibility(View.VISIBLE);
+
+        System.out.println(DataStorage.users);
+        System.out.println(DataStorage.rooms);
+        System.out.println(DataStorage.tasks);
 
         // Login info
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -140,6 +139,11 @@ public class HomeActivity extends AppCompatActivity {
                         Task task = new Task();
                         task.cast(documentID,data);
 
+                        HashMap<String,String> dat = Helpers.DataSet.getRoomInfo(roomData,task.getRoomId(), new String[]{Constants.Firebase.Room.FIELD_TITLE, Constants.Firebase.Room.FIELD_COLOR});
+                        task.setAuthor(Helpers.DataSet.getAuthorName(usersData,task.getAuthorId()));
+                        task.setRoomName(dat.get(Constants.Firebase.Room.FIELD_TITLE));
+                        task.setColor(dat.get(Constants.Firebase.Room.FIELD_COLOR));
+
                         System.out.println(type);
                         switch (type){
                             case ADDED:
@@ -164,7 +168,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
         });
-        IntentFilter intentSFilter = new IntentFilter("DATA_CHANGED");
+        intentSFilter = new IntentFilter("DATA_CHANGED");
         registerReceiver(dataChangedReceiver, intentSFilter);
 
 
@@ -182,7 +186,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent profileActivityIntent = new Intent(HomeActivity.this,ProfileActivity.class );
 
-                startActivity(profileActivityIntent);
+                HomeActivity.this.startActivityForResult(profileActivityIntent,PROFILE_ACTIVITY);
             }
         });
 
@@ -216,13 +220,13 @@ public class HomeActivity extends AppCompatActivity {
                 hideLoading();
             }
         });
-        databaseHelper.getData(Constants.Firebase.DATA_FOR_USER);
+        databaseHelper.getData(Constants.Firebase.DATA_FOR_USER,null);
     }
 
     private void hideNoDataMessages(){
-        if (roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
+        if (roomData != null && roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
         else noRoomsText.setVisibility(View.GONE);
-        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+        if (taskData != null && taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
         else noTasksText.setVisibility(View.GONE);
     }
 
@@ -241,7 +245,6 @@ public class HomeActivity extends AppCompatActivity {
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
-
                 if (usersData != null) {
                     HomeActivity.this.usersData = usersData;
                 }
@@ -283,6 +286,30 @@ public class HomeActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onResume() {
+        usersData = DataStorage.users;
+        roomData = DataStorage.rooms;
+        taskData = DataStorage.tasks;
+
+        if (roomAdapter != null) roomAdapter.notifyDataSetChanged();
+        if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
+
+        hideNoDataMessages();
+
+        registerReceiver(dataChangedReceiver,intentSFilter);
+
+        System.out.println(DataStorage.tasks);
+
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(dataChangedReceiver);
+        super.onPause();
+    }
+
+    @Override
     protected void onStart() {
         overridePendingTransition(0,0);
         super.onStart();
@@ -290,30 +317,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) {
-            case Constants.Result.ROOM_CHANGED:
-                Room room = (Room) data.getExtras().get(Constants.Firebase.DOCUMENT_ROOMS);
-                if (room.hasJustLeft()){
-                    // remove room from list and update everything
-                    dco.cleanAfterLeftRoom(room);
-                }else dco.onRoomChanged(room);
-
-                ArrayList<Task> tasks = (ArrayList<Task>) data.getExtras().get(Constants.Firebase.DOCUMENT_TASKS);
-                if (!tasks.isEmpty()){
-                    for (int i = 0; i < tasks.size(); i++) {
-                        dco.addTask(tasks.get(i));
-                    }
-
-                }
-                break;
-        }
-    }
-
-    @Override
     protected void onDestroy() {
-        unregisterReceiver(dataChangedReceiver);
 
         super.onDestroy();
     }

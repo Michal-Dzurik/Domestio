@@ -139,7 +139,7 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
                 i.putExtra("room",currentRoom);
 
 
-                ((Activity) context).startActivityForResult(i, Constants.Result.ROOM_CHANGED);
+                context.startActivity(i);
             }
         });
     }
