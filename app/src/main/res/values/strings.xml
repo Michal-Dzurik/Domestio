@@ -2,8 +2,6 @@
     <string name="app_name">Domestio</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -122,4 +120,12 @@
     <string name="you_didnt_set_the_time">You didn\'t set the time</string>
     <string name="user_not_selected">User is not selected</string>
     <string name="room_not_selected">Room is not selected</string>
+    <string name="new_room">New room here!</string>
+    <string name="your_are_member_of_room">You are now member of room </string>
+    <string name="go_check_it_out">Go check it out</string>
+    <string name="something_new_in_room">Something new in room </string>
+    <string name="new_task">New task!</string>
+    <string name="task_modified">Task modified</string>
+    <string name="you_have_new_task">You have new task </string>
+    <string name="something_new_in_task">"Something new in your "</string>
 </resources>

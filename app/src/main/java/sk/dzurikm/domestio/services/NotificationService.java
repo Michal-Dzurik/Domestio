@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.HomeActivity;
 import sk.dzurikm.domestio.activities.SplashScreenActivity;
 import sk.dzurikm.domestio.helpers.Constants;
@@ -219,14 +220,14 @@ public class NotificationService extends Service {
                             roomData.add(room);
                             // If i haven't created room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification("New room here!", "You are now member of room " + room.getTitle() + ". " + "Go check it out", pendingIntent);
+                                sendNotification(getString(R.string.new_room), getString(R.string.your_are_member_of_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                         }
                         else {
 
 
                             // If i haven't changed room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification(room.getTitle(), "Something new in room " + room.getTitle() + ". " + "Go check it out", pendingIntent);
+                                sendNotification(room.getTitle(), getString(R.string.something_new_in_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                         }
                         break;
                     case DOCUMENT_TASKS:
@@ -242,14 +243,14 @@ public class NotificationService extends Service {
 
                             // If i haven't created task then notify me
                             if(!task.getAuthorId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification("New task!", "You have new task " + task.getHeading() + ". " + "Go check it out", pendingIntent);
+                                sendNotification(getString(R.string.new_task), getString(R.string.you_have_new_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                         }
                         else {
                             if (type == REMOVED) break;
 
                             // If i haven't changed task then notify me
                             if(!task.getAuthorId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification("Task modified", "Something new in your " + task.getHeading() + ". " + "Go check it out", pendingIntent);
+                                sendNotification(getString(R.string.task_modified), getString(R.string.something_new_in_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                         }
                         break;
                     case DOCUMENT_USERS:
