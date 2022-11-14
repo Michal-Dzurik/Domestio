@@ -277,11 +277,11 @@ public class DCO {
         return null;
     }
 
-    public ArrayList<User> filterUsersForThisRoom(String id){
+    public ArrayList<User> filterUsersForThisRoom(ArrayList<String> users){
         ArrayList<User> filtered = new ArrayList<>();
 
         for (int i = 0; i < usersData.size(); i++) {
-            if (id.contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
+            if (users.contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
         }
 
         return filtered;

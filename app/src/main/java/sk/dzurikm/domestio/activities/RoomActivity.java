@@ -222,7 +222,7 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
-                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom(room.getId()));
+                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom(room.getUserIds()));
                     dialog.setRoom(room);
                     dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
                         @Override
