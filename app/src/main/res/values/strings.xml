@@ -128,4 +128,6 @@
     <string name="task_modified">Task modified</string>
     <string name="you_have_new_task">You have new task </string>
     <string name="something_new_in_task">"Something new in your "</string>
+    <string name="remove_task">Remove task</string>
+    <string name="do_you_want_to_remove_task">Do you really want to remove this task?</string>
 </resources>

@@ -215,6 +215,19 @@
             android:textColor="?attr/PrimaryTextColor"
             android:textSize="@dimen/heading_text_size" />
 
+        <TextView
+            android:id="@+id/noTasksText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/you_have_no_tasks"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/verticalTaskSlider"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tasksRecycler"
             android:layout_width="match_parent"
@@ -225,6 +238,7 @@
             android:layoutAnimation="@anim/taks_layout_animator"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"/>
+
 
 
     </LinearLayout>

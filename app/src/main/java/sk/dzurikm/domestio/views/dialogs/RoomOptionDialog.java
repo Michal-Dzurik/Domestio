@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -27,10 +28,13 @@ import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
+import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 
 public class RoomOptionDialog extends BottomSheetDialogFragment {
@@ -56,15 +60,17 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
 
     // Listeners
     RoomDataChangedListener roomDataChangedListener;
+    RoomRemoveListener roomRemoveListener;
 
     // Needed variables
     ArrayList<User> users;
 
 
-    public RoomOptionDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users) {
+    public RoomOptionDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users, RoomRemoveListener roomRemoveListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.users = users;
+        this.roomRemoveListener = roomRemoveListener;
     }
 
     @Override
@@ -140,6 +146,42 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
             @Override
             public void onClick(View v) {
                 // Remove room
+
+                Alert alert = new Alert(context);
+                alert.setTitle(context.getString(R.string.remove_task));
+                alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
+                alert.setNegativeButtonText(context.getString(R.string.no));
+                alert.setPositiveButtonText(context.getString(R.string.yes));
+                alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Delete task
+                        // TODO make alert to remove this if you are author
+                        DCO dco = new DCO(new DCO.OnDataChangeListener() {
+                            @Override
+                            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+
+                            }
+                        });
+                        dco.removeRoom(room, new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                                if (task.isSuccessful()){
+                                    roomRemoveListener.onRoomRemove();
+                                    alert.dismiss();
+                                }
+                            }
+                        });
+
+                    }
+                });
+                alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alert.dismiss();
+                    }
+                });
+                alert.show();
             }
         });
 
@@ -271,5 +313,9 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
 
     public interface RoomDataChangedListener{
         public void onRoomDataChangedListener(Room room);
+    }
+
+    public interface RoomRemoveListener{
+        public void onRoomRemove();
     }
 }

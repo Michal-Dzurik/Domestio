@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import sk.dzurikm.domestio.activities.RoomActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -378,6 +379,21 @@ public class DatabaseHelper {
         return document.getId();
     }
 
+    public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
+
+        Map<String, Object> update = new HashMap<>();
+        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId));
+        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
+        db.collection(DOCUMENT_ROOMS).document(roomId)
+                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        // TODO send and email to user
+                        onCompleteListener.onComplete(task);
+                    }
+                });
+    }
+
     public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
         // Set Name
         UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
@@ -401,21 +417,6 @@ public class DatabaseHelper {
 
     public void updateUserPassword(String password,OnCompleteListener<Void> onCompleteListener){
         Objects.requireNonNull(auth.getCurrentUser()).updatePassword(password).addOnCompleteListener(onCompleteListener);
-    }
-
-    public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
-
-        Map<String, Object> update = new HashMap<>();
-        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId));
-        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
-        db.collection(DOCUMENT_ROOMS).document(roomId)
-                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                        // TODO send and email to user
-                        onCompleteListener.onComplete(task);
-                    }
-                });
     }
 
     public void removeUserFromRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
@@ -450,6 +451,10 @@ public class DatabaseHelper {
 
     public void leaveRoom(Room room,String userId, OnCompleteListener onCompleteListener){
         removeUserFromRoom(room,userId,onCompleteListener);
+    }
+
+    public void removeRoom(Room room,OnCompleteListener onCompleteListener){
+        db.collection(DOCUMENT_ROOMS).document(room.getId()).delete().addOnCompleteListener(onCompleteListener);
     }
 
     /**

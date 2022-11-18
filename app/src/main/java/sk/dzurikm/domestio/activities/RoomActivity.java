@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
-import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -44,7 +42,7 @@ public class RoomActivity extends AppCompatActivity {
 
     // Views
     RecyclerView roomsRecycler;
-    TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount;
+    TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount,noTaskText;
     ImageButton backButton,addTaskButton,optionButton;
     LinearLayout cardBackground;
     Button addMemberButton;
@@ -157,6 +155,7 @@ public class RoomActivity extends AppCompatActivity {
         addTaskButton = findViewById(R.id.addTaskButton);
         optionButton = findViewById(R.id.optionButton);
         addMemberButton = findViewById(R.id.addMemberButton);
+        noTaskText = findViewById(R.id.noTasksText);
 
         // Helpers
         dco = new DCO(new DCO.OnDataChangeListener() {
@@ -174,6 +173,8 @@ public class RoomActivity extends AppCompatActivity {
                     taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,RoomActivity.this.taskData);
                     roomsRecycler.setAdapter(taskAdapter);
                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+
+                    hideNoTasksText();
                 }
 
                 if (newRoom != null){
@@ -192,6 +193,7 @@ public class RoomActivity extends AppCompatActivity {
         taskData = dco.filterTasksForThisRoom(room.getId());
         taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData);
         roomsRecycler.setAdapter(taskAdapter);
+        hideNoTasksText();
 
         // Setting up values
         dco.updateRoomChangeableInfo(taskData,room);
@@ -222,7 +224,12 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
-                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom(room.getUserIds()));
+                    RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager(), dco.filterUsersForThisRoom(room.getUserIds()), new RoomOptionDialog.RoomRemoveListener() {
+                        @Override
+                        public void onRoomRemove() {
+                            finish();
+                        }
+                    });
                     dialog.setRoom(room);
                     dialog.setRoomDataChangedListener(new RoomOptionDialog.RoomDataChangedListener() {
                         @Override
@@ -252,8 +259,14 @@ public class RoomActivity extends AppCompatActivity {
                     alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            dco.leaveRoom(room,auth.getUid());
-                            alert.dismiss();
+                            dco.leaveRoom(room, auth.getUid(), new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                                    finish();
+                                    alert.dismiss();
+                                }
+                            });
+
                         }
                     });
 
@@ -306,6 +319,11 @@ public class RoomActivity extends AppCompatActivity {
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Member");
             }
         });
+    }
+
+    private void hideNoTasksText(){
+        if (taskData.size() == 0) noTaskText.setVisibility(View.VISIBLE);
+        else noTaskText.setVisibility(View.GONE);
     }
 
     @Override

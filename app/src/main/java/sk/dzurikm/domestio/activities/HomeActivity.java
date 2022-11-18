@@ -299,6 +299,7 @@ public class HomeActivity extends AppCompatActivity {
         registerReceiver(dataChangedReceiver,intentSFilter);
 
         System.out.println(DataStorage.tasks);
+        System.out.println(DataStorage.rooms);
 
         super.onResume();
     }

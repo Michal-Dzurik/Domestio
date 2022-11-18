@@ -29,6 +29,7 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Task;
+import sk.dzurikm.domestio.views.alerts.Alert;
 
 public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTaskAdapter.ViewHolder> {
 
@@ -126,9 +127,29 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    // TODO make alert to remove this if you are author
-                    if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+
+                    if (!currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
                         // Open dialog with action delete
+                        Alert alert = new Alert(context);
+                        alert.setTitle(context.getString(R.string.remove_task));
+                        alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
+                        alert.setNegativeButtonText(context.getString(R.string.no));
+                        alert.setPositiveButtonText(context.getString(R.string.yes));
+                        alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Delete task
+                                // TODO make alert to remove this if you are author
+                                alert.dismiss();
+                            }
+                        });
+                        alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                alert.dismiss();
+                            }
+                        });
+                        alert.show();
                     }
 
                     return true;

@@ -297,16 +297,41 @@ public class DCO {
         return filtered;
     }
 
-    public void leaveRoom(Room room,String uid){
+    public void leaveRoom(Room room,String uid, OnCompleteListener onCompleteListener){
         databaseHelper.leaveRoom(room, uid, new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
                 if (task.isSuccessful()){
                     cleanAfterLeftRoom(room);
+                    onCompleteListener.onComplete(task);
                 }
                 else {}
             }
         });
+    }
+
+    public void removeRoom(Room room,OnCompleteListener onCompleteListener){
+        databaseHelper.removeRoom(room, new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                for (int i = 0; i < roomData.size(); i++) {
+                    if (roomData.get(i).getId().equals(room.getId())) {
+                        roomData.remove(i);
+
+
+                        removeAllTasksWithRoomId(room.getId());
+
+                        break;
+                    }
+                }
+
+                saveToStorage();
+                onCompleteListener.onComplete(task);
+            }
+        });
+
+
+
     }
 
 
