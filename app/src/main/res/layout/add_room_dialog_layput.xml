@@ -24,8 +24,9 @@
                 android:layout_height="45dp"
                 android:padding="11dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/trash"
-                android:background="@drawable/leave_button_background" />
+                android:src="@drawable/ic_back"
+                android:background="@drawable/leave_button_background"
+                app:tint="@color/white" />
 
             <TextView
                 android:layout_width="match_parent"

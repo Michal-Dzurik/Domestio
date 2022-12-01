@@ -130,4 +130,7 @@
     <string name="something_new_in_task">"Something new in your "</string>
     <string name="remove_task">Remove task</string>
     <string name="do_you_want_to_remove_task">Do you really want to remove this task?</string>
+    <string name="tasks_you_created">Tasks you created</string>
+    <string name="delete">Delete</string>
+    <string name="options">Options</string>
 </resources>

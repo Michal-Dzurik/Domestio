@@ -17,7 +17,9 @@ import java.util.ArrayList;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.AboutMeActivity;
+import sk.dzurikm.domestio.activities.HomeActivity;
 import sk.dzurikm.domestio.activities.SettingsActivity;
+import sk.dzurikm.domestio.activities.YourTasksActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -26,7 +28,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
 
     // Views
     private View rootView;
-    private View addRoomButton,addTaskButton,aboutButton,settingsButton;
+    private View addRoomButton,addTaskButton,aboutButton,settingsButton,tasksYouCreatedButton;
 
     // Needed variables
     private Context context;
@@ -41,10 +43,10 @@ public class MenuDialog extends BottomSheetDialogFragment {
 
     // Listeners
     private AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener;
-    private AddTaskDialog.OnTaskAddedListener onTaskAddedListener;
+    private AddTaskDialog.OnTaskChangeListener onTaskAddedListener;
 
     public MenuDialog(Context context, FragmentManager fragmentManager, ArrayList<Room> roomData,
-                      ArrayList<User> usersData, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener, AddTaskDialog.OnTaskAddedListener onTaskAddedListener) {
+                      ArrayList<User> usersData, AddRoomDialog.OnRoomCreatedListener onRoomCreatedListener, AddTaskDialog.OnTaskChangeListener onTaskAddedListener) {
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.onRoomCreatedListener = onRoomCreatedListener;
@@ -69,6 +71,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
         addTaskButton = rootView.findViewById(R.id.createTaskButton);
         aboutButton = rootView.findViewById(R.id.aboutButton);
         settingsButton = rootView.findViewById(R.id.settingsButton);
+        tasksYouCreatedButton = rootView.findViewById(R.id.tasksYouCreatedButton);
 
         addRoomDialog = new AddRoomDialog(context, fragmentManager, new AddRoomDialog.OnRoomCreatedListener() {
             @Override
@@ -77,10 +80,15 @@ public class MenuDialog extends BottomSheetDialogFragment {
                 onRoomCreatedListener.onRoomCreate(room);
             }
         });
-        addTaskDialog = new AddTaskDialog(context, fragmentManager, usersData, roomData, new AddTaskDialog.OnTaskAddedListener() {
+        addTaskDialog = new AddTaskDialog(context, fragmentManager, usersData, roomData, new AddTaskDialog.OnTaskChangeListener() {
             @Override
             public void onTaskAdded(Task task) {
                 onTaskAddedListener.onTaskAdded(task);
+            }
+
+            @Override
+            public void onTaskEdited(Task task) {
+
             }
         });
 
@@ -117,6 +125,16 @@ public class MenuDialog extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 MenuDialog.this.dismiss();
                 Intent i = new Intent(getContext(), SettingsActivity.class);
+                startActivity(i);
+            }
+        });
+
+        tasksYouCreatedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show list of tasks created by me
+                MenuDialog.this.dismiss();
+                Intent i = new Intent(context,YourTasksActivity.class);
                 startActivity(i);
             }
         });

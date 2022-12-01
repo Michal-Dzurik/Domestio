@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +31,7 @@ import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.views.alerts.Alert;
+import sk.dzurikm.domestio.views.dialogs.TasksOptionDialog;
 
 public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTaskAdapter.ViewHolder> {
 
@@ -38,6 +40,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     private boolean empty;
     private Context context;
     private FirebaseAuth auth;
+    private FragmentManager fragmentManager;
 
     // data is passed into the constructor
     public HomeActivityTaskAdapter(Context context, List<Task> data) {
@@ -46,6 +49,15 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         this.data = data;
         this.context = context;
         this.auth = FirebaseAuth.getInstance();
+    }
+
+    public HomeActivityTaskAdapter(Context context, List<Task> data, FragmentManager manager) {
+        empty = false;
+        this.layoutInflater = LayoutInflater.from(context);
+        this.data = data;
+        this.context = context;
+        this.auth = FirebaseAuth.getInstance();
+        fragmentManager= manager;
     }
 
     // inflates the row layout from xml when needed
@@ -127,29 +139,10 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-
-                    if (!currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
-                        // Open dialog with action delete
-                        Alert alert = new Alert(context);
-                        alert.setTitle(context.getString(R.string.remove_task));
-                        alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
-                        alert.setNegativeButtonText(context.getString(R.string.no));
-                        alert.setPositiveButtonText(context.getString(R.string.yes));
-                        alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Delete task
-                                // TODO make alert to remove this if you are author
-                                alert.dismiss();
-                            }
-                        });
-                        alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                alert.dismiss();
-                            }
-                        });
-                        alert.show();
+                    if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+                        System.out.println(currentTask);
+                        TasksOptionDialog tasksOptionDialog = new TasksOptionDialog(context,fragmentManager,currentTask);
+                        tasksOptionDialog.show(fragmentManager,"TaskOptionDialog");
                     }
 
                     return true;

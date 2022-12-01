@@ -278,11 +278,16 @@ public class RoomActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager(), usersData, new ArrayList<Room>(Collections.singleton(room)), new AddTaskDialog.OnTaskAddedListener() {
+                AddTaskDialog dialog = new AddTaskDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager(), usersData, new ArrayList<Room>(Collections.singleton(room)), new AddTaskDialog.OnTaskChangeListener() {
                     @Override
                     public void onTaskAdded(Task task) {
                         // Add task id to room and increment count of them
                         dco.addTask(task);
+                    }
+
+                    @Override
+                    public void onTaskEdited(Task task) {
+
                     }
                 });
                 dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Task");

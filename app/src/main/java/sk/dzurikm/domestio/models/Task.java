@@ -6,8 +6,10 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.*;
 import com.google.firebase.Timestamp;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
 
 public class Task implements Serializable {
@@ -182,5 +184,15 @@ public class Task implements Serializable {
         this.done = task.getDone();
         this.color = task.getColor();
         this.roomName = task.getRoomName();
+    }
+
+    public void updateFromValidationData(HashMap<String,String> map){
+        this.heading = map.get(Constants.Validation.Task.HEADING);
+        this.description = map.get(Constants.Validation.Task.DESCRIPTION);
+        this.timestamp = Long.parseLong(map.get(Constants.Validation.Task.TIME));
+        this.receiverId = map.get(Constants.Validation.Task.USER_ID);
+
+        // TODO tu sa meni roomka treba pozriet ci sa tak deje a ak ano treba to zmenit v db teda odstranit id z tej roomky / alebo dat prec idecka a pozitat to inak to je asi lepsie rieseneie
+        this.roomId = map.get(Constants.Validation.Task.ROOM_ID);
     }
 }

@@ -205,7 +205,7 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:src="@drawable/trash"
+                android:src="@drawable/ic_trash"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:background="@null"

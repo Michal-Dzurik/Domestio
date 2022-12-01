@@ -2,13 +2,11 @@ package sk.dzurikm.domestio.activities;
 
 import static sk.dzurikm.domestio.helpers.Constants.Result.PROFILE_ACTIVITY;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.app.appsearch.StorageInfo;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -186,6 +184,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent profileActivityIntent = new Intent(HomeActivity.this,ProfileActivity.class );
 
+                unregisterBroadcasts();
                 HomeActivity.this.startActivityForResult(profileActivityIntent,PROFILE_ACTIVITY);
             }
         });
@@ -209,11 +208,16 @@ public class HomeActivity extends AppCompatActivity {
                         System.out.println(room.toString());
                         dco.addRoom(room);
                     }
-                }, new AddTaskDialog.OnTaskAddedListener() {
+                }, new AddTaskDialog.OnTaskChangeListener() {
                     @Override
                     public void onTaskAdded(Task task) {
                         // Add id to room and then notify adapter
                         dco.onTaskAdded(task);
+                    }
+
+                    @Override
+                    public void onTaskEdited(Task task) {
+
                     }
                 });
 
@@ -306,7 +310,6 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        unregisterReceiver(dataChangedReceiver);
         super.onPause();
     }
 
@@ -321,5 +324,9 @@ public class HomeActivity extends AppCompatActivity {
     protected void onDestroy() {
 
         super.onDestroy();
+    }
+
+    public void unregisterBroadcasts(){
+        unregisterReceiver(dataChangedReceiver);
     }
 }

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_dialog_background"
+    android:paddingVertical="@dimen/home_body_margin"
+    android:paddingHorizontal="@dimen/home_body_margin"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/options"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="22sp"
+                android:textColor="?attr/PrimaryTextColor"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingTop="8dp"
+                android:paddingBottom="20dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="35dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageButton
+                        android:id="@+id/editButton"
+                        android:src="@drawable/ic_edit"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@drawable/menu_button_background"
+                        android:padding="18dp"
+                        android:scaleType="fitCenter"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:layout_marginTop="12dp"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="?attr/SecondaryTextColor" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageButton
+                        android:id="@+id/deleteButton"
+                        android:src="@drawable/ic_trash"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@drawable/leave_button_background"
+                        android:padding="15dp"
+                        android:scaleType="fitCenter"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/delete"
+                        android:layout_marginTop="12dp"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="?attr/SecondaryTextColor"
+                        />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+
+
+</LinearLayout>

@@ -363,6 +363,22 @@ public class Helpers {
             return null;
         }
 
+        public static Room getRoomById(ArrayList<Room> list,String id){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(id)) return list.get(i);
+            }
+
+            return null;
+        }
+
+        public static User getUserById(ArrayList<User> list,String id){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(id)) return list.get(i);
+            }
+
+            return null;
+        }
+
     }
 
     public static String getAuthorName(ArrayList<User> usersData, String uid){

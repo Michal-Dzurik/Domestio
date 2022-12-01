@@ -44,7 +44,7 @@
             android:layout_height="40dp"
             android:background="@drawable/leave_button_background"
             android:textColor="?MainColor"
-            android:src="@drawable/trash"
+            android:src="@drawable/ic_trash"
             android:adjustViewBounds="true"
             android:padding="10dp"
             android:scaleType="fitCenter"

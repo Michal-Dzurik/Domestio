@@ -15,7 +15,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
@@ -42,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.activities.YourTasksActivity;
 import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
 import sk.dzurikm.domestio.adapters.UserSpinnerAdapter;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
@@ -64,6 +64,9 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     private Long timestamp;
     private Room selectedRoom;
     private User selectedUser;
+    private Task task;
+
+    private DialogRole role;
 
     // Users and rooms
     private ArrayList<User> userList;
@@ -79,17 +82,48 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     FirebaseAuth auth;
 
     // Listeners
-    OnTaskAddedListener onTaskAddedListener;
+    OnTaskChangeListener onTaskChangeListener;
 
-    public AddTaskDialog(Context context, FragmentManager fragmentManager,ArrayList<User> userList,ArrayList<Room> roomList, OnTaskAddedListener onTaskAddedListener) {
+    public AddTaskDialog(Context context,
+                         FragmentManager fragmentManager,
+                         ArrayList<User> userList,
+                         ArrayList<Room> roomList,
+                         OnTaskChangeListener onTaskChangeListener) {
+        // Role add
+
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.userList = userList;
         this.roomList = roomList;
-        this.onTaskAddedListener = onTaskAddedListener;
+        this.onTaskChangeListener = onTaskChangeListener;
+
+        this.role = DialogRole.ADD;
 
         selectedRoom = null;
         selectedUser = null;
+    }
+
+
+    public AddTaskDialog(Context context,
+                         FragmentManager fragmentManager,
+                         ArrayList<User> userList,
+                         ArrayList<Room> roomList,
+                         OnTaskChangeListener onTaskChangeListener,
+                         Task task) {
+        // Role edit
+        this.role = DialogRole.EDIT;
+
+        this.context = context;
+        this.fragmentManager = fragmentManager;
+        this.userList = userList;
+        this.roomList = roomList;
+        this.onTaskChangeListener = onTaskChangeListener;
+        this.task = task;
+
+
+        selectedRoom = Helpers.DataSet.getRoomById(roomList,task.getRoomId());
+        selectedUser = Helpers.DataSet.getUserById(userList,task.getReceiverId());
+
     }
 
     @Override
@@ -121,16 +155,27 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         databaseHelper = new DatabaseHelper();
         auth = FirebaseAuth.getInstance();
 
+        if (role == DialogRole.EDIT){
+            addTaskButton.setImageResource(R.drawable.ic_edit);
+
+            heading.setText(task.getHeading());
+            description.setText(task.getDescription());
+        }
+
         // Setting up listeners
         datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                int month = calendar.get(Calendar.MONTH);
-                int year = calendar.get(Calendar.YEAR);
-                int hour = calendar.get(Calendar.HOUR);
-                int minute = calendar.get(Calendar.MINUTE);
+                int day,month,year,hour,minute;
+
+                if (role == DialogRole.EDIT) calendar.setTimeInMillis(task.getTimestamp() * 1000);
+
+                day = calendar.get(Calendar.DAY_OF_MONTH);
+                month = calendar.get(Calendar.MONTH);
+                year = calendar.get(Calendar.YEAR);
+                hour = calendar.get(Calendar.HOUR);
+                minute = calendar.get(Calendar.MINUTE);
 
                 DatePickerDialog dialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -158,7 +203,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println(selectedUser + "  \n  " + selectedRoom);
                 HashMap<String,String> map = new HashMap<>();
                 map.put(HEADING,getTextOfView(heading));
                 map.put(DESCRIPTION,getTextOfView(description));
@@ -173,7 +217,13 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    addTaskToDatabase();
+                    if (role == DialogRole.ADD){
+                        addTaskToDatabase();
+                    }
+                    if (role == DialogRole.EDIT){
+                        task.updateFromValidationData(map);
+                        updateTask(task);
+                    }
                 }
             }
         });
@@ -192,6 +242,11 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
             UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.select_room)))));
             ownerSelect.setAdapter(userAdapter);
+
+            if (role == DialogRole.EDIT){
+                int position = userAdapter.getPosition(selectedUser);
+                ownerSelect.setSelection(position);
+            }
 
             roomSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -243,8 +298,23 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             ownerSelect.setAdapter(userAdapter);
         }
 
+        if (role == DialogRole.EDIT){
+            timestamp = task.getTimestamp();
 
+            Calendar calendar = Calendar.getInstance();
+            int day,month,year,hour,minute;
 
+            calendar.setTimeInMillis(task.getTimestamp() * 1000);
+
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            month = calendar.get(Calendar.MONTH);
+            year = calendar.get(Calendar.YEAR);
+            hour = calendar.get(Calendar.HOUR);
+            minute = calendar.get(Calendar.MINUTE);
+            System.out.println(calendar.toString());
+
+            setDateAndTime(year,month,day,hour,minute);
+        }
 
     }
 
@@ -291,16 +361,38 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task) {
                 if (t.isSuccessful()){
                     getDialog().dismiss();
-                    onTaskAddedListener.onTaskAdded(task);
+                    onTaskChangeListener.onTaskAdded(task);
                 }
                 else System.out.println("JUJ");
             }
         });
 
+
     }
 
-    public interface OnTaskAddedListener{
+    private void updateTask(Task task){
+        databaseHelper.updateTask(task, new DatabaseHelper.OnTaskEditedListener() {
+            @Override
+            public void onTaskEdited(com.google.android.gms.tasks.Task t, Task task) {
+                if (t.isSuccessful()){
+                    getDialog().dismiss();
+                    onTaskChangeListener.onTaskEdited(task);
+                    ((YourTasksActivity) context).taskChanged(task);
+                }
+                else System.out.println("JUJ");
+            }
+        });
+
+
+    }
+
+    public interface OnTaskChangeListener {
         public void onTaskAdded(Task task);
+        public void onTaskEdited(Task task);
+    }
+
+    public enum DialogRole{
+        ADD,EDIT
     }
 
 }
