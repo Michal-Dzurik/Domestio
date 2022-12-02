@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -420,7 +421,12 @@ public class DatabaseHelper {
                 });
     }
 
-    public void updateTask(Task task,OnTaskEditedListener onTaskEditedListener){
+    public void updateTask(Task task,OnTaskEditedListener onTaskEditedListener,Task originalTask){
+
+        System.out.println(task.getTimestamp());
+        System.out.println(new Date(task.getTimestamp()).toString());
+        System.out.println(Helpers.Time.getTimeDateForDB(task.getTimestamp()).toString());
+
         Map<String, Object> tasksMap = new HashMap<>();
         tasksMap.put(FIELD_HEADING,task.getHeading());
         tasksMap.put(Constants.Firebase.Task.FIELD_DESCRIPTION,task.getDescription());
@@ -435,12 +441,36 @@ public class DatabaseHelper {
         document.update(tasksMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> t) {
-                task.setId(document.getId());
 
                 db.collection(DOCUMENT_ROOMS).document(task.getRoomId()).update(FIELD_TASK_IDS,FieldValue.arrayUnion(task.getId())).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> t) {
-                        if (t.isSuccessful()) onTaskEditedListener.onTaskEdited(t, task);
+                        if (originalTask != null){
+                            if (!originalTask.getRoomId().equals(task.getRoomId())){
+                                task.setRoomName(getRoomsTitle(task.getRoomId()));
+                                task.setColor(getRoomsColor(task.getRoomId()));
+                            }
+                            if (!originalTask.getReceiverId().equals(task.getReceiverId())){
+                                task.setAuthor(getUsersName(task.getAuthorId()));
+                            }
+                        }
+
+                        if (t.isSuccessful()) {
+                            if (originalTask != null){
+                                if (!originalTask.getRoomId().equals(task.getRoomId())) {
+                                    moveTaskId(task.getId(), originalTask.getRoomId(), task.getRoomId(), new OnCompleteListener() {
+                                        @Override
+                                        public void onComplete(@NonNull com.google.android.gms.tasks.Task result) {
+                                            if (result.isSuccessful()){
+                                                onTaskEditedListener.onTaskEdited(t, task);
+                                            }
+                                        }
+                                    });
+                                }
+                                else onTaskEditedListener.onTaskEdited(t, task);
+                            }
+                            else onTaskEditedListener.onTaskEdited(t, task);
+                        }
 
                     }
                 });
@@ -449,6 +479,19 @@ public class DatabaseHelper {
         });
 
 
+    }
+
+    private void moveTaskId(String taskId,String from, String to, OnCompleteListener onCompleteListener){
+        DocumentReference document = db.collection(DOCUMENT_ROOMS).document(from);
+        document.update(FIELD_TASK_IDS,FieldValue.arrayRemove(taskId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                if (task.isSuccessful()){
+                    DocumentReference document = db.collection(DOCUMENT_ROOMS).document(to);
+                    document.update(FIELD_TASK_IDS,FieldValue.arrayUnion(taskId)).addOnCompleteListener(onCompleteListener);
+                }
+            }
+        });
     }
 
     public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
@@ -481,16 +524,31 @@ public class DatabaseHelper {
         update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
         update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
 
-        db.collection(DOCUMENT_ROOMS).document(room.getId())
-                .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                        // TODO send and email to user
-                        onCompleteListener.onComplete(task);
-                    }
-                });
+        ArrayList<String> taskIds = new ArrayList<>();
 
-        // todo odstran vsetky ulohy ktore som vytvoril v roomke
+        db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_AUTHOR_ID,auth.getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
+                if (t.isSuccessful()){
+                    for (QueryDocumentSnapshot document : t.getResult()){
+                        taskIds.add(document.getId());
+
+                    }
+
+                    update.put(FIELD_TASK_IDS, FieldValue.arrayRemove(taskIds));
+
+                    db.collection(DOCUMENT_ROOMS).document(room.getId())
+                            .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                                    // TODO send and email to user
+                                    onCompleteListener.onComplete(task);
+                                }
+                            });
+                }
+            }
+        });
+
     }
 
     public void leaveRoom(Room room,String userId, OnCompleteListener onCompleteListener){
@@ -503,6 +561,7 @@ public class DatabaseHelper {
 
     public void removeUnrelatedTask(Task task){
         db.collection(DOCUMENT_TASKS).document(task.getId()).delete();
+        db.collection(DOCUMENT_ROOMS).document(task.getRoomId()).update(FIELD_TASK_IDS,FieldValue.arrayRemove(task.getId()));
     }
 
     /**

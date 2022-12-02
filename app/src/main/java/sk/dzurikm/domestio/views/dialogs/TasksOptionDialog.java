@@ -84,7 +84,7 @@ public class TasksOptionDialog extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 // Open dialog with action delete
                 Alert alert = new Alert(context);
-                alert.setTitle(context.getString(R.string.remove_task));
+                alert.setTitle(context.getString(R.string.remove_task) + " - " + task.getHeading());
                 alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
                 alert.setNegativeButtonText(context.getString(R.string.no));
                 alert.setPositiveButtonText(context.getString(R.string.yes));

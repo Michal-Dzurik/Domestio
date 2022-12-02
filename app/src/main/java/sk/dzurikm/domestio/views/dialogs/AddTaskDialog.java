@@ -44,6 +44,7 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.YourTasksActivity;
 import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
 import sk.dzurikm.domestio.adapters.UserSpinnerAdapter;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -160,6 +161,9 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
             heading.setText(task.getHeading());
             description.setText(task.getDescription());
+
+            selectedUser = Helpers.DataSet.getUserById(DataStorage.users,task.getReceiverId());
+            selectedRoom = Helpers.DataSet.getRoomById(DataStorage.rooms,task.getRoomId());
         }
 
         // Setting up listeners
@@ -221,8 +225,14 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                         addTaskToDatabase();
                     }
                     if (role == DialogRole.EDIT){
+                        Task originalTask = Task.editTaskCopy(task);
                         task.updateFromValidationData(map);
-                        updateTask(task);
+
+                        System.out.println(task.getTimestamp());
+
+                        if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
+                        else updateTask(task,null);
+
                     }
                 }
             }
@@ -238,15 +248,18 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         roomSelect.setAdapter(roomAdapter);
 
         if (!roomList.isEmpty()){
-            selectedRoom = roomList.get(0);
 
             UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, new ArrayList<User>(Collections.singleton(new User("0", getString(R.string.select_room)))));
             ownerSelect.setAdapter(userAdapter);
 
             if (role == DialogRole.EDIT){
-                int position = userAdapter.getPosition(selectedUser);
-                ownerSelect.setSelection(position);
+                int userPosition = userAdapter.getPosition(selectedUser);
+                int roomPosition = roomAdapter.getPosition(selectedRoom);
+
+                roomSelect.setSelection(roomPosition);
+                ownerSelect.setSelection(userPosition);
             }
+            else selectedRoom = roomList.get(0);
 
             roomSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -254,13 +267,19 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     if (!userList.isEmpty()){
 
                         selectedRoom = roomList.get(position);
-                        selectedUser = null;
 
                         ArrayList<User> users = filterUsersByRoom(roomList.get(position),userList);
 
                         if(!users.isEmpty()){
                             UserSpinnerAdapter userAdapter = new UserSpinnerAdapter((Activity) context, users);
                             ownerSelect.setAdapter(userAdapter);
+
+                            if (role == DialogRole.EDIT){
+                                int userPosition = userAdapter.getPosition(selectedUser);
+                                if (userPosition != -1) ownerSelect.setSelection(userPosition);
+                                else ownerSelect.setSelection(0);
+                            }
+                            else selectedUser = null;
 
                             ownerSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                 @Override
@@ -299,6 +318,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         }
 
         if (role == DialogRole.EDIT){
+            System.out.println(task.getTimestamp());
             timestamp = task.getTimestamp();
 
             Calendar calendar = Calendar.getInstance();
@@ -311,7 +331,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             year = calendar.get(Calendar.YEAR);
             hour = calendar.get(Calendar.HOUR);
             minute = calendar.get(Calendar.MINUTE);
-            System.out.println(calendar.toString());
 
             setDateAndTime(year,month,day,hour,minute);
         }
@@ -331,6 +350,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         OffsetDateTime odt = ldt.atOffset( ZoneOffset.UTC ) ;
 
         long secondsSinceEpoch = odt.toEpochSecond() ;
+
+        System.out.println(secondsSinceEpoch);
 
         timestamp = secondsSinceEpoch;
         datePickerButtonText.setText(datetime);
@@ -370,7 +391,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
     }
 
-    private void updateTask(Task task){
+    private void updateTask(Task task,Task originalTask){
+        System.out.println(task.getTimestamp());
         databaseHelper.updateTask(task, new DatabaseHelper.OnTaskEditedListener() {
             @Override
             public void onTaskEdited(com.google.android.gms.tasks.Task t, Task task) {
@@ -381,7 +403,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                 }
                 else System.out.println("JUJ");
             }
-        });
+        },originalTask);
 
 
     }

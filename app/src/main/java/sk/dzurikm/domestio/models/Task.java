@@ -195,4 +195,18 @@ public class Task implements Serializable {
         // TODO tu sa meni roomka treba pozriet ci sa tak deje a ak ano treba to zmenit v db teda odstranit id z tej roomky / alebo dat prec idecka a pozitat to inak to je asi lepsie rieseneie
         this.roomId = map.get(Constants.Validation.Task.ROOM_ID);
     }
+
+    public static Task editTaskCopy(Task task){
+        Task t = new Task();
+
+        t.setId(task.getId());
+        t.setReceiverId(task.getReceiverId());
+        t.setRoomId(task.getRoomId());
+        t.setTimestamp(task.getTimestamp());
+        t.setRoomId(task.getRoomId());
+        t.setAuthorId(task.getAuthorId());
+
+
+        return t;
+    }
 }

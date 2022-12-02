@@ -98,7 +98,7 @@ public class Helpers {
         }
 
         public static Timestamp getTimeDateForDB(long timeStamp){
-            return new Timestamp(new Date(timeStamp));
+            return new Timestamp(timeStamp,0);
         }
     }
 
@@ -151,7 +151,7 @@ public class Helpers {
                 case NAME:
                     return name(value);
                 case TIME:
-                    return (value != null && !value.trim().equals("") && java.lang.Integer.parseInt(value) >= 0) ? null : context.getString(R.string.you_didnt_set_the_time);
+                    return (value != null && !value.trim().equals("") && java.lang.Long.parseLong(value) >= 0) ? null : context.getString(R.string.you_didnt_set_the_time);
                 case USER_ID:
                     return (value != null && !value.trim().equals("")) ? null : context.getString(R.string.user_not_selected);
                 case ROOM_ID:
