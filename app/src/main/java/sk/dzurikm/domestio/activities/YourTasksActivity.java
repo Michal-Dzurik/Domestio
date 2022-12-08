@@ -20,6 +20,7 @@ import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -42,6 +43,9 @@ public class YourTasksActivity extends AppCompatActivity {
     // Database
     DatabaseHelper databaseHelper;
 
+    // DCO
+    DCO dco;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,16 @@ public class YourTasksActivity extends AppCompatActivity {
         // Database
         databaseHelper = new DatabaseHelper();
 
+        // DCO
+        dco = new DCO(new DCO.OnDataChangeListener() {
+            @Override
+            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                if (roomData != null) {
+                    DataStorage.rooms = roomData;
+                }
+            }
+        });
+
         databaseHelper.loadTasksCreatedByMe(new DatabaseHelper.TasksForRoomLoadedListener() {
             @Override
             public void onTasksLoaded(ArrayList<Task> data) {
@@ -65,7 +79,7 @@ public class YourTasksActivity extends AppCompatActivity {
 
                 // Setting up adapters
                 if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
-                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,getSupportFragmentManager());
+                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager());
                 recyclerView.setAdapter(adapter);
             }
         });

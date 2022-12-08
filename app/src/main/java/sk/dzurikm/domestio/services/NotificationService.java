@@ -1,20 +1,14 @@
 package sk.dzurikm.domestio.services;
 
-import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
-import static com.google.firebase.firestore.DocumentChange.Type.MODIFIED;
 import static com.google.firebase.firestore.DocumentChange.Type.REMOVED;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.*;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
 
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,7 +18,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -33,12 +26,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.activities.HomeActivity;
 import sk.dzurikm.domestio.activities.SplashScreenActivity;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.Helpers;
@@ -219,15 +209,19 @@ public class NotificationService extends Service {
                         if (isRoomNew(room) ) {
                             roomData.add(room);
                             // If i haven't created room then notify me
-                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification(getString(R.string.new_room), getString(R.string.your_are_member_of_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
+                                sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.your_are_member_of_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                notificationId++;
+                            }
                         }
                         else {
 
 
                             // If i haven't changed room then notify me
-                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification(room.getTitle(), getString(R.string.something_new_in_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
+                                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,room.getTitle(), getString(R.string.something_new_in_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                notificationId++;
+                            }
                         }
                         break;
                     case DOCUMENT_TASKS:
@@ -242,15 +236,19 @@ public class NotificationService extends Service {
                             taskData.add(task);
 
                             // If i haven't created task then notify me
-                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification(getString(R.string.new_task), getString(R.string.you_have_new_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
+                                sendNotification(Constants.NotificationChannels.NEW_TASKS,getString(R.string.new_task), getString(R.string.you_have_new_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                notificationId++;
+                            }
                         }
                         else {
                             if (type == REMOVED) break;
 
                             // If i haven't changed task then notify me
-                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid()))
-                                sendNotification(getString(R.string.task_modified), getString(R.string.something_new_in_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
+                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_modified), getString(R.string.something_new_in_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                notificationId++;
+                            }
                         }
                         break;
                     case DOCUMENT_USERS:
@@ -290,8 +288,8 @@ public class NotificationService extends Service {
 
     }
 
-    private void sendNotification(String text, String content, PendingIntent pendingIntent){
-        Helpers.Notifications.show(getApplicationContext(),notificationId,Helpers.Notifications.create(getApplicationContext(),text,content,pendingIntent));
+    private void sendNotification(String channel,String text, String content, PendingIntent pendingIntent){
+        Helpers.Notifications.show(getApplicationContext(),notificationId,Helpers.Notifications.createBasicNotification(getApplicationContext(), channel,text,content,pendingIntent));
     }
 
 

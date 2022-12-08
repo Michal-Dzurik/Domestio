@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -81,6 +82,8 @@ public class HomeActivity extends AppCompatActivity {
         // Views with need of adapter
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
         verticalTaskSlider = findViewById(R.id.verticalTaskSlider);
+
+        Helpers.Notifications.show(getApplicationContext(),5,Helpers.Notifications.createBasicNotification(getApplicationContext(), String.valueOf(Constants.NotificationChannels.GENERAL),"Jolo","Jolo dsfijdsfhghdsfgjkdsjgkdsf", PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_IMMUTABLE)));
 
         // Views
         profileButton = findViewById(R.id.profileButton);
@@ -243,7 +246,12 @@ public class HomeActivity extends AppCompatActivity {
                 dco.cleanAfterLeftRoom(room);
             }
         });
-        taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this,taskData);
+        taskAdapter = new HomeActivityTaskAdapter(HomeActivity.this, taskData, new HomeActivityTaskAdapter.OnDoneClickListener() {
+            @Override
+            public void onDoneClick(Task task) {
+                dco.updateTask(task);
+            }
+        });
 
         // Setting up DCO
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
@@ -306,6 +314,10 @@ public class HomeActivity extends AppCompatActivity {
         System.out.println(DataStorage.rooms);
 
         super.onResume();
+    }
+
+    public void preferencesHasBeenChanged(){
+        taskAdapter.notifyDataSetChanged();
     }
 
     @Override

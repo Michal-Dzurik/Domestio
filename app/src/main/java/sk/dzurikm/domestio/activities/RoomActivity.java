@@ -170,7 +170,12 @@ public class RoomActivity extends AppCompatActivity {
 
                 if (taskData != null){
                     RoomActivity.this.taskData = dco.filterTasksForThisRoom(room.getId());
-                    taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,RoomActivity.this.taskData);
+                    taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this, RoomActivity.this.taskData, new HomeActivityTaskAdapter.OnDoneClickListener() {
+                        @Override
+                        public void onDoneClick(Task task) {
+                            dco.updateTask(task);
+                        }
+                    });
                     roomsRecycler.setAdapter(taskAdapter);
                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
 
@@ -191,7 +196,12 @@ public class RoomActivity extends AppCompatActivity {
 
         // Setting up empty adapter
         taskData = dco.filterTasksForThisRoom(room.getId());
-        taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData);
+        taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData,new HomeActivityTaskAdapter.OnDoneClickListener() {
+            @Override
+            public void onDoneClick(Task task) {
+                dco.updateTask(task);
+            }
+        });
         roomsRecycler.setAdapter(taskAdapter);
         hideNoTasksText();
 

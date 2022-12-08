@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.YourTasksActivity;
@@ -381,7 +382,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             @Override
             public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task) {
                 if (t.isSuccessful()){
-                    getDialog().dismiss();
+                    Objects.requireNonNull(getDialog()).dismiss();
                     onTaskChangeListener.onTaskAdded(task);
                 }
                 else System.out.println("JUJ");

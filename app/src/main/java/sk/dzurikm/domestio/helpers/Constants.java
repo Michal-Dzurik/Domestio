@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.helpers;
 
+
 public class Constants {
     public static final String SHARED_PREFERENCES_KEY = "domestio";
 
@@ -108,6 +109,35 @@ public class Constants {
             public static final int USER_NAME_MAX_CHAR = 6;
             public static final int HEADING_NAME_MAX_CHAR = 18;
         }
+    }
+
+    public static class Settings{
+        public static final String COLLAPSED_STATE = "collapsed_state";
+
+        public enum CollapsingState{
+            COLLAPSED,EXPANDED;
+
+            public static String[] getNames() {
+                CollapsingState[] states = values();
+                String[] names = new String[states.length];
+
+                for (int i = 0; i < states.length; i++) {
+                    names[i] = Helpers.allLowercaseButFirstUppercase(states[i].name());
+                }
+
+                return names;
+            }
+        }
+
+    }
+
+    public static class NotificationChannels{
+        public static String GENERAL = "General";
+        public static String ROOM_UPDATES = "Room updates";
+        public static String TASK_UPDATES = "Tasks updates";
+        public static String NEW_JOINED_ROOM = "Joined room updates";
+        public static String NEW_TASKS = "New tasks";
+
     }
 
 }

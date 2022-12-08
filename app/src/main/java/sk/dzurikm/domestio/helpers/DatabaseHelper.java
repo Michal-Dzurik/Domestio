@@ -10,6 +10,7 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TASK_IDS
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TITLE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_AUTHOR_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_DONE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
@@ -37,6 +38,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -83,6 +85,12 @@ public class DatabaseHelper {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+
+        // Enabling offline persistance
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
     }
 
     int TYPE;
@@ -421,6 +429,16 @@ public class DatabaseHelper {
                 });
     }
 
+    public void updateTaskDone(Task task){
+        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
+        document.update(FIELD_DONE,task.getDone()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                System.out.println(task.isSuccessful());
+            }
+        });
+    }
+
     public void updateTask(Task task,OnTaskEditedListener onTaskEditedListener,Task originalTask){
 
         System.out.println(task.getTimestamp());
@@ -482,13 +500,21 @@ public class DatabaseHelper {
     }
 
     private void moveTaskId(String taskId,String from, String to, OnCompleteListener onCompleteListener){
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put(FIELD_TASK_IDS,FieldValue.arrayRemove(taskId));
+        updateData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+
         DocumentReference document = db.collection(DOCUMENT_ROOMS).document(from);
-        document.update(FIELD_TASK_IDS,FieldValue.arrayRemove(taskId)).addOnCompleteListener(new OnCompleteListener<Void>() {
+        document.update(updateData).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                 if (task.isSuccessful()){
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put(FIELD_TASK_IDS,FieldValue.arrayUnion(taskId));
+                    updateData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+
                     DocumentReference document = db.collection(DOCUMENT_ROOMS).document(to);
-                    document.update(FIELD_TASK_IDS,FieldValue.arrayUnion(taskId)).addOnCompleteListener(onCompleteListener);
+                    document.update(updateData).addOnCompleteListener(onCompleteListener);
                 }
             }
         });
@@ -534,6 +560,7 @@ public class DatabaseHelper {
                         taskIds.add(document.getId());
 
                     }
+
 
                     update.put(FIELD_TASK_IDS, FieldValue.arrayRemove(taskIds));
 

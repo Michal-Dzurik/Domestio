@@ -123,9 +123,13 @@ public class MenuDialog extends BottomSheetDialogFragment {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MenuDialog.this.dismiss();
+                /*MenuDialog.this.dismiss();
                 Intent i = new Intent(getContext(), SettingsActivity.class);
-                startActivity(i);
+                startActivity(i);*/
+
+                MenuDialog.this.dismiss();
+                SettingsDialog settingsDialog = new SettingsDialog(context,fragmentManager);
+                settingsDialog.show(fragmentManager,"SettingDialog");
             }
         });
 

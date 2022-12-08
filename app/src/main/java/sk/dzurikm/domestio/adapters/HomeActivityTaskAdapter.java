@@ -1,7 +1,11 @@
 package sk.dzurikm.domestio.adapters;
 
 
+import static android.content.Context.MODE_PRIVATE;
+import static sk.dzurikm.domestio.helpers.Constants.Settings.COLLAPSED_STATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.transition.ChangeBounds;
@@ -28,6 +32,7 @@ import java.util.List;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.views.alerts.Alert;
@@ -41,23 +46,47 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     private Context context;
     private FirebaseAuth auth;
     private FragmentManager fragmentManager;
+    private OnDoneClickListener doneClickListener;
+
+    boolean collapsed;
+
+    private DatabaseHelper databaseHelper;
+
+    // Shared Preferences
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor sharedPreferencesEditor;
 
     // data is passed into the constructor
-    public HomeActivityTaskAdapter(Context context, List<Task> data) {
+    public HomeActivityTaskAdapter(Context context, List<Task> data,OnDoneClickListener doneClickListener) {
         empty = false;
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
         this.context = context;
         this.auth = FirebaseAuth.getInstance();
+        this.doneClickListener = doneClickListener;
+
+        init();
     }
 
-    public HomeActivityTaskAdapter(Context context, List<Task> data, FragmentManager manager) {
+    public HomeActivityTaskAdapter(Context context, List<Task> data,OnDoneClickListener doneClickListener, FragmentManager manager) {
         empty = false;
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
         this.context = context;
         this.auth = FirebaseAuth.getInstance();
+        this.doneClickListener = doneClickListener;
         fragmentManager= manager;
+
+        init();
+    }
+
+    private void init(){
+        databaseHelper = new DatabaseHelper();
+
+        // SharedPreferences
+        sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
+        sharedPreferencesEditor = sharedPreferences.edit();
+
     }
 
     // inflates the row layout from xml when needed
@@ -75,10 +104,17 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         return new ViewHolder(view);
     }
 
+    TextView doneButton;
+
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Task currentTask = data.get(position);
+
+        String collapseState = sharedPreferences.getString(COLLAPSED_STATE,String.valueOf(Constants.Settings.CollapsingState.COLLAPSED));
+
+        collapsed = !collapseState.equals(String.valueOf(Constants.Settings.CollapsingState.EXPANDED));
+        System.out.println(collapseState + "   -  " + String.valueOf(Constants.Settings.CollapsingState.EXPANDED));
 
         if (!empty){
             String heading,description,owner,time,room,color;
@@ -111,9 +147,10 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             holder.getRoom()
                     .setText(room);
 
-            TextView doneButton = holder.getDoneButton();
+            doneButton = holder.getDoneButton();
 
-            final boolean[] collapsed = {false};
+
+            MotionLayout motionLayout = holder.getMotionLayout();
 
             holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -121,15 +158,15 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
                     MotionLayout motionLayout = holder.getMotionLayout();
 
-                    if (!collapsed[0]){
-                        motionLayout.transitionToEnd();
-
-                        collapsed[0] = true;
-                    }
-                    else {
+                    if (!collapsed){
                         motionLayout.transitionToStart();
 
-                        collapsed[0] = false;
+                        collapsed = true;
+                    }
+                    else {
+                        motionLayout.transitionToEnd();
+
+                        collapsed = false;
                     }
 
 
@@ -149,8 +186,41 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                 }
             });
 
+            doneButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (auth.getUid().equals(currentTask.getReceiverId())){
+                        currentTask.setDone(!currentTask.getDone());
+                        notifyDataSetChanged();
+
+                        //System.out.println(currentTask.getDone() + "  -  " + !currentTask.getDone());
+
+                        if (doneClickListener != null) {
+                            databaseHelper.updateTaskDone(currentTask);
+                            doneClickListener.onDoneClick(currentTask);
+                        }
+                    }
+                }
+            });
+
             if (currentTask.getDone()){
                 doneButton.setPaintFlags(doneButton.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                doneButton.setTextColor(context.getResources().getColor(R.color.white_transparent));
+            }
+            else {
+                doneButton.setPaintFlags(0);
+                doneButton.setTextColor(Color.WHITE);
+            }
+
+            if (!collapsed){
+                motionLayout.transitionToStart();
+
+                collapsed = true;
+            }
+            else {
+                motionLayout.transitionToEnd();
+
+                collapsed = false;
             }
         }
 
@@ -229,6 +299,10 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     // convenience method for getting data at click position
     Task getItem(int id) {
         return data.get(id);
+    }
+
+    public interface OnDoneClickListener{
+        public void onDoneClick(Task task);
     }
 
 }

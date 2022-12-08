@@ -26,8 +26,10 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.Timestamp;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +57,10 @@ public class Helpers {
         }
 
         return limitedStr.toString() + "…";
+    }
+
+    public static String allLowercaseButFirstUppercase(String str){
+        return Helpers.firstUppercase(str.toLowerCase());
     }
 
     public static int positiveValueOrDefault(int value,int defaultValue){
@@ -281,9 +287,9 @@ public class Helpers {
 
     public static class Notifications{
 
-        public static NotificationCompat.Builder create(Context context, String title, String text, PendingIntent clickIntent){
+        public static NotificationCompat.Builder createBasicNotification(Context context,String notificationChannel, String title, String text, PendingIntent clickIntent){
             createNotificationChannel(context);
-            return new NotificationCompat.Builder(context, "DomestioNotifications")
+            return new NotificationCompat.Builder(context, notificationChannel)
                     .setSmallIcon(R.drawable.logo)
                     .setContentTitle(title)
                     .setContentText(text)
@@ -295,15 +301,20 @@ public class Helpers {
             // Create the NotificationChannel, but only on API 26+ because
             // the NotificationChannel class is new and not in the support library
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                CharSequence name = "DomestioNotifications";
-                String description = "Domestio Notification channel";
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                NotificationChannel channel = new NotificationChannel("DomestioNotifications", name, importance);
-                channel.setDescription(description);
-                // Register the channel with the system; you can't change the importance
-                // or other notification behaviors after this
-                NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-                notificationManager.createNotificationChannel(channel);
+                String[] arr = {Constants.NotificationChannels.GENERAL,Constants.NotificationChannels.NEW_JOINED_ROOM,Constants.NotificationChannels.NEW_TASKS,Constants.NotificationChannels.ROOM_UPDATES,Constants.NotificationChannels.TASK_UPDATES};
+                for (int i = 0; i < arr.length; i++) {
+                    String nameStr = arr[i];
+
+                    CharSequence name = (CharSequence) nameStr;
+                    int importance = NotificationManager.IMPORTANCE_HIGH;
+                    NotificationChannel channel = new NotificationChannel(nameStr, name, importance);
+                    channel.setDescription("No description");
+                    // Register the channel with the system; you can't change the importance
+                    // or other notification behaviors after this
+                    NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                    notificationManager.createNotificationChannel(channel);
+                }
+
             }
         }
 
@@ -312,6 +323,7 @@ public class Helpers {
 
             // notificationId is a unique int for each notification that you must define
             notificationManager.notify(id, notification.build());
+
         }
 
     }
