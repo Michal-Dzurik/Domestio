@@ -1,7 +1,7 @@
 package sk.dzurikm.domestio.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import static sk.dzurikm.domestio.helpers.Constants.Firebase.DOCUMENT_USERS;
+
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
@@ -11,23 +11,13 @@ import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;

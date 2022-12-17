@@ -201,21 +201,19 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
                 Map<String,Object> data = new HashMap<>();
                 data.put(Constants.Firebase.Room.FIELD_TITLE,roomTitle);
 
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        room.setTitle(roomTitle);
-
-                        changeRoomTitleAlert.dismiss();
-                        roomDataChangedListener.onRoomDataChangedListener(room);
-                        roomTitleHint.setText(roomTitle);
-                    }
-                }, new OnFailureListener() {
+                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        // TODO make reverse situation
                         Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
                     }
                 });
+
+                room.setTitle(roomTitle);
+
+                changeRoomTitleAlert.dismiss();
+                roomDataChangedListener.onRoomDataChangedListener(room);
+                roomTitleHint.setText(roomTitle);
             }
         });
         changeRoomTitleAlert.setNegativeButtonOnClickListener(new View.OnClickListener() {
@@ -238,21 +236,19 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
                 Map<String,Object> data = new HashMap<>();
                 data.put(Constants.Firebase.Room.FIELD_DESCRIPTION,roomDescription);
 
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        room.setDescription(roomDescription);
-
-                        roomDescriptionHint.setText(roomDescription);
-                        roomDataChangedListener.onRoomDataChangedListener(room);
-                        changeRoomDescriptionAlert.dismiss();
-                    }
-                }, new OnFailureListener() {
+                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        // TODO make reverse situation
                         Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
                     }
                 });
+
+                room.setDescription(roomDescription);
+
+                roomDescriptionHint.setText(roomDescription);
+                roomDataChangedListener.onRoomDataChangedListener(room);
+                changeRoomDescriptionAlert.dismiss();
             }
         });
 
@@ -272,25 +268,18 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
                 data.put(Constants.Firebase.Room.FIELD_COLOR,stringColor);
 
                 Log.i("LMAO",stringColor);
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-
-                        room.setColor(stringColor);
-
-                        roomColorPicker.setCardBackgroundColor(color);
-                        roomColorHint.setText(stringColor);
-                        roomDataChangedListener.onRoomDataChangedListener(room);
-                        colorPickerDialog.dismiss();
-                    }
-                }, new OnFailureListener() {
+                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
                     }
-                });
+                },false);
 
-                roomColorHint.setText(Helpers.Colors.fromIntToColor(color));
+                room.setColor(stringColor);
+
+                roomColorPicker.setCardBackgroundColor(color);
+                roomColorHint.setText(stringColor);
+                roomDataChangedListener.onRoomDataChangedListener(room);
                 colorPickerDialog.dismiss();
             }
         });

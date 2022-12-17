@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.fragment.app.FragmentManager;
@@ -108,7 +109,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
     // binds the data to the TextView in each row
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Task currentTask = data.get(position);
 
         String collapseState = sharedPreferences.getString(COLLAPSED_STATE,String.valueOf(Constants.Settings.CollapsingState.COLLAPSED));
@@ -191,7 +192,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                 public void onClick(View v) {
                     if (auth.getUid().equals(currentTask.getReceiverId())){
                         currentTask.setDone(!currentTask.getDone());
-                        notifyDataSetChanged();
+                        notifyItemChanged(holder.getAdapterPosition());
 
                         //System.out.println(currentTask.getDone() + "  -  " + !currentTask.getDone());
 

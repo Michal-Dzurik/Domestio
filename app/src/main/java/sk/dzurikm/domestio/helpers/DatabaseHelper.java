@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.RoomActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
@@ -346,13 +347,30 @@ public class DatabaseHelper {
                 });
     }
 
-    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnSuccessListener onSuccessListener, OnFailureListener onFailureListener){
+    public void resetPassword(Context context,String email){
+        auth.sendPasswordResetEmail(email).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, R.string.password_reset_fail,Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnFailureListener onFailureListener){
         dataToChange.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
         db.collection(COLLECTION)
                 .document(id)
                 .update(dataToChange)
-                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    public void changeDocument(String COLLECTION,String id, Map<String,Object> dataToChange, OnFailureListener onFailureListener,boolean notify){
+        if (notify) dataToChange.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+
+        db.collection(COLLECTION)
+                .document(id)
+                .update(dataToChange)
                 .addOnFailureListener(onFailureListener);
     }
 
@@ -367,7 +385,6 @@ public class DatabaseHelper {
         roomMap.put(FIELD_COLOR, room.getColor());
         roomMap.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
         roomMap.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
-
 
         DocumentReference document = db.collection(DOCUMENT_ROOMS).document();
         document.set(roomMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -627,7 +644,6 @@ public class DatabaseHelper {
         return "";
     }
 
-
     /**
      * @param id room UID
      * @return color of room with id
@@ -646,12 +662,9 @@ public class DatabaseHelper {
         return "";
     }
 
-
     public void setOnDataLoadedListener(OnDataLoadedListener onDataLoadedListener) {
         this.onDataLoadedListener = onDataLoadedListener;
     }
-
-
 
     public void getData(int DATA_TYPE,String id) {
         this.TYPE = TYPE;
@@ -659,7 +672,6 @@ public class DatabaseHelper {
 
         loadRooms();
     }
-
 
     public interface OnDataLoadedListener{
         public void onDataLoaded(ArrayList<Room> roomData,ArrayList<Task> taskData,ArrayList<User> userData);

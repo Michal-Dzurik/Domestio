@@ -1,10 +1,5 @@
 package sk.dzurikm.domestio.views.dialogs;
 
-import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.NAME;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT;
-import static sk.dzurikm.domestio.helpers.Constants.Validation.PASSWORD_REPEAT_DELIMITER;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Room.DESCRIPTION;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Room.TITLE;
 import static sk.dzurikm.domestio.helpers.Helpers.Views.getTextOfView;
@@ -20,11 +15,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.card.MaterialCardView;
@@ -35,12 +28,9 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.activities.RegisterActivity;
-import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
-import sk.dzurikm.domestio.models.User;
 
 public class AddRoomDialog extends BottomSheetDialogFragment {
     // Views

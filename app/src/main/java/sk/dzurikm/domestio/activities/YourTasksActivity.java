@@ -100,7 +100,7 @@ public class YourTasksActivity extends AppCompatActivity {
         for (int i = 0; i < taskData.size(); i++) {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.set(i,task);
-                adapter.notifyDataSetChanged();
+                adapter.notifyItemChanged(i);
                 if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
                 break;
             }
@@ -111,7 +111,7 @@ public class YourTasksActivity extends AppCompatActivity {
         for (int i = 0; i < taskData.size(); i++) {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.remove(i);
-                adapter.notifyDataSetChanged();
+                adapter.notifyItemRemoved(i);
                 if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
                 break;
             }

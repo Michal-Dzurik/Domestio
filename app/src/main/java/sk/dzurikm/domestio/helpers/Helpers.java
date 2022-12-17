@@ -16,6 +16,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.widget.TextView;
@@ -26,10 +28,8 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.Timestamp;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,19 +136,35 @@ public class Helpers {
 
                     break;
                 }
-                else validationError = validate(validation,value);
+                else validationError = validation(validation,value);
 
                 if (validationError != null) errors.add(validationError);
             }
 
-            System.out.println(errors);
             return errors.size() == 0 ? null : errors;
         }
 
-        private String validate(String validation,String value){
+        public ArrayList<String> validate(String key,String value){
+            ArrayList<String> errors = new ArrayList<>();
+
+            String validationError = null;
+
+            if (key == null || value == null || key.trim().equals("") || value.trim().equals("")) {
+                errors.add(context.getString(R.string.missing_informations));
+            }
+            else validationError = validation(key,value);
+
+            if (validationError != null) errors.add(validationError);
+
+
+            return errors.size() == 0 ? null : errors;
+        }
+
+        private String validation(String validation, String value){
             System.out.println(validation);
             switch (validation){
                 case EMAIL:
+
                     return email(value);
                 case PASSWORD:
                     return password(value);
@@ -174,6 +190,8 @@ public class Helpers {
             String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
             java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
             java.util.regex.Matcher m = p.matcher(email);
+
+            System.out.println(m.matches());
 
             return m.matches() ? null : context.getString(R.string.email_is_not_valid) ;
         }
@@ -400,5 +418,48 @@ public class Helpers {
 
         return null;
     }
+
+    public static class Network{
+        public static final int TYPE_WIFI = 1;
+        public static final int TYPE_MOBILE = 2;
+        public static final int TYPE_NOT_CONNECTED = 0;
+        public static final int NETWORK_STATUS_NOT_CONNECTED = 0;
+        public static final int NETWORK_STATUS_WIFI = 1;
+        public static final int NETWORK_STATUS_MOBILE = 2;
+
+        public static int getConnectivityStatus(Context context) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            if (null != activeNetwork) {
+                if(activeNetwork.getType() == ConnectivityManager.TYPE_WIFI)
+                    return TYPE_WIFI;
+
+                if(activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE)
+                    return TYPE_MOBILE;
+            }
+            return TYPE_NOT_CONNECTED;
+        }
+
+        public static int getConnectivityStatusString(Context context) {
+            int conn = getConnectivityStatus(context);
+            int status = 0;
+            if (conn == TYPE_WIFI) {
+                status = NETWORK_STATUS_WIFI;
+            } else if (conn == TYPE_MOBILE) {
+                status = NETWORK_STATUS_MOBILE;
+            } else if (conn == TYPE_NOT_CONNECTED) {
+                status = NETWORK_STATUS_NOT_CONNECTED;
+            }
+            return status;
+        }
+
+        public static boolean isNetworkAvailable(Context con) {
+            ConnectivityManager conMan = (ConnectivityManager) con.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+            return netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI;
+        }
+    }
+
 
 }

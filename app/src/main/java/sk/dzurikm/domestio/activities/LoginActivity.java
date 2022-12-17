@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,15 +26,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
+import sk.dzurikm.domestio.views.alerts.Alert;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
+import sk.dzurikm.domestio.views.alerts.InputAlert;
 
 public class LoginActivity extends AppCompatActivity {
     // Views
     private EditText email,password;
     private Button backButton,loginButton;
-    private FirebaseAuth mAuth;
+    private TextView forgotPasswordButton;
 
+    // Firebase
+    private FirebaseAuth mAuth;
     private DatabaseHelper databaseHelper;
 
     // Validation
@@ -49,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.passwordInput);
         backButton = (Button) findViewById(R.id.backButton);
         loginButton = (Button) findViewById(R.id.loginButton);
+        forgotPasswordButton = (TextView) findViewById(R.id.forgotPasswordButton);
 
         // helpers
         databaseHelper = new DatabaseHelper();
@@ -58,6 +66,10 @@ public class LoginActivity extends AppCompatActivity {
 
         // validation
         validation = Helpers.Validation.getInstance(LoginActivity.this);
+
+        InfoAlert textAlert = new InfoAlert(LoginActivity.this);
+        textAlert.setTitle(getString(R.string.warning));
+        textAlert.setDescription(getString(R.string.spam_warrning));
 
         // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +87,37 @@ public class LoginActivity extends AppCompatActivity {
                 if (loginDataValid()){
                     login();
                 }
+            }
+        });
+
+        forgotPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputAlert alert = new InputAlert(LoginActivity.this);
+                alert.setTitle(getString(R.string.enter_your_email));
+                alert.setHint("johndoe@gmail.com");
+                alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String email = alert.getInput().getText().toString().trim();
+
+                        Helpers.Validation validation = new Helpers.Validation(LoginActivity.this);
+                        ArrayList<String> errors = validation.validate(EMAIL,email);
+                        System.out.println(email + "LMao");
+
+                        if (errors == null){
+                            databaseHelper.resetPassword(LoginActivity.this,email);
+                            alert.dismiss();
+                            textAlert.show();
+                        }
+                        else Toast.makeText(LoginActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+
+                alert.setNegativeButtonOnClickListener(v1 -> alert.dismiss());
+                alert.show();
             }
         });
 

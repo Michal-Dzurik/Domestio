@@ -8,8 +8,7 @@
     // App colors
     <color name="orange">#FF5C00</color>
     <color name="red">#E93F34</color>
-    <color name="blue">#336BFA</color>
-    
+
     // Light theme
     <color name="white_darker">#EBEBEB</color>
     <color name="grey">#B5B5B5</color>

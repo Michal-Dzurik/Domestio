@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -68,7 +68,8 @@ public class HomeActivity extends AppCompatActivity {
 
     // Broadcast receivers
     DataChangedReceiver dataChangedReceiver;
-    IntentFilter intentSFilter;
+    NetworkChangeReceiver networkChangeReceiver;
+    IntentFilter dataChangeBroadcastFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +83,6 @@ public class HomeActivity extends AppCompatActivity {
         // Views with need of adapter
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
         verticalTaskSlider = findViewById(R.id.verticalTaskSlider);
-
-        Helpers.Notifications.show(getApplicationContext(),5,Helpers.Notifications.createBasicNotification(getApplicationContext(), String.valueOf(Constants.NotificationChannels.GENERAL),"Jolo","Jolo dsfijdsfhghdsfgjkdsjgkdsf", PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_IMMUTABLE)));
 
         // Views
         profileButton = findViewById(R.id.profileButton);
@@ -109,6 +108,9 @@ public class HomeActivity extends AppCompatActivity {
         // Helpers init
         snapHelper = new PagerSnapHelper();
         databaseHelper = new DatabaseHelper();
+
+
+
 
         // Loading data from database and setting them to datasets
         loadData();
@@ -169,8 +171,21 @@ public class HomeActivity extends AppCompatActivity {
             }
 
         });
-        intentSFilter = new IntentFilter("DATA_CHANGED");
-        registerReceiver(dataChangedReceiver, intentSFilter);
+        dataChangeBroadcastFilter = new IntentFilter("DATA_CHANGED");
+        registerReceiver(dataChangedReceiver, dataChangeBroadcastFilter);
+
+        networkChangeReceiver = new NetworkChangeReceiver(new NetworkChangeReceiver.NetworkStatusChangeListener() {
+            @Override
+            public void onChange() {
+                if (Helpers.Network.isNetworkAvailable(HomeActivity.this)){
+                    // Connected
+                }
+                else{
+                    // Disconnected
+                }
+            }
+        });
+        registerReceiver(networkChangeReceiver,new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
 
         // Setting up listeners
@@ -308,7 +323,7 @@ public class HomeActivity extends AppCompatActivity {
 
         hideNoDataMessages();
 
-        registerReceiver(dataChangedReceiver,intentSFilter);
+        registerReceiver(dataChangedReceiver, dataChangeBroadcastFilter);
 
         System.out.println(DataStorage.tasks);
         System.out.println(DataStorage.rooms);

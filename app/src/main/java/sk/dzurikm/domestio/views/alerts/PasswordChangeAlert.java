@@ -16,7 +16,6 @@ import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Helpers;

@@ -1,15 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Domestio</string>
-    <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="sign_up_with_facebook">Sign up with Facebook</string>
-    <string name="sign_up_with_google">Sign up with Google</string>
-    <string name="or">OR</string>
     <string name="made_by">Made by</string>
     <string name="author">Michal Dzurík</string>
     <string name="sign_up_by_email">Sign up by Email</string>
@@ -19,25 +11,16 @@
     <string name="password_repeat">Password repeat</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
-    <string name="informations_are_not_valid">Informations are not valid</string>
     <string name="back">Back</string>
     <string name="authentication_failed">Authentication failed.</string>
 
-    <string name="google_oath_id">814409971189-9ma0fmcg2it6rs7fid6toteqkccjcigq.apps.googleusercontent.com</string>
-
-    <string name="facebook_app_id">760644241789899</string>
-    <string name="fb_login_protocol_scheme">fb1234</string>
-    <string name="facebook_client_token">e01dcd9662bc1dcda1ed50cc5789b637</string>
     <string name="you_have_been_registered_successfully">You have been registered successfully</string>
     <string name="you_have_been_logged_in_successfully">You have been logged in successfully</string>
-    <string name="see_all">See all</string>
-    <string name="today_s_tasks">Today\'s tasks</string>
     <string name="your_rooms">Your rooms</string>
     <string name="done">Done</string>
     <string name="welcome">Welcome</string>
     <string name="menu">Menu</string>
     <string name="create_task">Create task</string>
-    <string name="my_rooms">My rooms</string>
     <string name="create_room">Create Room</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
@@ -53,11 +36,8 @@
     <string name="name_was_changed_successfully">Name was changed successfully</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="change_email">Change email</string>
-    <string name="name_is_empty">Name is empty</string>
-    <string name="email_is_empty">Email is empty</string>
     <string name="email_is_not_valid">Email is not valid</string>
     <string name="email_was_changed_successfully">Email was changed successfully</string>
-    <string name="enter_your_current_password_to_continue">Enter your current password to continue</string>
     <string name="ok">OK</string>
     <string name="need_to_authenticate">We need to authenticate you before changing your information</string>
     <string name="enter_your_password">Enter your password</string>
@@ -67,7 +47,6 @@
     <string name="passwords_dont_match">Passwords don\'t match</string>
     <string name="password_was_changed_successfully">Password was changed successfully</string>
     <string name="password_at_least_6_char_long">Password must be at last 6 characters long</string>
-    <string name="heading">Heading</string>
     <string name="room_heading">Room heading</string>
     <string name="room_description">Room description</string>
     <string name="choose_a_color">Choose a color</string>
@@ -76,19 +55,11 @@
     <string name="word_for" tools:ignore="ExtraTranslation">For:</string>
     <string name="task_heading">Task Heading</string>
     <string name="task_description">Task description</string>
-    <string name="support_me">Support me</string>
     <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="about_me">About me</string>
     <string name="tasks">Tasks</string>
     <string name="rooms">Rooms</string>
-    <string name="theme">Theme</string>
-    <string name="light">Light</string>
-    <string name="dark">Dark</string>
-    <string name="system">System</string>
-    <string name="select_theme">Select theme</string>
     <string name="notifications">Notifications</string>
-    <string name="room_tasks">Room tasks</string>
-    <string name="room_name">Room Name</string>
     <string name="change_room_description">Change room description</string>
     <string name="change_room_heading">Change room heading</string>
     <string name="you_are_not_in_any_room">You are not in any room</string>
@@ -121,16 +92,23 @@
     <string name="user_not_selected">User is not selected</string>
     <string name="room_not_selected">Room is not selected</string>
     <string name="new_room">New room here!</string>
-    <string name="your_are_member_of_room">You are now member of room </string>
+    <string name="your_are_member_of_room">You are now member of room</string>
     <string name="go_check_it_out">Go check it out</string>
-    <string name="something_new_in_room">Something new in room </string>
-    <string name="new_task">New task!</string>
+    <string name="something_new_in_room">There is something new in here!</string>
+    <string name="assigned_you_a_new_task">assigned you a new task</string>
     <string name="task_modified">Task modified</string>
     <string name="you_have_new_task">You have new task </string>
-    <string name="something_new_in_task">"Something new in your "</string>
+    <string name="something_new_in_task">Something new in your</string>
     <string name="remove_task">Remove task</string>
     <string name="do_you_want_to_remove_task">Do you really want to remove this task?</string>
     <string name="tasks_you_created">Tasks you created</string>
     <string name="delete">Delete</string>
     <string name="options">Options</string>
+    <string name="we_are_offline">We are offline</string>
+    <string name="no_internet_description">We are currently unable to perform this operation, because we are offline. Turn on your wifi and connect to the network</string>
+    <string name="password_reset_fail">We were unable to send you an email</string>
+    <string name="i_forgot_my_password"><u>I forgot my password</u></string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="warning">Warning</string>
+    <string name="spam_warrning">If you can\'t find reset email in your mailbox, please check your spam.</string>
 </resources>

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
@@ -51,6 +52,7 @@ import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
 
 public class AddTaskDialog extends BottomSheetDialogFragment {
 
@@ -131,6 +133,21 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        if (!DataStorage.connected){
+            InfoAlert alert = new InfoAlert(context);
+            alert.setTitle(context.getString(R.string.we_are_offline));
+            alert.setDescription(context.getString(R.string.no_internet_description));
+            alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alert.dismiss();
+                }
+            });
+        }else super.show(manager, tag);
     }
 
     @SuppressLint("RestrictedApi")
@@ -385,7 +402,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     Objects.requireNonNull(getDialog()).dismiss();
                     onTaskChangeListener.onTaskAdded(task);
                 }
-                else System.out.println("JUJ");
+                else Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -393,7 +410,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
     }
 
     private void updateTask(Task task,Task originalTask){
-        System.out.println(task.getTimestamp());
         databaseHelper.updateTask(task, new DatabaseHelper.OnTaskEditedListener() {
             @Override
             public void onTaskEdited(com.google.android.gms.tasks.Task t, Task task) {

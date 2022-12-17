@@ -105,6 +105,16 @@
                 android:textColorHint="?attr/SecondaryTextColor"
                 android:textColor="?attr/PrimaryTextColor"
                 android:textSize="@dimen/input_text_size" />
+
+            <TextView
+                android:id="@+id/forgotPasswordButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:textSize="12sp"
+
+                android:layout_marginTop="20dp"
+                android:text="@string/i_forgot_my_password"/>
         </LinearLayout>
 
 

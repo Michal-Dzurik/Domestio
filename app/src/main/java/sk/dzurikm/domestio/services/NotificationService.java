@@ -31,6 +31,7 @@ import java.util.Map;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.SplashScreenActivity;
 import sk.dzurikm.domestio.helpers.Constants;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
@@ -49,6 +50,7 @@ public class NotificationService extends Service {
     ArrayList<Task> taskData;
     ArrayList<User> usersData;
 
+
     int notificationId = 1;
 
     @Override
@@ -66,6 +68,11 @@ public class NotificationService extends Service {
         roomData = new ArrayList<>();
         usersData = new ArrayList<>();
         taskData = new ArrayList<>();
+
+        if (Helpers.Network.isNetworkAvailable(context))
+            DataStorage.connected = true;
+        else
+            DataStorage.connected = false;
     }
 
     @Override
@@ -133,6 +140,8 @@ public class NotificationService extends Service {
                 }
             }
         });
+
+
     }
 
     @Nullable
@@ -206,11 +215,12 @@ public class NotificationService extends Service {
                             break;
                         }
 
+
                         if (isRoomNew(room) ) {
                             roomData.add(room);
                             // If i haven't created room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.your_are_member_of_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.your_are_member_of_room) + " " + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                                 notificationId++;
                             }
                         }
@@ -219,7 +229,7 @@ public class NotificationService extends Service {
 
                             // If i haven't changed room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,room.getTitle(), getString(R.string.something_new_in_room) + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,room.getTitle(), getString(R.string.something_new_in_room) + ". " + getString(R.string.go_check_it_out), pendingIntent);
                                 notificationId++;
                             }
                         }
@@ -231,13 +241,14 @@ public class NotificationService extends Service {
                         intent = new Intent(this, SplashScreenActivity.class);
                         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
+                        task.setAuthor(Helpers.DataSet.getAuthorName(DataStorage.users,task.getAuthorId()));
 
                         if (isTaskNew(task) ) {
                             taskData.add(task);
 
                             // If i haven't created task then notify me
                             if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.NEW_TASKS,getString(R.string.new_task), getString(R.string.you_have_new_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                sendNotification(Constants.NotificationChannels.NEW_TASKS,task.getAuthor() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                                 notificationId++;
                             }
                         }
@@ -246,7 +257,7 @@ public class NotificationService extends Service {
 
                             // If i haven't changed task then notify me
                             if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_modified), getString(R.string.something_new_in_task) + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
+                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_modified), getString(R.string.something_new_in_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                                 notificationId++;
                             }
                         }
