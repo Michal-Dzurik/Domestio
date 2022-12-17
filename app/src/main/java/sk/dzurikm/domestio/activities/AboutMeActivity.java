@@ -21,6 +21,7 @@ import java.util.HashMap;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -39,6 +40,8 @@ public class AboutMeActivity extends AppCompatActivity {
 
     // Broadcasts
     DataChangedReceiver dataChangedReceiver;
+    NetworkChangeReceiver networkChangeReceiver;
+    IntentFilter dataChangeBroadcastFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

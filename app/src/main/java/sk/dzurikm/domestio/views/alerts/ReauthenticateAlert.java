@@ -108,8 +108,5 @@ public class ReauthenticateAlert extends Dialog {
         return input;
     }
 
-    private void somethingWentWrongMessage(){
-        Toast.makeText(context, context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
-    }
 
 }

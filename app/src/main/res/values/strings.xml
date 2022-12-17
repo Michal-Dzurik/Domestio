@@ -112,4 +112,5 @@
     <string name="warning">Warning</string>
     <string name="spam_warrning">If you can\'t find reset email in your mailbox, please check your spam.</string>
     <string name="you_are_offline">You are offline</string>
+    <string name="cant_do_while_offline">You can\'t do that while you\'re offline</string>
 </resources>

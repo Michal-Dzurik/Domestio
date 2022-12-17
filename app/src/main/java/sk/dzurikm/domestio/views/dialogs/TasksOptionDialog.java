@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
@@ -18,8 +20,10 @@ import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.YourTasksActivity;
 import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
+import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.views.alerts.Alert;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
 
 public class TasksOptionDialog extends BottomSheetDialogFragment {
     // Views
@@ -49,6 +53,22 @@ public class TasksOptionDialog extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        if (!DataStorage.connected){
+            InfoAlert alert = new InfoAlert(context);
+            alert.setTitle(context.getString(R.string.we_are_offline));
+            alert.setDescription(context.getString(R.string.no_internet_description));
+            alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alert.dismiss();
+                }
+            });
+            alert.show();
+        }else super.show(manager, tag);
+    }
+
     @SuppressLint("RestrictedApi")
     @Override
     public void setupDialog(Dialog dialog, int style) {
@@ -75,37 +95,43 @@ public class TasksOptionDialog extends BottomSheetDialogFragment {
                     }
                 },task);
                 TasksOptionDialog.this.dismiss();
-                addTaskDialog.show(fragmentManager,"AddTask");
+                if (DataStorage.connected){
+                    addTaskDialog.show(fragmentManager,"AddTask");
+                }
+                else Helpers.Toast.noInternet(context);
             }
         });
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Open dialog with action delete
-                Alert alert = new Alert(context);
-                alert.setTitle(context.getString(R.string.remove_task) + " - " + task.getHeading());
-                alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
-                alert.setNegativeButtonText(context.getString(R.string.no));
-                alert.setPositiveButtonText(context.getString(R.string.yes));
-                alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Delete task
-                        // TODO make alert to remove this if you are author
-                        ((YourTasksActivity) context).taskRemoved(task);
-                        databaseHelper.removeUnrelatedTask(task);
-                        alert.dismiss();
-                    }
-                });
-                alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alert.dismiss();
-                    }
-                });
-                TasksOptionDialog.this.dismiss();
-                alert.show();
+                if (DataStorage.connected){
+                    // Open dialog with action delete
+                    Alert alert = new Alert(context);
+                    alert.setTitle(context.getString(R.string.remove_task) + " - " + task.getHeading());
+                    alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
+                    alert.setNegativeButtonText(context.getString(R.string.no));
+                    alert.setPositiveButtonText(context.getString(R.string.yes));
+                    alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Delete task
+                            // TODO make alert to remove this if you are author
+                            ((YourTasksActivity) context).taskRemoved(task);
+                            databaseHelper.removeUnrelatedTask(task);
+                            alert.dismiss();
+                        }
+                    });
+                    alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alert.dismiss();
+                        }
+                    });
+                    TasksOptionDialog.this.dismiss();
+                    alert.show();
+                }
+                else Helpers.Toast.noInternet(context);
             }
         });
 

@@ -23,7 +23,9 @@ import java.util.ArrayList;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.MemberListAdapter;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
+import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.User;
 
@@ -78,6 +80,7 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
         memberListAdapter = new MemberListAdapter(context, users, room.getAdminId(), new MemberListAdapter.OnMemberRemoveListener() {
             @Override
             public void onMemberRemove(String uid) {
+
                 databaseHelper.removeUserFromRoom(room, uid, new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
@@ -86,11 +89,13 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
                             memberListAdapter.notifyDataSetChanged();
                         }
                         else {
-                            Toast.makeText(context, context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+                            Helpers.Toast.somethingWentWrong(context);
                         }
 
                     }
                 });
+
+
             }
         });
         membersListRecycler.setAdapter(memberListAdapter);

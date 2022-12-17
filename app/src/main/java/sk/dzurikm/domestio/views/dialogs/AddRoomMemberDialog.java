@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
@@ -22,7 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.Helpers;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
 
 public class AddRoomMemberDialog extends BottomSheetDialogFragment {
     // Views
@@ -50,6 +53,22 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        if (!DataStorage.connected){
+            InfoAlert alert = new InfoAlert(context);
+            alert.setTitle(context.getString(R.string.we_are_offline));
+            alert.setDescription(context.getString(R.string.no_internet_description));
+            alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alert.dismiss();
+                }
+            });
+            alert.show();
+        }else super.show(manager, tag);
+    }
+
     @SuppressLint("RestrictedApi")
     @Override
     public void setupDialog(Dialog dialog, int style) {
@@ -71,18 +90,23 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
         addNewMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = newRoomMemberEmail.getText().toString().trim();
+                if (DataStorage.connected){
+                    String email = newRoomMemberEmail.getText().toString().trim();
 
-                // Validation
-                HashMap<String,String> map = new HashMap<>();
-                map.put(EMAIL,email);
+                    // Validation
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put(EMAIL,email);
 
-                ArrayList<String> errors = validation.validate(map);
+                    ArrayList<String> errors = validation.validate(map);
 
-                if (errors == null){
-                    onEmailValidListener.onEmailValid(email);
+                    if (errors == null){
+                        onEmailValidListener.onEmailValid(email);
+                    }
+                    else Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                 }
-                else Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+                else {
+                    Helpers.Toast.noInternet(context);
+                }
 
             }
 

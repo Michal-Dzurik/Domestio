@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DataStorage;
+import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.Alert;
 
@@ -60,27 +62,31 @@ public class MemberListAdapter extends RecyclerView.Adapter<MemberListAdapter.Vi
             holder.getDeleteMemberButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Alert alert = new Alert(context);
-                    alert.setTitle(context.getString(R.string.remove) + " " +  member.getName());
-                    alert.setDescription(context.getString(R.string.do_you_want_to_remove_member));
-                    alert.setPositiveButtonText(context.getString(R.string.yes));
-                    alert.setNegativeButtonText(context.getString(R.string.no));
-                    alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            alert.dismiss();
-                        }
-                    });
+                    if (DataStorage.connected){
+                        Alert alert = new Alert(context);
+                        alert.setTitle(context.getString(R.string.remove) + " " +  member.getName());
+                        alert.setDescription(context.getString(R.string.do_you_want_to_remove_member));
+                        alert.setPositiveButtonText(context.getString(R.string.yes));
+                        alert.setNegativeButtonText(context.getString(R.string.no));
+                        alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                alert.dismiss();
+                            }
+                        });
 
-                    alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            onMemberRemoveListener.onMemberRemove(member.getId());
-                            alert.dismiss();
-                        }
-                    });
+                        alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                onMemberRemoveListener.onMemberRemove(member.getId());
+                                alert.dismiss();
+                            }
+                        });
 
-                    alert.show();
+                        alert.show();
+                    }
+
+                    else Helpers.Toast.noInternet(context);
                 }
             });
         }

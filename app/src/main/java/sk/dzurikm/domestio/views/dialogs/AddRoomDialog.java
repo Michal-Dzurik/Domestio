@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
@@ -28,9 +29,11 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
 
 public class AddRoomDialog extends BottomSheetDialogFragment {
     // Views
@@ -65,6 +68,22 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        if (!DataStorage.connected){
+            InfoAlert alert = new InfoAlert(context);
+            alert.setTitle(context.getString(R.string.we_are_offline));
+            alert.setDescription(context.getString(R.string.no_internet_description));
+            alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alert.dismiss();
+                }
+            });
+            alert.show();
+        }else super.show(manager, tag);
     }
 
     @SuppressLint("RestrictedApi")
@@ -127,39 +146,44 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
         addRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HashMap<String,String> map = new HashMap<>();
-                map.put(TITLE,getTextOfView(roomHeading));
-                map.put(DESCRIPTION,getTextOfView(roomDescription));
+                if (DataStorage.connected){
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put(TITLE,getTextOfView(roomHeading));
+                    map.put(DESCRIPTION,getTextOfView(roomDescription));
 
-                ArrayList<String> errors = validation.validate(map);
+                    ArrayList<String> errors = validation.validate(map);
 
-                if (errors != null){
-                    // print errors
-                    Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
-                }else {
-                    if (!colorPickerText.getText().toString().equals(context.getString(R.string.no_color_selected))){
-                        // add room
-                        Room room = new Room();
-                        room.setTitle(getTextOfView(roomHeading));
-                        room.setDescription(getTextOfView(roomDescription));
-                        room.setColor(colorPickerText.getText().toString());
-                        room.setAdminId(auth.getUid());
-                        room.setUserIds(new ArrayList<String>(Collections.singleton(auth.getUid())));
-                        room.setTaskIds(new ArrayList<String>());
-                        String id = databaseHelper.addRoom(room, new DatabaseHelper.OnRoomAddedListener() {
-                            @Override
-                            public void onRoomAdded(Task task, Room room) {
-                                if (task.isSuccessful()){
-                                    dialog.dismiss();
-                                    onRoomCreatedListener.onRoomCreate(room);
+                    if (errors != null){
+                        // print errors
+                        Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+                    }else {
+                        if (!colorPickerText.getText().toString().equals(context.getString(R.string.no_color_selected))){
+                            // add room
+                            Room room = new Room();
+                            room.setTitle(getTextOfView(roomHeading));
+                            room.setDescription(getTextOfView(roomDescription));
+                            room.setColor(colorPickerText.getText().toString());
+                            room.setAdminId(auth.getUid());
+                            room.setUserIds(new ArrayList<String>(Collections.singleton(auth.getUid())));
+                            room.setTaskIds(new ArrayList<String>());
+                            String id = databaseHelper.addRoom(room, new DatabaseHelper.OnRoomAddedListener() {
+                                @Override
+                                public void onRoomAdded(Task task, Room room) {
+                                    if (task.isSuccessful()){
+                                        dialog.dismiss();
+                                        onRoomCreatedListener.onRoomCreate(room);
+                                    }
+                                    else Helpers.Toast.somethingWentWrong(context);
+
                                 }
-                                else Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                        else Toast.makeText(context, context.getString(R.string.color_wasn_selected),Toast.LENGTH_SHORT).show();
 
-                            }
-                        });
                     }
-                    else Toast.makeText(context, context.getString(R.string.color_wasn_selected),Toast.LENGTH_SHORT).show();
-
+                }
+                else {
+                    Helpers.Toast.noInternet(context);
                 }
             }
         });

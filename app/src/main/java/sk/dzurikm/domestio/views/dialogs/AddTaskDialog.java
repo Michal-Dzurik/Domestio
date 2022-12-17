@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.views.dialogs;
 
+import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.DESCRIPTION;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.ROOM_ID;
@@ -147,6 +148,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     alert.dismiss();
                 }
             });
+            alert.show();
         }else super.show(manager, tag);
     }
 
@@ -225,34 +227,40 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HashMap<String,String> map = new HashMap<>();
-                map.put(HEADING,getTextOfView(heading));
-                map.put(DESCRIPTION,getTextOfView(description));
-                map.put(TIME, String.valueOf(timestamp));
-                map.put(USER_ID, selectedUser != null ? selectedUser.getId() : null);
-                map.put(ROOM_ID, selectedRoom != null ? selectedRoom.getId() : null);
+                if (DataStorage.connected){
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put(HEADING,getTextOfView(heading));
+                    map.put(DESCRIPTION,getTextOfView(description));
+                    map.put(TIME, String.valueOf(timestamp));
+                    map.put(USER_ID, selectedUser != null ? selectedUser.getId() : null);
+                    map.put(ROOM_ID, selectedRoom != null ? selectedRoom.getId() : null);
 
-                ArrayList<String> errors = validation.validate(map);
+                    ArrayList<String> errors = validation.validate(map);
 
-                if (errors != null){
-                    // print errors
-                    Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+                    if (errors != null){
+                        // print errors
+                        Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        if (role == DialogRole.ADD){
+                            addTaskToDatabase();
+                        }
+                        if (role == DialogRole.EDIT){
+                            Task originalTask = Task.editTaskCopy(task);
+                            task.updateFromValidationData(map);
+
+                            System.out.println(task.getTimestamp());
+
+                            if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
+                            else updateTask(task,null);
+
+                        }
+                    }
                 }
                 else {
-                    if (role == DialogRole.ADD){
-                        addTaskToDatabase();
-                    }
-                    if (role == DialogRole.EDIT){
-                        Task originalTask = Task.editTaskCopy(task);
-                        task.updateFromValidationData(map);
-
-                        System.out.println(task.getTimestamp());
-
-                        if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
-                        else updateTask(task,null);
-
-                    }
+                    Helpers.Toast.noInternet(context);
                 }
+
             }
         });
 
@@ -402,7 +410,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     Objects.requireNonNull(getDialog()).dismiss();
                     onTaskChangeListener.onTaskAdded(task);
                 }
-                else Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+                else Helpers.Toast.somethingWentWrong(context);
             }
         });
 

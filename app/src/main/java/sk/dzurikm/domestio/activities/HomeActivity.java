@@ -107,8 +107,6 @@ public class HomeActivity extends AppCompatActivity {
         System.out.println(DataStorage.rooms);
         System.out.println(DataStorage.tasks);
 
-        // Setting up snackbar
-
         // Login info
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
 

@@ -21,6 +21,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.core.app.NotificationCompat;
@@ -458,6 +459,17 @@ public class Helpers {
             ConnectivityManager conMan = (ConnectivityManager) con.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = conMan.getActiveNetworkInfo();
             return netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI;
+        }
+
+    }
+
+    public static class Toast{
+        public static void noInternet(Context context){
+            android.widget.Toast.makeText(context, R.string.cant_do_while_offline, android.widget.Toast.LENGTH_SHORT).show();
+        }
+
+        public static void somethingWentWrong(Context context){
+            android.widget.Toast.makeText(context, R.string.something_went_wrong, android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 

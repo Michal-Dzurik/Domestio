@@ -29,12 +29,14 @@ import java.util.Map;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.Alert;
+import sk.dzurikm.domestio.views.alerts.InfoAlert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 
 public class RoomOptionDialog extends BottomSheetDialogFragment {
@@ -114,27 +116,31 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         roomDescriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeRoomDescriptionAlert.show();
+                if (DataStorage.connected) changeRoomDescriptionAlert.show();
+                else Helpers.Toast.noInternet(context);;
             }
         });
 
         roomTitleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeRoomTitleAlert.show();
+                if (DataStorage.connected) changeRoomTitleAlert.show();
+                else Helpers.Toast.noInternet(context);
             }
         });
 
         roomColorPicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                colorPickerDialog.show();
+                if (DataStorage.connected) colorPickerDialog.show();
+                else Helpers.Toast.noInternet(context);
             }
         });
 
         membersListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Open user list
                 getDialog().dismiss();
                 ListMembersDialog listMembersDialog = new ListMembersDialog(context,fragmentManager,users,room);
@@ -145,43 +151,49 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         removeRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Remove room
+                if (DataStorage.connected) {
+                    // Remove room
+                    Alert alert = new Alert(context);
+                    alert.setTitle(context.getString(R.string.remove_task));
+                    alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
+                    alert.setNegativeButtonText(context.getString(R.string.no));
+                    alert.setPositiveButtonText(context.getString(R.string.yes));
+                    alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (DataStorage.connected){
+                                // Delete task
+                                // TODO make alert to remove this if you are author
+                                DCO dco = new DCO(new DCO.OnDataChangeListener() {
+                                    @Override
+                                    public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
 
-                Alert alert = new Alert(context);
-                alert.setTitle(context.getString(R.string.remove_task));
-                alert.setDescription(context.getString(R.string.do_you_want_to_remove_task));
-                alert.setNegativeButtonText(context.getString(R.string.no));
-                alert.setPositiveButtonText(context.getString(R.string.yes));
-                alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Delete task
-                        // TODO make alert to remove this if you are author
-                        DCO dco = new DCO(new DCO.OnDataChangeListener() {
-                            @Override
-                            public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
-
+                                    }
+                                });
+                                dco.removeRoom(room, new OnCompleteListener() {
+                                    @Override
+                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                                        if (task.isSuccessful()){
+                                            roomRemoveListener.onRoomRemove();
+                                            alert.dismiss();
+                                        }
+                                    }
+                                });
                             }
-                        });
-                        dco.removeRoom(room, new OnCompleteListener() {
-                            @Override
-                            public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
-                                if (task.isSuccessful()){
-                                    roomRemoveListener.onRoomRemove();
-                                    alert.dismiss();
-                                }
-                            }
-                        });
+                            else Helpers.Toast.noInternet(context);
 
-                    }
-                });
-                alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alert.dismiss();
-                    }
-                });
-                alert.show();
+                        }
+                    });
+                    alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            alert.dismiss();
+                        }
+                    });
+                    alert.show();
+                }
+                else Helpers.Toast.noInternet(context);
+
             }
         });
 
@@ -196,24 +208,27 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         changeRoomTitleAlert.setPositiveButtonOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String roomTitle = changeRoomTitleAlert.getInput().getText().toString().trim();
+                if (DataStorage.connected){
+                    String roomTitle = changeRoomTitleAlert.getInput().getText().toString().trim();
 
-                Map<String,Object> data = new HashMap<>();
-                data.put(Constants.Firebase.Room.FIELD_TITLE,roomTitle);
+                    Map<String,Object> data = new HashMap<>();
+                    data.put(Constants.Firebase.Room.FIELD_TITLE,roomTitle);
 
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // TODO make reverse situation
-                        Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // TODO make reverse situation
+                            Helpers.Toast.somethingWentWrong(context);
+                        }
+                    });
 
-                room.setTitle(roomTitle);
+                    room.setTitle(roomTitle);
 
-                changeRoomTitleAlert.dismiss();
-                roomDataChangedListener.onRoomDataChangedListener(room);
-                roomTitleHint.setText(roomTitle);
+                    changeRoomTitleAlert.dismiss();
+                    roomDataChangedListener.onRoomDataChangedListener(room);
+                    roomTitleHint.setText(roomTitle);
+                }
+                else Helpers.Toast.noInternet(context);
             }
         });
         changeRoomTitleAlert.setNegativeButtonOnClickListener(new View.OnClickListener() {
@@ -231,24 +246,27 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         changeRoomDescriptionAlert.setPositiveButtonOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String roomDescription = changeRoomDescriptionAlert.getInput().getText().toString();
+                if (DataStorage.connected){
+                    String roomDescription = changeRoomDescriptionAlert.getInput().getText().toString();
 
-                Map<String,Object> data = new HashMap<>();
-                data.put(Constants.Firebase.Room.FIELD_DESCRIPTION,roomDescription);
+                    Map<String,Object> data = new HashMap<>();
+                    data.put(Constants.Firebase.Room.FIELD_DESCRIPTION,roomDescription);
 
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // TODO make reverse situation
-                        Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // TODO make reverse situation
+                            Helpers.Toast.somethingWentWrong(context);
+                        }
+                    });
 
-                room.setDescription(roomDescription);
+                    room.setDescription(roomDescription);
 
-                roomDescriptionHint.setText(roomDescription);
-                roomDataChangedListener.onRoomDataChangedListener(room);
-                changeRoomDescriptionAlert.dismiss();
+                    roomDescriptionHint.setText(roomDescription);
+                    roomDataChangedListener.onRoomDataChangedListener(room);
+                    changeRoomDescriptionAlert.dismiss();
+                }
+                else Helpers.Toast.noInternet(context);
             }
         });
 
@@ -263,24 +281,28 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
         colorPickerDialog.setColorSelectedListener(new ColorPickerDialog.OnColorSelectedListener() {
             @Override
             public void colorSelected(int color) {
-                String stringColor = Helpers.fromIntToColor(color);
-                Map<String,Object> data = new HashMap<>();
-                data.put(Constants.Firebase.Room.FIELD_COLOR,stringColor);
+                if (DataStorage.connected){
+                    String stringColor = Helpers.fromIntToColor(color);
+                    Map<String,Object> data = new HashMap<>();
+                    data.put(Constants.Firebase.Room.FIELD_COLOR,stringColor);
 
-                Log.i("LMAO",stringColor);
-                databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context,context.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
-                    }
-                },false);
+                    Log.i("LMAO",stringColor);
+                    databaseHelper.changeDocument(Constants.Firebase.DOCUMENT_ROOMS, room.getId(), data, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Helpers.Toast.somethingWentWrong(context);
+                        }
+                    },false);
 
-                room.setColor(stringColor);
+                    room.setColor(stringColor);
 
-                roomColorPicker.setCardBackgroundColor(color);
-                roomColorHint.setText(stringColor);
-                roomDataChangedListener.onRoomDataChangedListener(room);
-                colorPickerDialog.dismiss();
+                    roomColorPicker.setCardBackgroundColor(color);
+                    roomColorHint.setText(stringColor);
+                    roomDataChangedListener.onRoomDataChangedListener(room);
+                    colorPickerDialog.dismiss();
+                }
+
+                else Helpers.Toast.noInternet(context);
             }
         });
 

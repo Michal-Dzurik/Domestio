@@ -87,7 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onRegisterFailed() {
-                Toast.makeText(RegisterActivity.this, RegisterActivity.this.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+                Helpers.Toast.somethingWentWrong(RegisterActivity.this);
 
             }
         });

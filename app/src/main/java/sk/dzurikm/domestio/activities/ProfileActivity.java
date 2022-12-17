@@ -10,6 +10,7 @@ import static sk.dzurikm.domestio.helpers.Helpers.Views.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -215,7 +217,10 @@ public class ProfileActivity extends AppCompatActivity {
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signOutAlert.show();
+                if (DataStorage.connected){
+                    signOutAlert.show();
+                }
+                else Helpers.Toast.noInternet(ProfileActivity.this);
 
             }
         });
@@ -225,7 +230,11 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Showing Alerts
-                editNameAlert.show();
+                if (DataStorage.connected){
+                    editNameAlert.show();
+                }
+
+                else Helpers.Toast.noInternet(ProfileActivity.this);
 
             }
         });
@@ -233,50 +242,57 @@ public class ProfileActivity extends AppCompatActivity {
         emailEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Showing Alerts
-                if (authenticated){
-                    editEmailAlert.show();
-                }
-                else {
-                    reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
-                                reauthenticateAlert.dismiss();
-                                waitAndShow(editEmailAlert,200);
-                                authenticated = true;
+                if (DataStorage.connected){
+                    // Showing Alerts
+                    if (authenticated){
+                        editEmailAlert.show();
+                    }
+                    else {
+                        reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
+                                    reauthenticateAlert.dismiss();
+                                    waitAndShow(editEmailAlert,200);
+                                    authenticated = true;
+                                }
+                                else somethingWentWrongMessage();
                             }
-                            else somethingWentWrongMessage();
-                        }
-                    });
-                    reauthenticateAlert.show();
+                        });
+                        reauthenticateAlert.show();
+                    }
+                    editNameAlert.show();
                 }
+                else Helpers.Toast.noInternet(ProfileActivity.this);
             }
         });
 
         passwordEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Showing Alerts
-                if (authenticated){
-                    passwordChangeAlert.show();
-                }
-                else {
-                    reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
-                                reauthenticateAlert.dismiss();
-                                waitAndShow(passwordChangeAlert,1000);
-                                authenticated = true;
+                if (DataStorage.connected){
+                    // Showing Alerts
+                    if (authenticated){
+                        passwordChangeAlert.show();
+                    }
+                    else {
+                        reauthenticateAlert.setCompleteOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.you_have_been_logged_in_successfully),Toast.LENGTH_SHORT).show();
+                                    reauthenticateAlert.dismiss();
+                                    waitAndShow(passwordChangeAlert,1000);
+                                    authenticated = true;
+                                }
+                                else somethingWentWrongMessage();
                             }
-                            else somethingWentWrongMessage();
-                        }
-                    });
-                    reauthenticateAlert.show();
+                        });
+                        reauthenticateAlert.show();
+                    }
                 }
+                else Helpers.Toast.noInternet(ProfileActivity.this);
             }
         });
     }
@@ -519,7 +535,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void somethingWentWrongMessage(){
-        Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.something_went_wrong),Toast.LENGTH_SHORT).show();
+        Helpers.Toast.somethingWentWrong(ProfileActivity.this);
     }
 
     @Override
