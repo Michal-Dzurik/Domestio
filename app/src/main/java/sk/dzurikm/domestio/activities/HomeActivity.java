@@ -2,16 +2,23 @@ package sk.dzurikm.domestio.activities;
 
 import static sk.dzurikm.domestio.helpers.Constants.Result.PROFILE_ACTIVITY;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -44,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // Views
     RecyclerView horizontalRoomSlider,verticalTaskSlider;
-    View loading;
+    View loading,offlineBar;
     TextView userName;
     ImageButton menuButton, profileButton;
     TextView noTasksText,noRoomsText;
@@ -71,6 +78,8 @@ public class HomeActivity extends AppCompatActivity {
     NetworkChangeReceiver networkChangeReceiver;
     IntentFilter dataChangeBroadcastFilter;
 
+    Window window;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,12 +99,15 @@ public class HomeActivity extends AppCompatActivity {
         loading = findViewById(R.id.loading);
         noRoomsText = findViewById(R.id.noRoomsText);
         noTasksText = findViewById(R.id.noTasksText);
+        offlineBar = findViewById(R.id.offlineBar);
 
         loading.setVisibility(View.VISIBLE);
 
         System.out.println(DataStorage.users);
         System.out.println(DataStorage.rooms);
         System.out.println(DataStorage.tasks);
+
+        // Setting up snackbar
 
         // Login info
         Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -109,7 +121,12 @@ public class HomeActivity extends AppCompatActivity {
         snapHelper = new PagerSnapHelper();
         databaseHelper = new DatabaseHelper();
 
+        window = HomeActivity.this.getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
 
         // Loading data from database and setting them to datasets
@@ -175,14 +192,10 @@ public class HomeActivity extends AppCompatActivity {
         registerReceiver(dataChangedReceiver, dataChangeBroadcastFilter);
 
         networkChangeReceiver = new NetworkChangeReceiver(new NetworkChangeReceiver.NetworkStatusChangeListener() {
+            @SuppressLint("ResourceType")
             @Override
             public void onChange() {
-                if (Helpers.Network.isNetworkAvailable(HomeActivity.this)){
-                    // Connected
-                }
-                else{
-                    // Disconnected
-                }
+                changeConnectionStatus();
             }
         });
         registerReceiver(networkChangeReceiver,new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
@@ -207,6 +220,26 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @SuppressLint("ResourceType")
+    private void changeConnectionStatus(){
+        if (Helpers.Network.isNetworkAvailable(HomeActivity.this)){
+            // Connected
+            offlineBar.setVisibility(View.GONE);
+            TypedValue typedValue = new TypedValue();
+            Resources.Theme theme = HomeActivity.this.getTheme();
+            theme.resolveAttribute(R.attr.BackgroundColor, typedValue, true);
+            @ColorInt int color = typedValue.resourceId;
+            System.out.println(color);
+            window.setStatusBarColor(ContextCompat.getColor(HomeActivity.this, color));
+        }
+        else{
+            // Disconnected
+            offlineBar.setVisibility(View.VISIBLE);
+            window.setStatusBarColor(ContextCompat.getColor(HomeActivity.this,R.color.red));
+
+        }
     }
 
     private void loadData() {
