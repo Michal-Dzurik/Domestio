@@ -22,7 +22,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
 
         int status = Helpers.Network.getConnectivityStatusString(context);
-        if (status == Helpers.Network.NETWORK_STATUS_NOT_CONNECTED || !Helpers.Network.isNetworkAvailable(context)) {
+        System.out.println("Status- " + status);
+        if (status == Helpers.Network.NETWORK_STATUS_NOT_CONNECTED) {
+            System.out.println("Not connected anywhere");
             DataStorage.connected = false;
         } else {
             DataStorage.connected = true;

@@ -222,7 +222,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceType")
     private void changeConnectionStatus(){
-        if (Helpers.Network.isNetworkAvailable(HomeActivity.this)){
+        if (DataStorage.connected){
             // Connected
             offlineBar.setVisibility(View.GONE);
             TypedValue typedValue = new TypedValue();
@@ -358,6 +358,8 @@ public class HomeActivity extends AppCompatActivity {
 
         System.out.println(DataStorage.tasks);
         System.out.println(DataStorage.rooms);
+
+        changeConnectionStatus();
 
         super.onResume();
     }
