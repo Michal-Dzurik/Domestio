@@ -12,5 +12,4 @@ public class DataStorage {
     public static ArrayList<Room> rooms;
 
     public static boolean connected = true;
-
 }

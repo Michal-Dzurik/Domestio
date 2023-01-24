@@ -46,6 +46,11 @@ public class User implements Serializable {
         this.email = (String) data.get(FIELD_EMAIL);
     }
 
+    public void update(User user) {
+        if (user.getEmail() != null) this.email = user.getEmail();
+        if (user.getName() != null) this.name = user.getName();
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -53,10 +58,5 @@ public class User implements Serializable {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
-    }
-
-    public void update(User user) {
-        if (user.getEmail() != null) this.email = user.getEmail();
-        if (user.getName() != null) this.name = user.getName();
     }
 }

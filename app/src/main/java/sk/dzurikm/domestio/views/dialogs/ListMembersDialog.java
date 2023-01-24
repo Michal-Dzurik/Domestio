@@ -45,12 +45,14 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
 
     // Helpers
     private DatabaseHelper databaseHelper;
+    private boolean admin;
 
-    public ListMembersDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users, Room room) {
+    public ListMembersDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users, Room room, boolean admin) {
         this.users = (ArrayList<User>) users.clone();
         this.context = context;
         this.fragmentManager = fragmentManager;
         this.room = room;
+        this.admin = admin;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
 
         // Adapters
         Log.i("USERS", String.valueOf(users));
-        memberListAdapter = new MemberListAdapter(context, users, room.getAdminId(), new MemberListAdapter.OnMemberRemoveListener() {
+        memberListAdapter = new MemberListAdapter(context, users, room.getAdminId(),admin, new MemberListAdapter.OnMemberRemoveListener() {
             @Override
             public void onMemberRemove(String uid) {
 

@@ -36,13 +36,16 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-            <android.widget.Button
+            <android.widget.ImageButton
                 android:id="@+id/addMemberButton"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:visibility="gone"
+                android:visibility="visible"
+                android:background="@drawable/see_more_button_background"
                 android:text="@string/add_member"
-                android:background="@drawable/see_more_button_background"/>
+                android:src="@drawable/person_add_24"
+                android:tint="?ComponentIconTint"
+                />
 
         </LinearLayout>
 

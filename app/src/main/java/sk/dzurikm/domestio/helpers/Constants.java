@@ -13,11 +13,13 @@ public class Constants {
     }
 
     public static class Firebase{
+        // Collection identification
         public static final String DOCUMENT_ROOMS = "Rooms";
         public static final String DOCUMENT_TASKS = "Tasks";
         public static final String DOCUMENT_USERS = "Users";
 
         public static class Room{
+            // Fields identification
             public static final String FIELD_COLOR = "color";
             public static final String FIELD_DESCRIPTION = "description";
             public static final String FIELD_TASK_IDS = "task_ids";

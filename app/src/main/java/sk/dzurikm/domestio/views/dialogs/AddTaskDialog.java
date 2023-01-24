@@ -16,6 +16,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
@@ -249,7 +250,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                             Task originalTask = Task.editTaskCopy(task);
                             task.updateFromValidationData(map);
 
-                            System.out.println(task.getTimestamp());
+                            System.out.println(task);
 
                             if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
                             else updateTask(task,null);
@@ -358,6 +359,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             hour = calendar.get(Calendar.HOUR);
             minute = calendar.get(Calendar.MINUTE);
 
+            System.out.println(month);
+
             setDateAndTime(year,month,day,hour,minute);
         }
 
@@ -366,12 +369,15 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
     private void setDateAndTime(int year, int month, int dayOfMonth,int hour,int minute){
         String datetime = "" + year + "-" +
-                Helpers.Integer.formatNumberOnTwoSpaces(month) + "-" +
+                Helpers.Integer.formatNumberOnTwoSpaces(month + 1) + "-" +
                 Helpers.Integer.formatNumberOnTwoSpaces(dayOfMonth) + " " +
                 Helpers.Integer.formatNumberOnTwoSpaces(hour) + ":" +
                 Helpers.Integer.formatNumberOnTwoSpaces(minute);
 
         DateTimeFormatter f = DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm" ) ;
+
+        Log.i("DOK",datetime);
+
         LocalDateTime ldt = LocalDateTime.parse( datetime , f ) ;
         OffsetDateTime odt = ldt.atOffset( ZoneOffset.UTC ) ;
 
@@ -403,6 +409,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         task.setReceiverId(selectedUser.getId());
         task.setTimestamp(timestamp);
 
+
         databaseHelper.addTask(task, new DatabaseHelper.OnTaskAddedListener() {
             @Override
             public void onTaskAdded(com.google.android.gms.tasks.Task t, Task task) {
@@ -413,7 +420,6 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                 else Helpers.Toast.somethingWentWrong(context);
             }
         });
-
 
     }
 

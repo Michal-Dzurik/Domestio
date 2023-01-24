@@ -20,7 +20,6 @@ public class DCO {
     private ArrayList<Task> taskData;
     private ArrayList<User> usersData;
 
-
     private OnDataChangeListener onDataChangeListener;
     
     private DatabaseHelper databaseHelper;

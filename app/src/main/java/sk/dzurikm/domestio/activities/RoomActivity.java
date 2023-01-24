@@ -36,6 +36,7 @@ import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.dialogs.AddRoomMemberDialog;
 import sk.dzurikm.domestio.views.dialogs.AddTaskDialog;
+import sk.dzurikm.domestio.views.dialogs.ListMembersDialog;
 import sk.dzurikm.domestio.views.dialogs.RoomOptionDialog;
 
 public class RoomActivity extends AppCompatActivity {
@@ -43,9 +44,8 @@ public class RoomActivity extends AppCompatActivity {
     // Views
     RecyclerView roomsRecycler;
     TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount,noTaskText;
-    ImageButton backButton,addTaskButton,optionButton;
+    ImageButton backButton,addTaskButton,optionButton,addMemberButton;
     LinearLayout cardBackground;
-    Button addMemberButton;
 
     // Helpers
     DatabaseHelper databaseHelper;
@@ -210,14 +210,13 @@ public class RoomActivity extends AppCompatActivity {
         roomTaskCount.setText(String.valueOf(room.getTasksCount()));
         roomPeopleCount.setText(String.valueOf(room.getPeopleCount()));
         cardBackground.setBackgroundColor(Color.parseColor(Helpers.Colors.addOpacity(room.getColor(),"AD")));
-        if (room.isAdmin(auth.getUid())){
-            addMemberButton.setVisibility(View.VISIBLE);
-        }
-        else {
-            // option button transforms to leave button
+        if (!room.isAdmin(auth.getUid())){
             optionButton.setImageResource(R.drawable.ic_leave);
             optionButton.setBackgroundResource(R.drawable.leave_button_background);
+
+            addMemberButton.setImageResource(R.drawable.round_group);
         }
+
 
         // helpers
         databaseHelper = new DatabaseHelper();
@@ -292,7 +291,7 @@ public class RoomActivity extends AppCompatActivity {
                     @Override
                     public void onTaskAdded(Task task) {
                         // Add task id to room and increment count of them
-                        dco.addTask(task);
+                        // I am adding nothing cause all the task you see are just your and you cant make your own
                     }
 
                     @Override
@@ -307,31 +306,38 @@ public class RoomActivity extends AppCompatActivity {
         addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddRoomMemberDialog dialog = new AddRoomMemberDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager());
-                dialog.setOnEmailValidListener(new AddRoomMemberDialog.OnEmailValidListener() {
-                    @Override
-                    public void onEmailValid(String email) {
-                        Log.i("EMAIL",email);
+                if (room.isAdmin(auth.getUid())){
+                    AddRoomMemberDialog dialog = new AddRoomMemberDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager());
+                    dialog.setOnEmailValidListener(new AddRoomMemberDialog.OnEmailValidListener() {
+                        @Override
+                        public void onEmailValid(String email) {
+                            Log.i("EMAIL",email);
 
-                        String id = dco.getUserIdByEmail(email);
+                            String id = dco.getUserIdByEmail(email);
 
-                        if (id != null){
-                            databaseHelper.addMemberInRoom(room.getId(), id, new OnCompleteListener() {
-                                @Override
-                                public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
-                                    if (task.isSuccessful()){
-                                        dialog.dismiss();
-                                        room.addUserId(id);
-                                        dco.updateRoomChangeableInfo(taskData,room);
-                                        Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
+                            if (id != null){
+                                databaseHelper.addMemberInRoom(room.getId(), id, new OnCompleteListener() {
+                                    @Override
+                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
+                                        if (task.isSuccessful()){
+                                            dialog.dismiss();
+                                            room.addUserId(id);
+                                            dco.updateRoomChangeableInfo(taskData,room);
+                                            Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
+                            else Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists),Toast.LENGTH_SHORT).show();
                         }
-                        else Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists),Toast.LENGTH_SHORT).show();
-                    }
-                });
-                dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Member");
+                    });
+                    dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Member");
+
+                }
+                else{
+                    ListMembersDialog listMembersDialog = new ListMembersDialog(RoomActivity.this,RoomActivity.this.getSupportFragmentManager(),dco.filterUsersForThisRoom(room.getUserIds()),room,false);
+                    listMembersDialog.show(RoomActivity.this.getSupportFragmentManager(),"List of members");
+                }
             }
         });
     }

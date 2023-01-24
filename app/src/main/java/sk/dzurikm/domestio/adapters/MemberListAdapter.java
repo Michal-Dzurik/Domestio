@@ -28,16 +28,17 @@ public class MemberListAdapter extends RecyclerView.Adapter<MemberListAdapter.Vi
 
     // Listeners
     OnMemberRemoveListener onMemberRemoveListener;
+    private boolean admin;
 
 
     // data is passed into the constructor
-    public MemberListAdapter(Context context, ArrayList<User> data,String adminID, OnMemberRemoveListener onMemberRemoveListener) {
+    public MemberListAdapter(Context context, ArrayList<User> data,String adminID,boolean admin, OnMemberRemoveListener onMemberRemoveListener) {
         this.layoutInflater = LayoutInflater.from(context);
         this.data = data;
         this.context = context;
         this.adminID = adminID;
         this.onMemberRemoveListener = onMemberRemoveListener;
-
+        this.admin = admin;
     }
 
     // inflates the row layout from xml when needed
@@ -57,41 +58,47 @@ public class MemberListAdapter extends RecyclerView.Adapter<MemberListAdapter.Vi
         holder.getMemberName().setText(member.getName());
         holder.getMemberEmail().setText(member.getEmail());
 
-        if (!member.getId().equals(adminID)){
-            System.out.println(member.getId() + " --  " + adminID);
-            holder.getDeleteMemberButton().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (DataStorage.connected){
-                        Alert alert = new Alert(context);
-                        alert.setTitle(context.getString(R.string.remove) + " " +  member.getName());
-                        alert.setDescription(context.getString(R.string.do_you_want_to_remove_member));
-                        alert.setPositiveButtonText(context.getString(R.string.yes));
-                        alert.setNegativeButtonText(context.getString(R.string.no));
-                        alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                alert.dismiss();
-                            }
-                        });
+        if (admin){
+            if (!member.getId().equals(adminID)){
+                System.out.println(member.getId() + " --  " + adminID);
+                holder.getDeleteMemberButton().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (DataStorage.connected){
+                            Alert alert = new Alert(context);
+                            alert.setTitle(context.getString(R.string.remove) + " " +  member.getName());
+                            alert.setDescription(context.getString(R.string.do_you_want_to_remove_member));
+                            alert.setPositiveButtonText(context.getString(R.string.yes));
+                            alert.setNegativeButtonText(context.getString(R.string.no));
+                            alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    alert.dismiss();
+                                }
+                            });
 
-                        alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                onMemberRemoveListener.onMemberRemove(member.getId());
-                                alert.dismiss();
-                            }
-                        });
+                            alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    onMemberRemoveListener.onMemberRemove(member.getId());
+                                    alert.dismiss();
+                                }
+                            });
 
-                        alert.show();
+                            alert.show();
+                        }
+
+                        else Helpers.Toast.noInternet(context);
                     }
-
-                    else Helpers.Toast.noInternet(context);
-                }
-            });
+                });
+            }
+            else {
+                holder.getAdminBadge().setVisibility(View.VISIBLE);
+                holder.getDeleteMemberButton().setVisibility(View.GONE);
+            }
         }
         else {
-            holder.getAdminBadge().setVisibility(View.VISIBLE);
+            if (member.getId().equals(adminID)) holder.getAdminBadge().setVisibility(View.VISIBLE);
             holder.getDeleteMemberButton().setVisibility(View.GONE);
         }
 

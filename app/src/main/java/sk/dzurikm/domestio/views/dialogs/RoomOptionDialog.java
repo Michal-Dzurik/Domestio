@@ -143,7 +143,7 @@ public class RoomOptionDialog extends BottomSheetDialogFragment {
 
                 // Open user list
                 getDialog().dismiss();
-                ListMembersDialog listMembersDialog = new ListMembersDialog(context,fragmentManager,users,room);
+                ListMembersDialog listMembersDialog = new ListMembersDialog(context,fragmentManager,users,room,true);
                 listMembersDialog.show(fragmentManager,"List of members");
             }
         });

@@ -142,7 +142,7 @@
             <ImageView
                 android:id="@+id/leaveButtonIcon"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_leave"
                 app:tint="?ComponentIconTint" />
