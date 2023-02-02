@@ -113,4 +113,7 @@
     <string name="spam_warrning">If you can\'t find reset email in your mailbox, please check your spam.</string>
     <string name="you_are_offline">You are offline</string>
     <string name="cant_do_while_offline">You can\'t do that while you\'re offline</string>
+    <string name="verify">Verify</string>
+    <string name="undone">Undone</string>
+    <string name="task_undone_by_receiver">Task is yet undone by receiver</string>
 </resources>

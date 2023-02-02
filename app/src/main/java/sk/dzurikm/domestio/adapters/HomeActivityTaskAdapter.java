@@ -20,6 +20,7 @@ import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -29,6 +30,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
@@ -115,7 +119,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         String collapseState = sharedPreferences.getString(COLLAPSED_STATE,String.valueOf(Constants.Settings.CollapsingState.COLLAPSED));
 
         collapsed = !collapseState.equals(String.valueOf(Constants.Settings.CollapsingState.EXPANDED));
-        System.out.println(collapseState + "   -  " + String.valueOf(Constants.Settings.CollapsingState.EXPANDED));
 
         if (!empty){
             String heading,description,owner,time,room,color;
@@ -126,6 +129,12 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             time = Helpers.stringValueOrDefault(currentTask.getTime(),"-");
             room = Helpers.limitLetters(Helpers.stringValueOrDefault(currentTask.getRoomName(),"No room"),Constants.TextPrint.Task.ROOM_NAME_MAX_CHAR);
             color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
+
+            Date date = new Date();
+            System.out.println(((long) (new Timestamp(date.getTime()).getTime() / 1000)) + "---------" + currentTask.getTimestamp());
+            if (currentTask.getTimestamp() < ((long) (new Timestamp(date.getTime()).getTime() / 1000))){
+                holder.getMotionLayout().setAlpha(0.5F);
+            }
 
             holder.getHeading()
                     .setText(heading);
@@ -153,65 +162,35 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
             MotionLayout motionLayout = holder.getMotionLayout();
 
-            holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    MotionLayout motionLayout = holder.getMotionLayout();
-
-                    if (!collapsed){
-                        motionLayout.transitionToStart();
-
-                        collapsed = true;
-                    }
-                    else {
-                        motionLayout.transitionToEnd();
-
-                        collapsed = false;
-                    }
-
-
+            if (auth.getUid().equals(currentTask.getAuthorId())){
+                // You are the author of the task
+                if (currentTask.getDone()){
+                    doneButton.setText(context.getString(R.string.verify));
+                    doneButton.setTextColor(context.getResources().getColor(R.color.white));
                 }
-            });
-
-            holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
-                        System.out.println(currentTask);
-                        TasksOptionDialog tasksOptionDialog = new TasksOptionDialog(context,fragmentManager,currentTask);
-                        tasksOptionDialog.show(fragmentManager,"TaskOptionDialog");
-                    }
-
-                    return true;
+                else {
+                    doneButton.setText(context.getString(R.string.undone));
+                    doneButton.setPaintFlags(doneButton.getPaintFlags());
+                    doneButton.setTextColor(context.getResources().getColor(R.color.white_transparent));
                 }
-            });
 
-            doneButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (auth.getUid().equals(currentTask.getReceiverId())){
-                        currentTask.setDone(!currentTask.getDone());
-                        notifyItemChanged(holder.getAdapterPosition());
-
-                        //System.out.println(currentTask.getDone() + "  -  " + !currentTask.getDone());
-
-                        if (doneClickListener != null) {
-                            databaseHelper.updateTaskDone(currentTask);
-                            doneClickListener.onDoneClick(currentTask);
-                        }
-                    }
+                if (currentTask.getVerified()){
+                    decorateLineThrough(doneButton);
                 }
-            });
-
-            if (currentTask.getDone()){
-                doneButton.setPaintFlags(doneButton.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                doneButton.setTextColor(context.getResources().getColor(R.color.white_transparent));
+                else {
+                    removeDecoration(doneButton);
+                }
             }
-            else {
-                doneButton.setPaintFlags(0);
-                doneButton.setTextColor(Color.WHITE);
+            else if (auth.getUid().equals(currentTask.getReceiverId())){
+                // You are the receiver of the task
+                if (currentTask.getDone()){
+                    decorateLineThrough(doneButton);
+                }
+                else {
+                    removeDecoration(doneButton);
+                }
             }
+
 
             if (!collapsed){
                 motionLayout.transitionToStart();
@@ -225,8 +204,84 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             }
         }
 
+        holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                MotionLayout motionLayout = holder.getMotionLayout();
+
+                if (!collapsed){
+                    motionLayout.transitionToStart();
+
+                    collapsed = true;
+                }
+                else {
+                    motionLayout.transitionToEnd();
+
+                    collapsed = false;
+                }
 
 
+            }
+        });
+
+        holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+                    System.out.println(currentTask);
+                    TasksOptionDialog tasksOptionDialog = new TasksOptionDialog(context,fragmentManager,currentTask);
+                    tasksOptionDialog.show(fragmentManager,"TaskOptionDialog");
+                }
+
+                return true;
+            }
+        });
+
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (auth.getUid().equals(currentTask.getAuthorId())){
+                    // You are the author of the task
+
+                    if (currentTask.getDone()){
+                        currentTask.setVerified(!currentTask.getVerified());
+                        notifyItemChanged(holder.getAdapterPosition());
+                        databaseHelper.updateTaskVerified(currentTask);
+
+                    }
+                    else Toast.makeText(context, context.getString(R.string.task_undone_by_receiver),Toast.LENGTH_SHORT).show();
+
+
+                    if (doneClickListener != null) {
+                        doneClickListener.onDoneClick(currentTask);
+                    }
+                }
+                else if (auth.getUid().equals(currentTask.getReceiverId())){
+                    // You are the receiver of the task
+                    currentTask.setDone(!currentTask.getDone());
+                    notifyItemChanged(holder.getAdapterPosition());
+
+                    //System.out.println(currentTask.getDone() + "  -  " + !currentTask.getDone());
+
+                    if (doneClickListener != null) {
+                        databaseHelper.updateTaskDone(currentTask);
+                        doneClickListener.onDoneClick(currentTask);
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void decorateLineThrough(TextView text){
+        text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        text.setTextColor(context.getResources().getColor(R.color.white_transparent));
+    }
+
+    private void removeDecoration(TextView text){
+        text.setPaintFlags(0);
+        text.setTextColor(Color.WHITE);
     }
 
 

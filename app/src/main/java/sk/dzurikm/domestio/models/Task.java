@@ -24,10 +24,18 @@ public class Task implements Serializable {
     String roomName;
     Date date;
     String color;
-    Boolean done;
+    Boolean done,verified;
     Long timestamp;
 
     public Task() {
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 
     public String getId() {
@@ -145,6 +153,7 @@ public class Task implements Serializable {
         this.receiverId = (String) data.get(FIELD_RECEIVER_ID);
 
         this.done = (Boolean) data.get(FIELD_DONE);
+        this.verified = (Boolean) data.get(FIELD_VERIFIED);
     }
 
     public boolean isOwner(String uid){
@@ -187,6 +196,7 @@ public class Task implements Serializable {
         this.done = task.getDone();
         this.color = task.getColor();
         this.roomName = task.getRoomName();
+        this.verified = task.getVerified();
     }
 
     public void updateFromValidationData(HashMap<String,String> map){
@@ -208,7 +218,8 @@ public class Task implements Serializable {
         t.setTimestamp(task.getTimestamp());
         t.setRoomId(task.getRoomId());
         t.setAuthorId(task.getAuthorId());
-
+        t.setDone(task.getDone());
+        t.setVerified(task.getVerified());
 
         return t;
     }

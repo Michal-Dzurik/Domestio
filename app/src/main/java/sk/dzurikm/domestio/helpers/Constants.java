@@ -43,6 +43,7 @@ public class Constants {
             public static final String FIELD_TIME = "time";
             public static final String FIELD_CREATED_AT = "created_at";
             public static final String FIELD_MODIFIED_AT = "modified_at";
+            public static final String FIELD_VERIFIED = "verified";
         }
 
         public static class User{

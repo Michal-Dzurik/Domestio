@@ -14,6 +14,7 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_DONE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
+import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_VERIFIED;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_CREATED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
@@ -410,6 +411,7 @@ public class DatabaseHelper {
         tasksMap.put(Constants.Firebase.Task.FIELD_TIME,Helpers.Time.getTimeDateForDB(task.getTimestamp()));
         tasksMap.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
         tasksMap.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+        tasksMap.put(FIELD_VERIFIED,false);
 
         DocumentReference document = db.collection(DOCUMENT_TASKS).document();
         document.set(tasksMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -449,6 +451,16 @@ public class DatabaseHelper {
     public void updateTaskDone(Task task){
         DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
         document.update(FIELD_DONE,task.getDone()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                System.out.println(task.isSuccessful());
+            }
+        });
+    }
+
+    public void updateTaskVerified(Task task){
+        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
+        document.update(FIELD_VERIFIED,task.getVerified()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                 System.out.println(task.isSuccessful());
