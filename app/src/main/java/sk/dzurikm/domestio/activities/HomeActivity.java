@@ -115,6 +115,7 @@ public class HomeActivity extends AppCompatActivity {
         taskData = new ArrayList<Task>();
         usersData = new ArrayList<User>();
 
+
         // Helpers init
         snapHelper = new PagerSnapHelper();
         databaseHelper = new DatabaseHelper();
@@ -162,7 +163,6 @@ public class HomeActivity extends AppCompatActivity {
                         task.setRoomName(dat.get(Constants.Firebase.Room.FIELD_TITLE));
                         task.setColor(dat.get(Constants.Firebase.Room.FIELD_COLOR));
 
-                        System.out.println(type);
                         switch (type){
                             case ADDED:
                                 dco.addTask(task);
@@ -174,6 +174,7 @@ public class HomeActivity extends AppCompatActivity {
                                 dco.removeTask(task);
                                 break;
                         }
+
 
                         break;
 
@@ -248,6 +249,8 @@ public class HomeActivity extends AppCompatActivity {
                 HomeActivity.this.taskData = taskData;
                 HomeActivity.this.usersData = userData;
 
+                // Removing finished tasks
+                HomeActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasks(HomeActivity.this.taskData);
                 // Dialogs init
                 menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), roomData, usersData, new AddRoomDialog.OnRoomCreatedListener() {
                     @Override
@@ -299,8 +302,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        System.out.println("DAATAAAAA" + taskData);
+
         // Setting up DCO
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
                 if (usersData != null) {
@@ -308,8 +314,11 @@ public class HomeActivity extends AppCompatActivity {
                 }
 
                 if (taskData != null) {
-                    HomeActivity.this.taskData = taskData;
-                    taskAdapter.notifyDataSetChanged();
+                    ArrayList<Task> newList = Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks);
+                    System.out.println(newList.size());
+                    HomeActivity.this.taskData.clear();
+                    HomeActivity.this.taskData.addAll(newList);
+                    HomeActivity.this.taskAdapter.notifyDataSetChanged();
                     hideNoDataMessages();
                 }
 
@@ -347,7 +356,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         usersData = DataStorage.users;
         roomData = DataStorage.rooms;
-        taskData = DataStorage.tasks;
+        taskData = DataStorage.tasks != null ? Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks) : DataStorage.tasks;
 
         if (roomAdapter != null) roomAdapter.notifyDataSetChanged();
         if (taskAdapter != null) taskAdapter.notifyDataSetChanged();

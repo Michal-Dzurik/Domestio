@@ -131,7 +131,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
             Date date = new Date();
-            System.out.println(((long) (new Timestamp(date.getTime()).getTime() / 1000)) + "---------" + currentTask.getTimestamp());
             if (currentTask.getTimestamp() < ((long) (new Timestamp(date.getTime()).getTime() / 1000))){
                 holder.getMotionLayout().setAlpha(0.5F);
             }

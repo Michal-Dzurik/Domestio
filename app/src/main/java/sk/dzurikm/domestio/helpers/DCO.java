@@ -40,9 +40,9 @@ public class DCO {
     }
 
     public DCO(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> usersData, OnDataChangeListener onDataChangeListener) {
-        this.roomData = roomData;
-        this.taskData = taskData;
-        this.usersData = usersData;
+        this.roomData = (ArrayList<Room>) roomData.clone();
+        this.taskData = (ArrayList<Task>) taskData.clone();
+        this.usersData = (ArrayList<User>) usersData.clone();
         this.onDataChangeListener = new OnDataChangeListener() {
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {

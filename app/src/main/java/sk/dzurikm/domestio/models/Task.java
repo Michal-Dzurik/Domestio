@@ -180,6 +180,7 @@ public class Task implements Serializable {
                 ", color='" + color + '\'' +
                 ", done=" + done +
                 ", timestamp=" + timestamp +
+                ", verified=" + (verified == null ? "null" : verified) +
                 '}';
     }
 

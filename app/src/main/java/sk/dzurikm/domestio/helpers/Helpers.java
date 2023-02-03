@@ -35,10 +35,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.models.Room;
+import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 import sk.dzurikm.domestio.views.alerts.PasswordChangeAlert;
@@ -408,6 +410,37 @@ public class Helpers {
             }
 
             return null;
+        }
+
+        public static ArrayList<Task> filterOnlyRelevantTasks(ArrayList<Task> tasks){
+            ArrayList<Task> newList = new ArrayList<>();
+
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+
+                // if task is verified, it's considered as Finished (bool done is only for author of task to see the task should be done and verify it )
+                if (!task.getVerified()){
+                    newList.add(task);
+                }
+                else System.out.println("get out - " + task );
+            }
+
+            return newList;
+        }
+
+        public static ArrayList<Task> filterOnlyRelevantTasksForRoom(ArrayList<Task> tasks,String roomID){
+            ArrayList<Task> newList = new ArrayList<>();
+
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+
+                // if task is verified, it's considered as Finished (bool done is only for author of task to see the task should be done and verify it )
+                if (!task.getVerified() && task.getRoomId().equals(roomID)){
+                    newList.add(task);
+                }
+            }
+
+            return newList;
         }
 
     }

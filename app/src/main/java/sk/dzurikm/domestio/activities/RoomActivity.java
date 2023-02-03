@@ -28,6 +28,7 @@ import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
+import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -169,7 +170,8 @@ public class RoomActivity extends AppCompatActivity {
                 }
 
                 if (taskData != null){
-                    RoomActivity.this.taskData = dco.filterTasksForThisRoom(room.getId());
+                    // Removing finished tasks
+                    RoomActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId());
                     taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this, RoomActivity.this.taskData, new HomeActivityTaskAdapter.OnDoneClickListener() {
                         @Override
                         public void onDoneClick(Task task) {
@@ -195,7 +197,7 @@ public class RoomActivity extends AppCompatActivity {
         });
 
         // Setting up empty adapter
-        taskData = dco.filterTasksForThisRoom(room.getId());
+        taskData = Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId());
         taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this,taskData,new HomeActivityTaskAdapter.OnDoneClickListener() {
             @Override
             public void onDoneClick(Task task) {
