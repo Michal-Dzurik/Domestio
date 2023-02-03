@@ -3,6 +3,7 @@ package sk.dzurikm.domestio.activities;
 import static sk.dzurikm.domestio.helpers.Constants.Url.*;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -54,6 +55,9 @@ public class AboutMeActivity extends AppCompatActivity {
         github = findViewById(R.id.github);
         backButton = findViewById(R.id.backButton);
         supportMe = findViewById(R.id.supportMeButton);
+
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        CustomTabsIntent customTabsIntent = builder.build();
 
         // Helpers
         dco = new DCO(new DCO.OnDataChangeListener() {
@@ -144,32 +148,28 @@ public class AboutMeActivity extends AppCompatActivity {
         facebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(FACEBOOK));
-                startActivity(browserIntent);
+                customTabsIntent.launchUrl(AboutMeActivity.this, Uri.parse(FACEBOOK));
             }
         });
 
         linkedin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LINKED_ID));
-                startActivity(browserIntent);
+                customTabsIntent.launchUrl(AboutMeActivity.this, Uri.parse(LINKED_ID));
             }
         });
 
         github.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(GIT_HUB));
-                startActivity(browserIntent);
+                customTabsIntent.launchUrl(AboutMeActivity.this, Uri.parse(GIT_HUB));
             }
         });
 
         supportMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BUY_ME_A_COFFEE));
-                startActivity(browserIntent);
+                customTabsIntent.launchUrl(AboutMeActivity.this, Uri.parse(BUY_ME_A_COFFEE));
             }
         });
     }
