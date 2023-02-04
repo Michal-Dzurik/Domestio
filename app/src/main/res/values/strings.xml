@@ -116,4 +116,8 @@
     <string name="verify">Verify</string>
     <string name="undone">Undone</string>
     <string name="task_undone_by_receiver">Task is yet undone by receiver</string>
+    <string name="task_verified">Task verified</string>
+    <string name="user">User</string>
+    <string name="has_verified_task">has verified the task</string>
+    <string name="has_removed_verification_from_task">has removed verification from task</string>
 </resources>

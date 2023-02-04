@@ -200,7 +200,6 @@ public class NotificationService extends Service {
                 // send notification
                 Intent intent;
                 PendingIntent pendingIntent;
-                sendChangedData(COLLECTION,data,documentID,type);
 
                 switch (COLLECTION){
                     case DOCUMENT_ROOMS:
@@ -225,8 +224,6 @@ public class NotificationService extends Service {
                             }
                         }
                         else {
-
-
                             // If i haven't changed room then notify me
                             if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
                                 sendNotification(Constants.NotificationChannels.ROOM_UPDATES,room.getTitle(), getString(R.string.something_new_in_room) + ". " + getString(R.string.go_check_it_out), pendingIntent);
@@ -237,13 +234,14 @@ public class NotificationService extends Service {
                     case DOCUMENT_TASKS:
                         Task task = new Task();
                         task.cast(documentID,data);
+                        Task originalTask = getTask(task);
 
                         intent = new Intent(this, SplashScreenActivity.class);
                         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
                         task.setAuthor(Helpers.DataSet.getAuthorName(DataStorage.users,task.getAuthorId()));
 
-                        if (isTaskNew(task) ) {
+                        if (originalTask == null) {
                             taskData.add(task);
 
                             // If i haven't created task then notify me
@@ -256,7 +254,15 @@ public class NotificationService extends Service {
                             if (type == REMOVED) break;
 
                             // If i haven't changed task then notify me
-                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
+                            if(!originalTask.getVerified() && task.getVerified()){
+                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + task.getAuthor() + " " + getString(R.string.has_verified_task), pendingIntent);
+                                notificationId++;
+                            }
+                            else if(originalTask.getVerified() && !task.getVerified()){
+                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + task.getAuthor() + " " + getString(R.string.has_removed_verification_from_task), pendingIntent);
+                                notificationId++;
+                            }
+                            else if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
                                 sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_modified), getString(R.string.something_new_in_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
                                 notificationId++;
                             }
@@ -270,6 +276,8 @@ public class NotificationService extends Service {
 
                         break;
                 }
+
+                sendChangedData(COLLECTION,data,documentID,type);
 
         }
         else {
@@ -312,11 +320,11 @@ public class NotificationService extends Service {
         return true;
     }
 
-    public boolean isTaskNew(Task task){
-        for (int i = 0; i < taskData.size(); i++) {
-            if (taskData.get(i).getId().equals(task.getId())) return false;
+    public Task getTask(Task task){
+        for (int i = 0; i < DataStorage.tasks.size(); i++) {
+            if (DataStorage.tasks.get(i).getId().equals(task.getId())) return DataStorage.tasks.get(i);
         }
 
-        return true;
+        return null;
     }
 }
