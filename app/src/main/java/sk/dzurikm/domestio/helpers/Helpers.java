@@ -86,6 +86,19 @@ public class Helpers {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
+    public static LinkedList<String> getArray(Context ctx,int resource) {
+        LinkedList<String> mStationArray = null;
+        String[] mTempArray = ctx.getResources().getStringArray(resource);
+        int len = mTempArray.length;
+        mStationArray = new LinkedList<String>();
+        for(int i = 0; i < len; i++){
+            String item = mTempArray[i];
+            mStationArray.add(item);
+        }
+
+        return mStationArray;
+    }
+
     public static class Time{
         public static long seconds(double seconds){
             return (long) (seconds * 1000L);

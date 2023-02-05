@@ -210,13 +210,35 @@
         android:gravity="center_horizontal"
         android:paddingHorizontal="@dimen/home_body_margin">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/tasks"
-            android:textColor="?attr/PrimaryTextColor"
-            android:textSize="@dimen/heading_text_size" />
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tasks"
+                android:layout_gravity="center_vertical"
+
+                android:textColor="?attr/PrimaryTextColor"
+                android:textSize="@dimen/heading_text_size" />
+
+            <Spinner
+                android:id="@+id/taskSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:spinnerMode="dropdown"
+                android:backgroundTint="?attr/MainColor"
+                android:entries="@array/taskSpinner"
+                android:textSize="10dp"
+                />
+
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/noTasksText"
@@ -240,7 +262,9 @@
             android:layout_marginVertical="10dp"
             android:layoutAnimation="@anim/taks_layout_animator"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="vertical"/>
+            android:orientation="vertical"
+            android:nestedScrollingEnabled="false"
+            />
 
 
 

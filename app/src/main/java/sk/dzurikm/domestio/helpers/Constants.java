@@ -143,4 +143,11 @@ public class Constants {
 
     }
 
+    public static class Spinner{
+        public static class Room{
+            public static final int ALL_TASKS = 0;
+            public static final int MY_TASKS = 1;
+        }
+    }
+
 }

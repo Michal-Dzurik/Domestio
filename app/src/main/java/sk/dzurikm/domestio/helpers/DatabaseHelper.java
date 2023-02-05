@@ -250,7 +250,9 @@ public class DatabaseHelper {
             return;
         }
 
-        db.collection(DOCUMENT_TASKS).whereArrayContainsAny(FIELD_TASK_IDS,room.getTaskIds()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        System.out.println("HJBO - " + room);
+
+        db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID,room.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
                 if (t.isSuccessful()){

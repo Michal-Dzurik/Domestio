@@ -4,14 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +28,8 @@ import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
+import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
+import sk.dzurikm.domestio.adapters.StringSpinnerAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
@@ -47,6 +52,7 @@ public class RoomActivity extends AppCompatActivity {
     TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount,noTaskText;
     ImageButton backButton,addTaskButton,optionButton,addMemberButton;
     LinearLayout cardBackground;
+    Spinner taskSpinner;
 
     // Helpers
     DatabaseHelper databaseHelper;
@@ -55,6 +61,7 @@ public class RoomActivity extends AppCompatActivity {
 
     // Datasets
     ArrayList<Task> taskData;
+    ArrayList<Task> allRoomTaskData;
     ArrayList<User> usersData;
     Room room;
 
@@ -63,6 +70,8 @@ public class RoomActivity extends AppCompatActivity {
 
     // Adapters
     HomeActivityTaskAdapter taskAdapter;
+
+    int tasksFilter = 0;
 
 
     @Override
@@ -75,6 +84,9 @@ public class RoomActivity extends AppCompatActivity {
 
         room = (Room) getIntent().getExtras().get("room");
         Log.i("CURRENT_ROOM",room.toString());
+
+        // helpers
+        databaseHelper = new DatabaseHelper();
 
         // Broadcasts
         dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
@@ -144,6 +156,14 @@ public class RoomActivity extends AppCompatActivity {
         IntentFilter intentSFilter = new IntentFilter("DATA_CHANGED");
         registerReceiver(dataChangedReceiver, intentSFilter);
 
+        databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
+            @Override
+            public void onTasksLoaded(ArrayList<Task> data) {
+                RoomActivity.this.allRoomTaskData = data;
+                System.out.println("DATA" + data);
+            }
+        });
+
 
         // Views
         roomsRecycler = findViewById(R.id.tasksRecycler);
@@ -157,6 +177,38 @@ public class RoomActivity extends AppCompatActivity {
         optionButton = findViewById(R.id.optionButton);
         addMemberButton = findViewById(R.id.addMemberButton);
         noTaskText = findViewById(R.id.noTasksText);
+        taskSpinner = findViewById(R.id.taskSpinner);
+
+        //Spinners
+        taskSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case Constants.Spinner.Room.ALL_TASKS:
+                        tasksFilter = Constants.Spinner.Room.ALL_TASKS;
+                        if (RoomActivity.this.allRoomTaskData != null){
+                            RoomActivity.this.taskData.clear();
+                            RoomActivity.this.taskData.addAll(RoomActivity.this.allRoomTaskData);
+                        }
+                        if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+                        break;
+                    case Constants.Spinner.Room.MY_TASKS:
+                        tasksFilter = Constants.Spinner.Room.MY_TASKS;
+                        RoomActivity.this.taskData.clear();
+                        RoomActivity.this.taskData.addAll(Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId()));
+                        if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        StringSpinnerAdapter roomAdapter = new StringSpinnerAdapter((Activity) RoomActivity.this, Helpers.getArray(RoomActivity.this,R.array.taskSpinner));
+        taskSpinner.setAdapter(roomAdapter);
 
         // Helpers
         dco = new DCO(new DCO.OnDataChangeListener() {
@@ -171,14 +223,27 @@ public class RoomActivity extends AppCompatActivity {
 
                 if (taskData != null){
                     // Removing finished tasks
-                    RoomActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId());
-                    taskAdapter = new HomeActivityTaskAdapter(RoomActivity.this, RoomActivity.this.taskData, new HomeActivityTaskAdapter.OnDoneClickListener() {
-                        @Override
-                        public void onDoneClick(Task task) {
-                            dco.updateTask(task);
-                        }
-                    });
-                    roomsRecycler.setAdapter(taskAdapter);
+                    switch (tasksFilter){
+                        case Constants.Spinner.Room.ALL_TASKS:
+                            tasksFilter = Constants.Spinner.Room.ALL_TASKS;
+                            databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
+                                @Override
+                                public void onTasksLoaded(ArrayList<Task> data) {
+                                    RoomActivity.this.allRoomTaskData = data;
+                                    RoomActivity.this.taskData.clear();
+                                    RoomActivity.this.taskData.addAll(data);
+                                    if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+                                }
+                            });
+                            break;
+                        case Constants.Spinner.Room.MY_TASKS:
+                            tasksFilter = Constants.Spinner.Room.MY_TASKS;
+                            RoomActivity.this.taskData.clear();
+                            RoomActivity.this.taskData.addAll(Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId()));
+                            if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+                            break;
+                    }
+
                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
 
                     hideNoTasksText();
@@ -219,9 +284,6 @@ public class RoomActivity extends AppCompatActivity {
             addMemberButton.setImageResource(R.drawable.round_group);
         }
 
-
-        // helpers
-        databaseHelper = new DatabaseHelper();
 
         // Setting up listeners
         backButton.setOnClickListener(new View.OnClickListener() {
