@@ -300,9 +300,12 @@ public class HomeActivity extends AppCompatActivity {
             public void onDoneClick(Task task) {
                 dco.updateTask(task);
             }
-        });
-
-        System.out.println("DAATAAAAA" + taskData);
+        }){
+            @Override
+            public void refresh(){
+                hideNoDataMessages();
+            }
+        };
 
         // Setting up DCO
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {

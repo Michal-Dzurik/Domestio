@@ -244,9 +244,33 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                     // You are the author of the task
 
                     if (currentTask.getDone()){
-                        currentTask.setVerified(!currentTask.getVerified());
-                        notifyItemChanged(holder.getAdapterPosition());
-                        databaseHelper.updateTaskVerified(currentTask);
+                        Alert alert = new Alert(context);
+                        alert.setTitle(context.getString(R.string.set_task_as_verified));
+                        alert.setDescription(context.getString(R.string.sure_want_to_set_verified));
+                        alert.setNegativeButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                alert.dismiss();
+                            }
+                        });
+                        alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                currentTask.setVerified(true);
+                                data.remove(currentTask);
+                                databaseHelper.updateTaskVerified(currentTask);
+                                // TODO pridat kredity pre užívateľa
+
+                                refresh();
+
+                                databaseHelper.removeUnrelatedTask(currentTask);
+                                alert.dismiss();
+                            }
+                        });
+                        alert.setPositiveButtonText(context.getString(R.string.yes));
+                        alert.setNegativeButtonText(context.getString(R.string.no));
+
+                        alert.show();
 
                     }
                     else Toast.makeText(context, context.getString(R.string.task_undone_by_receiver),Toast.LENGTH_SHORT).show();
@@ -281,6 +305,10 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     private void removeDecoration(TextView text){
         text.setPaintFlags(0);
         text.setTextColor(Color.WHITE);
+    }
+
+    public void refresh(){
+
     }
 
 

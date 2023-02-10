@@ -79,7 +79,13 @@ public class YourTasksActivity extends AppCompatActivity {
 
                 // Setting up adapters
                 if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
-                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager());
+                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager()){
+                    @Override
+                    public void refresh(){
+                        adapter.notifyDataSetChanged();
+                        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+                    }
+                };
                 recyclerView.setAdapter(adapter);
             }
         });
@@ -94,6 +100,7 @@ public class YourTasksActivity extends AppCompatActivity {
                 finish();
             }
         });
+
     }
 
     public void taskChanged(Task task){
@@ -106,6 +113,7 @@ public class YourTasksActivity extends AppCompatActivity {
             }
         }
     }
+
 
     public void taskRemoved(Task task){
         for (int i = 0; i < taskData.size(); i++) {

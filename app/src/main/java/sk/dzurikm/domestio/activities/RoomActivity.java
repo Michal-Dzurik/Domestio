@@ -268,7 +268,12 @@ public class RoomActivity extends AppCompatActivity {
             public void onDoneClick(Task task) {
                 dco.updateTask(task);
             }
-        });
+        }){
+            @Override
+            public void refresh(){
+                hideNoTasksText();
+            }
+        };
         roomsRecycler.setAdapter(taskAdapter);
         hideNoTasksText();
 
