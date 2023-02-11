@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -28,12 +27,10 @@ import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
-import sk.dzurikm.domestio.adapters.RoomSpinnerAdapter;
 import sk.dzurikm.domestio.adapters.StringSpinnerAdapter;
 import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
-import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
@@ -92,7 +89,7 @@ public class RoomActivity extends AppCompatActivity {
         dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
             @Override
             public void onDataChanged(HashMap<String, Object> data, String collection, String documentID, DocumentChange.Type type) {
-
+                Log.i("DataChangedReceiver","onDataChanged triggered");
                 switch (collection){
                     case Constants.Firebase.DOCUMENT_ROOMS:
                         Room room = new Room();
@@ -199,6 +196,8 @@ public class RoomActivity extends AppCompatActivity {
                         if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
                         break;
                 }
+
+                refreshNoDataTexts();
             }
 
             @Override
@@ -246,7 +245,7 @@ public class RoomActivity extends AppCompatActivity {
 
                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
 
-                    hideNoTasksText();
+                    refreshNoDataTexts();
                 }
 
                 if (newRoom != null){
@@ -268,9 +267,14 @@ public class RoomActivity extends AppCompatActivity {
             public void onDoneClick(Task task) {
                 dco.updateTask(task);
             }
-        });
+        }){
+            @Override
+            public void refresh(){
+                refreshNoDataTexts();
+            }
+        };
         roomsRecycler.setAdapter(taskAdapter);
-        hideNoTasksText();
+        refreshNoDataTexts();
 
         // Setting up values
         dco.updateRoomChangeableInfo(taskData,room);
@@ -406,7 +410,7 @@ public class RoomActivity extends AppCompatActivity {
         });
     }
 
-    private void hideNoTasksText(){
+    private void refreshNoDataTexts(){
         if (taskData.size() == 0) noTaskText.setVisibility(View.VISIBLE);
         else noTaskText.setVisibility(View.GONE);
     }

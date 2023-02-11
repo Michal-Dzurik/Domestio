@@ -244,6 +244,7 @@ public class NotificationService extends Service {
                         if (originalTask == null) {
                             taskData.add(task);
 
+
                             // If i haven't created task then notify me
                             if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
                                 sendNotification(Constants.NotificationChannels.NEW_TASKS,task.getAuthor() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);

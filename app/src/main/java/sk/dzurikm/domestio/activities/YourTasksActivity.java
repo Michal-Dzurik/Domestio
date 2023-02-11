@@ -78,8 +78,14 @@ public class YourTasksActivity extends AppCompatActivity {
                 System.out.println(data);
 
                 // Setting up adapters
-                if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
-                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager());
+                refreshNoDataTexts();
+                adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager()){
+                    @Override
+                    public void refresh(){
+                        adapter.notifyDataSetChanged();
+                        refreshNoDataTexts();
+                    }
+                };
                 recyclerView.setAdapter(adapter);
             }
         });
@@ -94,6 +100,7 @@ public class YourTasksActivity extends AppCompatActivity {
                 finish();
             }
         });
+
     }
 
     public void taskChanged(Task task){
@@ -101,20 +108,25 @@ public class YourTasksActivity extends AppCompatActivity {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.set(i,task);
                 adapter.notifyItemChanged(i);
-                if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+                refreshNoDataTexts();
                 break;
             }
         }
     }
+
 
     public void taskRemoved(Task task){
         for (int i = 0; i < taskData.size(); i++) {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.remove(i);
                 adapter.notifyItemRemoved(i);
-                if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+                refreshNoDataTexts();
                 break;
             }
         }
+    }
+
+    public void refreshNoDataTexts(){
+        if (taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
     }
 }

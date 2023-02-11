@@ -80,6 +80,8 @@ public class HomeActivity extends AppCompatActivity {
 
     Window window;
 
+    FirebaseAuth auth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,30 +105,22 @@ public class HomeActivity extends AppCompatActivity {
 
         loading.setVisibility(View.VISIBLE);
 
-        System.out.println(DataStorage.users);
-        System.out.println(DataStorage.rooms);
-        System.out.println(DataStorage.tasks);
-
         // Login info
-        Log.i("Firebase user logged in UID",FirebaseAuth.getInstance().getCurrentUser().getUid());
+        auth = FirebaseAuth.getInstance();
+        Log.i("Firebase user logged in UID",auth.getUid());
 
         // Datasets init
         roomData = new ArrayList<Room>();
         taskData = new ArrayList<Task>();
         usersData = new ArrayList<User>();
 
-
         // Helpers init
         snapHelper = new PagerSnapHelper();
         databaseHelper = new DatabaseHelper();
 
         window = HomeActivity.this.getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
 
         // Loading data from database and setting them to datasets
         loadData();
@@ -135,6 +129,7 @@ public class HomeActivity extends AppCompatActivity {
         dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
             @Override
             public void onDataChanged(HashMap<String, Object> data, String collection,String documentID, DocumentChange.Type type) {
+                Log.i("On Change", "On Change event triggered");
                 switch (collection){
                     case Constants.Firebase.DOCUMENT_ROOMS:
                         Room room = new Room();
@@ -246,18 +241,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onDataLoaded(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> userData) {
                 HomeActivity.this.roomData = roomData;
-                HomeActivity.this.taskData = taskData;
+                HomeActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasks(taskData);
                 HomeActivity.this.usersData = userData;
 
-                // Removing finished tasks
-                HomeActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasks(HomeActivity.this.taskData);
                 // Dialogs init
                 menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), roomData, usersData, new AddRoomDialog.OnRoomCreatedListener() {
                     @Override
                     public void onRoomCreate(Room room) {
                         // update room
 
-                        System.out.println(room.toString());
                         dco.addRoom(room);
                     }
                 }, new AddTaskDialog.OnTaskChangeListener() {
@@ -279,15 +271,27 @@ public class HomeActivity extends AppCompatActivity {
         databaseHelper.getData(Constants.Firebase.DATA_FOR_USER,null);
     }
 
-    private void hideNoDataMessages(){
+    private void refreshNoDataTexts(){
+        // Room no data message
+        System.out.println(roomData);
         if (roomData != null && roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
         else noRoomsText.setVisibility(View.GONE);
-        if (taskData != null && taskData.isEmpty()) noTasksText.setVisibility(View.VISIBLE);
+
+        // Task no data message
+
+        if (taskData != null && taskData.isEmpty()) {
+            noTasksText.setVisibility(View.VISIBLE);
+            System.out.println(taskData);
+        }
         else noTasksText.setVisibility(View.GONE);
     }
 
     private void hideLoading(){
-        hideNoDataMessages();
+        /*System.out.println(usersData + " ~ " + usersData.size());
+        System.out.println(roomData + " ~ " + roomData.size());
+        System.out.println(taskData + " ~ " + taskData.size());*/
+
+        refreshNoDataTexts();
         // Creating adapters needed
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
             @Override
@@ -300,32 +304,36 @@ public class HomeActivity extends AppCompatActivity {
             public void onDoneClick(Task task) {
                 dco.updateTask(task);
             }
-        });
-
-        System.out.println("DAATAAAAA" + taskData);
+        }){
+            @Override
+            public void refresh(){
+                refreshNoDataTexts();
+            }
+        };
 
         // Setting up DCO
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                Log.i("DCO On Change","DCO On Change triggered");
                 if (usersData != null) {
                     HomeActivity.this.usersData = usersData;
                 }
 
                 if (taskData != null) {
-                    ArrayList<Task> newList = Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks);
-                    System.out.println(newList.size());
+                    Log.i("DCO On Change new list", String.valueOf(taskData));
+                    ArrayList<Task> newList = Helpers.DataSet.filterOnlyRelevantTasks(taskData);
                     HomeActivity.this.taskData.clear();
                     HomeActivity.this.taskData.addAll(newList);
-                    HomeActivity.this.taskAdapter.notifyDataSetChanged();
-                    hideNoDataMessages();
+                    HomeActivity.this.taskAdapter.refresh();
+                    //refreshNoDataTexts();
                 }
 
                 if (roomData != null) {
                     HomeActivity.this.roomData = roomData;
                     roomAdapter.notifyDataSetChanged();
-                    hideNoDataMessages();
+                    refreshNoDataTexts();
                 }
 
             }
@@ -356,17 +364,17 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         usersData = DataStorage.users;
         roomData = DataStorage.rooms;
-        taskData = DataStorage.tasks != null ? Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks) : DataStorage.tasks;
+        if (DataStorage.tasks != null){
+            taskData = Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks);
+        }
+
 
         if (roomAdapter != null) roomAdapter.notifyDataSetChanged();
         if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
 
-        hideNoDataMessages();
+        refreshNoDataTexts();
 
         registerReceiver(dataChangedReceiver, dataChangeBroadcastFilter);
-
-        System.out.println(DataStorage.tasks);
-        System.out.println(DataStorage.rooms);
 
         changeConnectionStatus();
 

@@ -120,6 +120,8 @@
     <string name="user">User</string>
     <string name="has_verified_task">has verified the task</string>
     <string name="has_removed_verification_from_task">has removed verification from task</string>
+    <string name="set_task_as_verified">Set task as verified</string>
+    <string name="sure_want_to_set_verified">Are you sure you want to set this task as verified? Task will be deleted after this action.</string>
 
 
     <string-array name="taskSpinner">
