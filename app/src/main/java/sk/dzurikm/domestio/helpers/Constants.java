@@ -101,7 +101,7 @@ public class Constants {
 
         public static final String PASSWORD = "pass";
         public static final int PASS_MIN_LENGTH = 6;
-        public static final String PASSWORD_REPEAT_DELIMITER = " ";
+        public static final String PASSWORD_REPEAT_DELIMITER = "~";
 
         public static final String PASSWORD_REPEAT = "pass_r";
     }

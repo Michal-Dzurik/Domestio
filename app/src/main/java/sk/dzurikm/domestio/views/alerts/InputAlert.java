@@ -19,17 +19,18 @@ public class InputAlert extends Dialog {
 
     // Views
     private Button positiveButton,negativeButton;
-    private TextView titleView;
+    private TextView titleView,descriptionView;
     private EditText input;
 
     // Additional variables
-    private String title,hint, positiveButtonText, negativeButtonText;
-
+    private String title,hint, positiveButtonText, negativeButtonText, description;
+    private boolean required;
     // Listeners
     private View.OnClickListener positiveListener,negativeListener;
 
     public InputAlert(Context context) {
         super(context);
+        required = false;
     }
 
     @Override
@@ -46,13 +47,22 @@ public class InputAlert extends Dialog {
         negativeButton = this.findViewById(R.id.negativeButton);
         input = this.findViewById(R.id.input);
         titleView = this.findViewById(R.id.title);
+        descriptionView = this.findViewById(R.id.content);
 
         // Setting values
-        this.findViewById(R.id.content).setVisibility(View.GONE);
         titleView.setText(title == null ? "Nothing here" : title);
-        positiveButton.setText(positiveButtonText == null ? "OK" : positiveButtonText);
-        negativeButton.setText(negativeButtonText == null ? "Dismiss" : negativeButtonText);
+        positiveButton.setText(positiveButtonText == null ? getContext().getString(R.string.ok) : positiveButtonText);
+        negativeButton.setText(negativeButtonText == null ? getContext().getString(R.string.dismiss)  : negativeButtonText);
+        descriptionView.setText(description == null ? ""  : description);
+        if (description == null){
+            this.findViewById(R.id.content).setVisibility(View.GONE);
+        }
+        else{
+            descriptionView.setText(description);
+        }
         input.setHint(hint);
+
+        if (required) negativeButton.setVisibility(View.GONE);
 
         // Setting up listeners
         positiveButton.setOnClickListener(positiveListener);
@@ -74,6 +84,10 @@ public class InputAlert extends Dialog {
         negativeListener = negativeButtonClickListener;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setTitle(String title){
         this.title = title;
     }
@@ -84,6 +98,10 @@ public class InputAlert extends Dialog {
 
     public EditText getInput() {
         return input;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 
     public void setPositiveButtonText(String positiveButtonText) {

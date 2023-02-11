@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.SnapHelper;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,8 +33,8 @@ import java.util.HashMap;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
-import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -82,14 +83,20 @@ public class HomeActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Shared preferences
+        sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
+
         /* Setting user name for greeting */
         userName = findViewById(R.id.userName);
-        userName.setText(getIntent().getStringExtra("user_name"));
+        userName.setText(sharedPreferences.getString("user-name","Anonymous"));
 
         // Views with need of adapter
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
@@ -175,6 +182,7 @@ public class HomeActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                         break;

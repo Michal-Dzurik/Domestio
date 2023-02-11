@@ -28,7 +28,7 @@ import java.util.HashMap;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.adapters.StringSpinnerAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
@@ -134,6 +134,7 @@ public class RoomActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                     switch (type){

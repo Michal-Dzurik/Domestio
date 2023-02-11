@@ -5,9 +5,7 @@ import static sk.dzurikm.domestio.helpers.Constants.Url.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 
-import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -20,9 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
-import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -118,6 +115,7 @@ public class AboutMeActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                         switch (type){

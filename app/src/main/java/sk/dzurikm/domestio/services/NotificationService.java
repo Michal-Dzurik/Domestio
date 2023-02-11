@@ -189,6 +189,7 @@ public class NotificationService extends Service {
                     break;
                 case DOCUMENT_USERS:
                     User user = new User();
+                    user.setId(documentID);
                     user.cast(data);
                     usersData.remove(user);
                     break;
@@ -271,6 +272,7 @@ public class NotificationService extends Service {
                         break;
                     case DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                         // no need for notification , we don't wanna notify users when another is registered or something
@@ -299,6 +301,7 @@ public class NotificationService extends Service {
                     break;
                 case DOCUMENT_USERS:
                     User user = new User();
+                    user.setId(documentID);
                     user.cast(data);
 
                     usersData.add(user);

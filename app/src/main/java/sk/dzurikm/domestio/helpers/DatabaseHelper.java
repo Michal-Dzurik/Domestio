@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -97,6 +98,10 @@ public class DatabaseHelper {
 
     int TYPE;
     String id;
+
+    public void getUserFromDatabase(String uid, OnCompleteListener<DocumentSnapshot> onCompleteListener){
+        db.collection(DOCUMENT_USERS).document(uid).get().addOnCompleteListener(onCompleteListener);
+    }
 
 
     public void loadRooms(){
@@ -170,6 +175,7 @@ public class DatabaseHelper {
                                 // Creating task and casting from DB result to model
                                 User user = new User();
                                 user.cast(data);
+                                user.setId(document.getId());
 
                                 // Adding user to it's dataset
                                 usersData.add(user);
@@ -306,7 +312,7 @@ public class DatabaseHelper {
                 .addOnCompleteListener((Activity) context, onLoginCompleteListener);
     }
 
-    public void register(Context context,String name,String email, String password,OnRegisterListener onRegisterListener){
+    public void register(Context context,String email, String password,OnRegisterListener onRegisterListener){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -318,34 +324,15 @@ public class DatabaseHelper {
                             Log.d("Firebase Auth", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            // Updating user info
-                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(name).build();
-                            if (user != null) {
-                                user.updateProfile(profileUpdate);
-                            }
+                            onRegisterListener.onRegisterSuccess();
 
-                            Map<String,Object> set = new HashMap<>();
-                            set.put(FIELD_NAME,name.toString());
-                            set.put(FIELD_ID,user.getUid());
-                            set.put(FIELD_EMAIL,email);
-                            set.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
-                            set.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
-
-                            // User insertion for internal use
-                            db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    onRegisterListener.onRegisterSuccess();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    onRegisterListener.onRegisterFailed();
-                                }
-                            });
                         }
                         else onRegisterListener.onRegisterFailed();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        onRegisterListener.onRegisterFailed();
                     }
                 });
     }
@@ -551,18 +538,9 @@ public class DatabaseHelper {
         });
     }
 
-    public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
-        // Set Name
-        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                .setDisplayName(newName)
-                .build();
+    public void updateUserName(String newName,OnCompleteListener<Void> onCompleteListener,OnFailureListener onFailureListener){
+        db.collection(DOCUMENT_USERS).document(auth.getCurrentUser().getUid()).update(FIELD_NAME, newName).addOnCompleteListener(onCompleteListener);
 
-        Objects.requireNonNull(auth.getCurrentUser()).updateProfile(profileUpdate).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                db.collection(DOCUMENT_USERS).whereEqualTo(FIELD_ID,auth.getCurrentUser().getUid()).get().addOnCompleteListener(onCompleteListener);
-            }
-        }).addOnFailureListener(onFailureListener);
 
     }
 

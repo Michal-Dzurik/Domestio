@@ -229,7 +229,9 @@ public class DCO {
     public void updatedUser(User user){
         if (usersData == null) return;
         for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getId().equals(user.getId())){
+            System.out.println(user);
+            System.out.println(usersData.get(i));
+            if (user.getId().equals(usersData.get(i).getId())){
                 user.update(user);
                 onDataChangeListener.onChange(usersData,roomData,taskData);
                 break;
