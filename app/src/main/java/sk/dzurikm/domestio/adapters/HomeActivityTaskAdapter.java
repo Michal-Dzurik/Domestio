@@ -177,7 +177,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                     doneButton.setTextColor(context.getResources().getColor(R.color.white_transparent));
                 }
 
-                if (currentTask.getVerified()){
+                if (currentTask.getVerified() != null && currentTask.getVerified()){
                     decorateLineThrough(doneButton);
                 }
                 else {
@@ -231,7 +231,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+                if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid()) && fragmentManager != null){
                     Log.i("HomeActivityTaskAdapter","Long pressed task - " + currentTask);
                     TasksOptionDialog tasksOptionDialog = new TasksOptionDialog(context,fragmentManager,currentTask);
                     tasksOptionDialog.show(fragmentManager,"TaskOptionDialog");

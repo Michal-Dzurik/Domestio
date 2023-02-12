@@ -65,6 +65,8 @@ public class NotificationService extends Service {
         context = getApplicationContext();
         now = new Timestamp(new Date());
 
+        Log.i("Notification timestamp", String.valueOf(now.getSeconds()));
+
         roomData = new ArrayList<>();
         usersData = new ArrayList<>();
         taskData = new ArrayList<>();
@@ -211,10 +213,8 @@ public class NotificationService extends Service {
                         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
                         if (type == REMOVED) {
-
                             break;
                         }
-
 
                         if (isRoomNew(room) ) {
                             roomData.add(room);
@@ -305,6 +305,7 @@ public class NotificationService extends Service {
                     user.cast(data);
 
                     usersData.add(user);
+
                     break;
             }
         }

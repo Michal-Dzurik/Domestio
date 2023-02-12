@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class YourTasksActivity extends AppCompatActivity {
     // Views
     RecyclerView recyclerView;
     ImageButton backButton;
-    TextView noTasksText;
+    LinearLayout noTasksText;
 
     // Datasets
     List<Task> taskData;
@@ -113,8 +114,18 @@ public class YourTasksActivity extends AppCompatActivity {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.remove(i);
                 adapter.notifyItemRemoved(i);
+                removeIdFromTaskIdList(task);
                 refreshNoDataTexts();
                 break;
+            }
+        }
+    }
+
+    public void removeIdFromTaskIdList(Task task){
+        if (DataStorage.rooms == null) return;
+        for (int i = 0; i < DataStorage.rooms.size(); i++) {
+            if (DataStorage.rooms.get(i).getId().equals(task.getRoomId())){
+                DataStorage.rooms.get(i).removeTaskId(task.getId());
             }
         }
     }

@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,6 +45,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,6 +67,7 @@ public class DatabaseHelper {
     FirebaseFirestore db;
     FirebaseUser user;
     FirebaseAuth auth;
+    FirebaseFunctions functions;
 
     // Additional variables
     ArrayList<String> roomsIDs,userRelatedUserIds,tasksRelatedIds;
@@ -88,6 +92,7 @@ public class DatabaseHelper {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        functions = FirebaseFunctions.getInstance();
 
         // Enabling offline persistance
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -178,7 +183,7 @@ public class DatabaseHelper {
                                 user.setId(document.getId());
 
                                 // Adding user to it's dataset
-                                usersData.add(user);
+                                DatabaseHelper.this.usersData.add(user);
                                 Log.i("Firebase result", String.valueOf(user));
 
                             }
@@ -255,8 +260,6 @@ public class DatabaseHelper {
             tasksForRoomLoadedListener.onTasksLoaded(null);
             return;
         }
-
-        System.out.println("HJBO - " + room);
 
         db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID,room.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -423,8 +426,28 @@ public class DatabaseHelper {
     }
 
     public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
-
         Map<String, Object> update = new HashMap<>();
+        update.put("room_id", roomId);
+        update.put("user_id",userId);
+
+        functions.getHttpsCallable("addUserToRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
+
+
+        /*Map<String, Object> update = new HashMap<>();
         update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId));
         update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
         db.collection(DOCUMENT_ROOMS).document(roomId)
@@ -434,7 +457,7 @@ public class DatabaseHelper {
                         // TODO send and email to user
                         onCompleteListener.onComplete(task);
                     }
-                });
+                });*/
     }
 
     public void updateTaskDone(Task task){
@@ -555,11 +578,12 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
-        Map<String, Object> update = new HashMap<>();
+       /* Map<String, Object> update = new HashMap<>();
         update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
         update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
 
         ArrayList<String> taskIds = new ArrayList<>();
+
 
         db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_AUTHOR_ID,auth.getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -583,7 +607,29 @@ public class DatabaseHelper {
                             });
                 }
             }
-        });
+        });*/
+
+        Map<String, Object> update = new HashMap<>();
+        update.put("room_id", room.getId());
+        update.put("user_id",userId);
+
+        functions.getHttpsCallable("removeUserFromRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
+
+
 
     }
 

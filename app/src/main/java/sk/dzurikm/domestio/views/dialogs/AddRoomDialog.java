@@ -172,6 +172,7 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
                                     if (task.isSuccessful()){
                                         dialog.dismiss();
                                         onRoomCreatedListener.onRoomCreate(room);
+
                                     }
                                     else Helpers.Toast.somethingWentWrong(context);
 

@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,6 +48,8 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
     private DatabaseHelper databaseHelper;
     private boolean admin;
 
+    private LinearLayout noDataText;
+
     public ListMembersDialog(Context context, FragmentManager fragmentManager, ArrayList<User> users, Room room, boolean admin) {
         this.users = (ArrayList<User>) users.clone();
         this.context = context;
@@ -69,6 +72,7 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
 
         // Views
         membersListRecycler = rootView.findViewById(R.id.membersListRecycler);
+        noDataText = rootView.findViewById(R.id.noTasksText);
 
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
         BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(((View) rootView.getParent()));
@@ -101,6 +105,8 @@ public class ListMembersDialog extends BottomSheetDialogFragment {
             }
         });
         membersListRecycler.setAdapter(memberListAdapter);
+
+        if (users == null || users.isEmpty()) noDataText.setVisibility(View.VISIBLE);
 
 
     }
