@@ -267,16 +267,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
                                 refresh();
 
-                                final Handler handler = new Handler();
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        databaseHelper.removeUnrelatedTask(currentTask);
-                                    }
-                                }, 500);
-
-
 
                                 alert.dismiss();
                             }

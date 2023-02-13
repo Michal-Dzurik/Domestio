@@ -43,10 +43,10 @@ public class Alert extends Dialog {
         descriptionView = this.findViewById(R.id.content);
 
         // Setting values
-        titleView.setText(title == null ? "Nothing here" : title);
-        descriptionView.setText(description == null ? "Nothing here" : description);
-        positiveButton.setText(positiveButtonText == null ? "OK" : positiveButtonText);
-        negativeButton.setText(negativeButtonText == null ? "Dismiss" : negativeButtonText);
+        titleView.setText(title == null ? getContext().getString(R.string.nothing_here) : title);
+        descriptionView.setText(description == null ? getContext().getString(R.string.nothing_here) : description);
+        positiveButton.setText(positiveButtonText == null ? getContext().getString(R.string.ok) : positiveButtonText);
+        negativeButton.setText(negativeButtonText == null ? getContext().getString(R.string.dismiss) : negativeButtonText);
 
         // Setting listeners
         positiveButton.setOnClickListener(positiveListener);

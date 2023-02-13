@@ -70,7 +70,7 @@ public class PasswordChangeAlert extends Dialog {
                 ArrayList<String> errors = validation.validate(map);
 
                 if (errors == null){
-                    passwordMatchListener.onPasswordMach(password);
+                    passwordMatchListener.onPasswordMach(v,password);
                 }
                 else passwordMatchListener.onPasswordNotValid();
             }
@@ -106,7 +106,7 @@ public class PasswordChangeAlert extends Dialog {
 
 
     public interface OnPasswordMatchListener{
-        public void onPasswordMach(String password);
+        public void onPasswordMach(View v,String password);
         public void onPasswordDontMatch();
         public void onPasswordNotValid();
     }

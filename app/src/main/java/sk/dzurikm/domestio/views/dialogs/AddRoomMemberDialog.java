@@ -100,6 +100,7 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
                     ArrayList<String> errors = validation.validate(map);
 
                     if (errors == null){
+                        Helpers.Views.buttonDisabled(v,true);
                         onEmailValidListener.onEmailValid(email);
                     }
                     else Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
@@ -123,6 +124,10 @@ public class AddRoomMemberDialog extends BottomSheetDialogFragment {
 
     public void setOnEmailValidListener(OnEmailValidListener onEmailValidListener) {
         this.onEmailValidListener = onEmailValidListener;
+    }
+
+    public void positiveButtonDisabled(boolean disabled){
+        Helpers.Views.buttonDisabled(addNewMemberButton,disabled);
     }
 
     public interface OnEmailValidListener{

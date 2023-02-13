@@ -158,6 +158,8 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
                         Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                     }else {
                         if (!colorPickerText.getText().toString().equals(context.getString(R.string.no_color_selected))){
+                            Helpers.Views.buttonDisabled(v,true);
+
                             // add room
                             Room room = new Room();
                             room.setTitle(getTextOfView(roomHeading));
@@ -175,6 +177,8 @@ public class AddRoomDialog extends BottomSheetDialogFragment {
 
                                     }
                                     else Helpers.Toast.somethingWentWrong(context);
+
+                                    Helpers.Views.buttonDisabled(v,false);
 
                                 }
                             });

@@ -433,12 +433,16 @@ public class RoomActivity extends AppCompatActivity {
                                             dialog.dismiss();
                                             room.addUserId(id);
                                             dco.updateRoomChangeableInfo(taskData,room);
+                                            dialog.positiveButtonDisabled(false);
                                             Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
                             }
-                            else Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists),Toast.LENGTH_SHORT).show();
+                            else {
+                                dialog.positiveButtonDisabled(false);
+                                Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                     dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Member");

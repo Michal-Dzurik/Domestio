@@ -243,8 +243,9 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                         Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                     }
                     else {
+                        Helpers.Views.buttonDisabled(v,true);
                         if (role == DialogRole.ADD){
-                            addTaskToDatabase();
+                            addTaskToDatabase(v);
                         }
                         if (role == DialogRole.EDIT){
                             Task originalTask = Task.editTaskCopy(task);
@@ -254,6 +255,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
                             if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
                             else updateTask(task,null);
+                            Helpers.Views.buttonDisabled(v,false);
 
                         }
                     }
@@ -399,7 +401,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         return filtered;
     }
 
-    private void addTaskToDatabase(){
+    private void addTaskToDatabase(View v){
         Task task = new Task();
         task.setRoomId(selectedRoom.getId());
         task.setAuthorId(auth.getUid());
@@ -418,6 +420,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     onTaskChangeListener.onTaskAdded(task);
                 }
                 else Helpers.Toast.somethingWentWrong(context);
+
+                Helpers.Views.buttonDisabled(v,false);
             }
         });
 

@@ -461,23 +461,48 @@ public class DatabaseHelper {
     }
 
     public void updateTaskDone(Task task){
-        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
-        document.update(FIELD_DONE,task.getDone()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                System.out.println(task.isSuccessful());
-            }
-        });
+        Map<String, Object> update = new HashMap<>();
+        update.put("task_id", task.getId());
+        update.put("done",task.getDone());
+
+        functions.getHttpsCallable("taskDoneToggle")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            // TODO i dont check if this is successfull i just do it , bada55
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
+
     }
 
     public void updateTaskVerified(Task task){
-        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
-        document.update(FIELD_VERIFIED,task.getVerified()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                System.out.println(task.isSuccessful());
-            }
-        });
+        Map<String, Object> update = new HashMap<>();
+        update.put("task_id", task.getId());
+
+        functions.getHttpsCallable("taskVerified")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            Log.i("Task result", result);
+                            // TODO i dont check if this is successfull i just do it , bada55
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
     }
 
     public void updateTask(Task task,OnTaskEditedListener onTaskEditedListener,Task originalTask){
@@ -569,7 +594,12 @@ public class DatabaseHelper {
 
     public void updateUserEmail(String newEmail,OnCompleteListener<Void> onCompleteListener){
 
-        Objects.requireNonNull(auth.getCurrentUser()).updateEmail(newEmail).addOnCompleteListener(onCompleteListener);
+        Objects.requireNonNull(auth.getCurrentUser()).updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                db.collection(DOCUMENT_USERS).document(auth.getUid()).update(FIELD_EMAIL,newEmail).addOnCompleteListener(onCompleteListener);
+            }
+        });
 
     }
 

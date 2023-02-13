@@ -116,6 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void register() {
+        Helpers.Views.buttonDisabled(registerButton,true);
         databaseHelper.register(RegisterActivity.this,getTextOfView(email),getTextOfView(password),new DatabaseHelper.OnRegisterListener() {
             @Override
             public void onRegisterSuccess() {

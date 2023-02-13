@@ -16,10 +16,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -316,6 +320,48 @@ public class Helpers {
                     alert.show();
                 }
             },delay);
+        }
+
+        @SuppressLint("ResourceAsColor")
+        public static void buttonDisabled(Button btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+
+        }
+
+        public static void buttonDisabled(ImageButton btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+        }
+
+        public static void buttonDisabled(TextView btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+        }
+
+        public static void buttonDisabled(View btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
         }
     }
 

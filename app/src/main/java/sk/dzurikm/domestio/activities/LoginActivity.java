@@ -134,6 +134,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(){
+        Helpers.Views.buttonDisabled(loginButton,true);
+
         String emailContent,passwordContent;
 
         emailContent = getTextOfView(email);

@@ -126,6 +126,7 @@
     <string name="enter_name">Enter name you want to use. You can change it later on.</string>
     <string name="dismiss">Dismiss</string>
     <string name="noone_in_room">There is no one in this room</string>
+    <string name="nothing_here">Nothing here</string>
 
 
     <string-array name="taskSpinner">

@@ -266,11 +266,13 @@ public class ProfileActivity extends AppCompatActivity {
                                     authenticated = true;
                                 }
                                 else somethingWentWrongMessage();
+
+                                reauthenticateAlert.positiveButtonDisabled(false);
                             }
                         });
                         reauthenticateAlert.show();
                     }
-                    editNameAlert.show();
+
                 }
                 else Helpers.Toast.noInternet(ProfileActivity.this);
             }
@@ -295,6 +297,8 @@ public class ProfileActivity extends AppCompatActivity {
                                     authenticated = true;
                                 }
                                 else somethingWentWrongMessage();
+
+                                reauthenticateAlert.positiveButtonDisabled(false);
                             }
                         });
                         reauthenticateAlert.show();
@@ -353,6 +357,7 @@ public class ProfileActivity extends AppCompatActivity {
                 ArrayList<String> errors = validation.validate(map);
 
                 if (errors == null){
+                    Helpers.Views.buttonDisabled(v,true);
                     // Update name of the user
                     databaseHelper.updateUserName(input, new OnCompleteListener<Void>() {
                         @Override
@@ -365,7 +370,11 @@ public class ProfileActivity extends AppCompatActivity {
                                 updatedData.put(FIELD_NAME, input);
                                 updatedData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
-                                if (id == null) somethingWentWrongMessage();
+                                if (id == null) {
+                                    Helpers.Views.buttonDisabled(v,false);
+                                    somethingWentWrongMessage();
+                                    return;
+                                }
 
                                 db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
@@ -382,22 +391,30 @@ public class ProfileActivity extends AppCompatActivity {
                                             sharedPreferencesEditor.commit();
                                             Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
 
-                                        } else somethingWentWrongMessage();
+                                        } else {
+                                            somethingWentWrongMessage();
+                                        }
+
+                                        Helpers.Views.buttonDisabled(v,false);
                                     }
                                 });
                             } else {
                                 Log.i("Rewrite", "UNSUCCESFFUL");
+                                Helpers.Views.buttonDisabled(v,false);
                                 somethingWentWrongMessage();
                             }
                         }
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            Helpers.Views.buttonDisabled(v,false);
                             somethingWentWrongMessage();
                         }
                     });
                 }
-                else Toast.makeText(ProfileActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+                else {
+                    Toast.makeText(ProfileActivity.this, errors.get(0), Toast.LENGTH_SHORT).show();
+                }
 
 
 
@@ -429,6 +446,7 @@ public class ProfileActivity extends AppCompatActivity {
                 ArrayList<String> errors = validation.validate(map);
 
                 if (errors == null){
+                    Helpers.Views.buttonDisabled(v,true);
                     databaseHelper.updateUserEmail(input, new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -444,7 +462,12 @@ public class ProfileActivity extends AppCompatActivity {
                                             waitAndShow(editEmailAlert,200);
                                             authenticated = true;
                                         }
-                                        else somethingWentWrongMessage();
+                                        else {
+                                            somethingWentWrongMessage();
+                                        }
+
+                                        reauthenticateAlert.positiveButtonDisabled(false);
+                                        Helpers.Views.buttonDisabled(v,false);
                                     }
                                 });
                                 reauthenticateAlert.show();
@@ -459,7 +482,11 @@ public class ProfileActivity extends AppCompatActivity {
 
                                 Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
                             }
-                            else somethingWentWrongMessage();
+                            else {
+                                somethingWentWrongMessage();
+                            }
+
+                            Helpers.Views.buttonDisabled(v,false);
                         }
                     });
                 }
@@ -472,7 +499,8 @@ public class ProfileActivity extends AppCompatActivity {
         passwordChangeAlert = new PasswordChangeAlert(ProfileActivity.this);
         passwordChangeAlert.setPasswordMatchListener(new PasswordChangeAlert.OnPasswordMatchListener() {
             @Override
-            public void onPasswordMach(String password) {
+            public void onPasswordMach(View v,String password) {
+                Helpers.Views.buttonDisabled(v,true);
                 // Change password
                 databaseHelper.updateUserPassword(password,new OnCompleteListener<Void>() {
                     @Override
@@ -490,17 +518,26 @@ public class ProfileActivity extends AppCompatActivity {
                                         waitAndShow(passwordChangeAlert,200);
                                         authenticated = true;
                                     }
-                                    else somethingWentWrongMessage();
+                                    else {
+                                        somethingWentWrongMessage();
+                                    }
+
+                                    reauthenticateAlert.positiveButtonDisabled(false);
+                                    Helpers.Views.buttonDisabled(v,false);
                                 }
                             });
                             reauthenticateAlert.show();
                         }
                         if(task.isSuccessful()){
                             passwordChangeAlert.dismiss();
+                            Helpers.Views.buttonDisabled(v,false);
 
                             Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.password_was_changed_successfully),Toast.LENGTH_SHORT).show();
                         }
-                        else somethingWentWrongMessage();
+                        else {
+                            Helpers.Views.buttonDisabled(v,false);
+                            somethingWentWrongMessage();
+                        }
                     }
                 });
 
