@@ -578,36 +578,6 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
-       /* Map<String, Object> update = new HashMap<>();
-        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
-        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
-
-        ArrayList<String> taskIds = new ArrayList<>();
-
-
-        db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_AUTHOR_ID,auth.getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
-                if (t.isSuccessful()){
-                    for (QueryDocumentSnapshot document : t.getResult()){
-                        taskIds.add(document.getId());
-
-                    }
-
-
-                    update.put(FIELD_TASK_IDS, FieldValue.arrayRemove(taskIds));
-
-                    db.collection(DOCUMENT_ROOMS).document(room.getId())
-                            .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                                    // TODO send and email to user
-                                    onCompleteListener.onComplete(task);
-                                }
-                            });
-                }
-            }
-        });*/
 
         Map<String, Object> update = new HashMap<>();
         update.put("room_id", room.getId());
@@ -634,7 +604,24 @@ public class DatabaseHelper {
     }
 
     public void leaveRoom(Room room,String userId, OnCompleteListener onCompleteListener){
-        removeUserFromRoom(room,userId,onCompleteListener);
+        Map<String, Object> update = new HashMap<>();
+        update.put("room_id", room.getId());
+
+        functions.getHttpsCallable("leaveRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
     }
 
     public void removeRoom(Room room,OnCompleteListener onCompleteListener){
