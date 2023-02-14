@@ -18,6 +18,8 @@ public class Constants {
         public static final String DOCUMENT_TASKS = "Tasks";
         public static final String DOCUMENT_USERS = "Users";
 
+        public static final String DOCUMENT_NOTIFICATIONS = "Notifications";
+
         public static class Room{
             // Fields identification
             public static final String FIELD_COLOR = "color";
@@ -52,6 +54,25 @@ public class Constants {
             public static final String FIELD_EMAIL = "email";
             public static final String FIELD_CREATED_AT = "created_at";
             public static final String FIELD_MODIFIED_AT = "modified_at";
+        }
+
+        public static class Notifications {
+            public static final String FIELD_RECEIVER_ID = "receiver_id";
+            public static final String FIELD_FROM_ID = "from_id";
+            public static final String FIELD_ACTION_ID = "action_id";
+            public static final String FIELD_CREATED_AT = "created_at";
+            public static final String FIELD_MODIFIED_AT = "modified_at";
+
+            public static class Action{
+                public static final int TASK_ASSIGNED = 1;
+                public static final int TASK_DONE = 2;
+                public static final int TASK_VERIFIED = 3;
+                public static final int TASK_REMOVED = 4;
+
+                public static final int USER_ADDED_TO_NEW_ROOM = 5;
+                public static final int USER_REMOVED_FROM_ROOM = 6;
+                public static final int USER_LEFT_THE_ROOM = 7;
+            }
         }
 
         public static class Bundle{

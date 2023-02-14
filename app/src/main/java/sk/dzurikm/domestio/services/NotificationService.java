@@ -1,5 +1,6 @@
 package sk.dzurikm.domestio.services;
 
+import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
 import static com.google.firebase.firestore.DocumentChange.Type.REMOVED;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.*;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_MODIFIED_AT;
@@ -93,6 +94,7 @@ public class NotificationService extends Service {
         Query taskQuery = db.collection(DOCUMENT_TASKS).whereEqualTo(Constants.Firebase.Task.FIELD_RECEIVER_ID,auth.getCurrentUser().getUid());
         Query roomQuery = db.collection(DOCUMENT_ROOMS).whereArrayContains(FIELD_USER_IDS,auth.getCurrentUser().getUid());
         Query userQuery = db.collection(DOCUMENT_USERS);
+        Query notificationQuery = db.collection(DOCUMENT_NOTIFICATIONS).whereEqualTo(Notifications.FIELD_RECEIVER_ID,auth.getUid());
 
         taskQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -138,6 +140,27 @@ public class NotificationService extends Service {
                     for (DocumentChange doc : value.getDocumentChanges()) {
                         Log.w("DB", doc.getType().name() + " : " + doc.getDocument().getData());
                         processData(DOCUMENT_USERS, (HashMap<String, Object>) doc.getDocument().getData(),doc.getDocument().getId(),doc.getType());
+                    }
+                }
+            }
+        });
+
+        notificationQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                // On task change
+                if (error != null)
+                    Log.w("DB", "ERROR : ", error);
+
+                if (value != null && !value.isEmpty()) {
+                    for (DocumentChange doc : value.getDocumentChanges()) {
+                        Log.w("DB", doc.getType().name() + " : " + doc.getDocument().getData());
+                        DocumentChange.Type type = doc.getType();
+                        if (type.equals(ADDED)) {
+                            processData(DOCUMENT_NOTIFICATIONS, (HashMap<String, Object>) doc.getDocument().getData(),doc.getDocument().getId(),doc.getType());
+                        }
+
+
                     }
                 }
             }
@@ -204,6 +227,7 @@ public class NotificationService extends Service {
                 Intent intent;
                 PendingIntent pendingIntent;
 
+                // TODO pridaj notifikacie
                 switch (COLLECTION){
                     case DOCUMENT_ROOMS:
                         Room room = new Room();
@@ -284,7 +308,7 @@ public class NotificationService extends Service {
 
         }
         else {
-            // Data distribution to app
+            // Data loaded innitialy
             switch (COLLECTION){
                 case DOCUMENT_ROOMS:
                     Room room = new Room();

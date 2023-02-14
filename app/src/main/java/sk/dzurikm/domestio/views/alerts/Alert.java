@@ -19,6 +19,7 @@ public class Alert extends Dialog {
     private Button positiveButton,negativeButton;
     private TextView titleView, descriptionView;
     private String title, description, positiveButtonText, negativeButtonText;
+    private boolean negativeButtonDisabled;
 
     // Listeners
     private View.OnClickListener positiveListener,negativeListener;
@@ -47,6 +48,10 @@ public class Alert extends Dialog {
         descriptionView.setText(description == null ? getContext().getString(R.string.nothing_here) : description);
         positiveButton.setText(positiveButtonText == null ? getContext().getString(R.string.ok) : positiveButtonText);
         negativeButton.setText(negativeButtonText == null ? getContext().getString(R.string.dismiss) : negativeButtonText);
+        if (negativeButtonDisabled){
+            negativeButton.setVisibility(View.GONE);
+        }
+        else negativeButton.setVisibility(View.VISIBLE);
 
         // Setting listeners
         positiveButton.setOnClickListener(positiveListener);
@@ -75,5 +80,9 @@ public class Alert extends Dialog {
 
     public void setNegativeButtonText(String negativeButtonText) {
         this.negativeButtonText = negativeButtonText;
+    }
+
+    public void disableNegativeButton(boolean disabled) {
+        negativeButtonDisabled = disabled;
     }
 }

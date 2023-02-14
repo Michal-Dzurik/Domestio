@@ -10,11 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -45,6 +50,7 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.services.NotificationService;
+import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.dialogs.AddRoomDialog;
 import sk.dzurikm.domestio.views.dialogs.AddTaskDialog;
 import sk.dzurikm.domestio.views.dialogs.MenuDialog;
@@ -87,6 +93,9 @@ public class HomeActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor sharedPreferencesEditor;
 
+    Alert appPermissionsAlert;
+    PowerManager pm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +121,30 @@ public class HomeActivity extends AppCompatActivity {
         offlineBar = findViewById(R.id.offlineBar);
 
         loading.setVisibility(View.VISIBLE);
+
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+        // Set up appPermissionsAlert for app permission
+        appPermissionsAlert = new Alert(HomeActivity.this);
+        appPermissionsAlert.setTitle(getString(R.string.app_permission));
+        appPermissionsAlert.setDescription(getString(R.string.app_permission_descirption));
+        appPermissionsAlert.setPositiveButtonText(getString(R.string.enable));
+        appPermissionsAlert.setNegativeButtonText("");
+        appPermissionsAlert.setCanceledOnTouchOutside(false);
+        appPermissionsAlert.setCancelable(false);
+        appPermissionsAlert.setPositiveButtonOnClickListener(view -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 1002);
+            }
+        });
+        appPermissionsAlert.disableNegativeButton(true);
+        appPermissionsAlert.setNegativeButtonOnClickListener(view -> {
+
+        });
+
+        checkForBatteryPermissions();
 
         // Login info
         auth = FirebaseAuth.getInstance();
@@ -439,12 +472,30 @@ public class HomeActivity extends AppCompatActivity {
 
         changeConnectionStatus();
 
+        checkForBatteryPermissions();
+
         super.onResume();
     }
 
     public void preferencesHasBeenChanged(){
         taskAdapter.notifyDataSetChanged();
     }
+
+    public void checkForBatteryPermissions(){
+        String packageName = getPackageName();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                if (!appPermissionsAlert.isShowing()) appPermissionsAlert.show();
+                // it is not enabled. Ask the user to do so from the settings.
+            }
+            else{
+                if (appPermissionsAlert.isShowing()) appPermissionsAlert.dismiss();
+            }
+        }
+
+    }
+
+
 
     @Override
     protected void onPause() {

@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -293,7 +294,6 @@ public class Helpers {
 
             if (numbStr.length() < 2) return "0" + numb;
 
-
             return numbStr;
 
         }
@@ -362,6 +362,12 @@ public class Helpers {
             else {
                 btn.getBackground().clearColorFilter();
             }
+        }
+
+        public static void spinnerDisable(Spinner spinner, boolean disabled){
+            spinner.setEnabled(!disabled);
+            spinner.setClickable(!disabled);
+            spinner.setAlpha(!disabled ? 1.0f : 0.4f);
         }
     }
 
@@ -502,14 +508,6 @@ public class Helpers {
             return newList;
         }
 
-    }
-
-    public static String getAuthorName(ArrayList<User> usersData, String uid){
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).equals(uid)) return usersData.get(i).getName();
-        }
-
-        return null;
     }
 
     public static class Network{

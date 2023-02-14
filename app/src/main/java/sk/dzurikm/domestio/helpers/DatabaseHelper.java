@@ -533,6 +533,8 @@ public class DatabaseHelper {
                             if (!originalTask.getRoomId().equals(task.getRoomId())){
                                 task.setRoomName(getRoomsTitle(task.getRoomId()));
                                 task.setColor(getRoomsColor(task.getRoomId()));
+                                task.setTimestamp(originalTask.getTimestamp());
+                                task.setTime(originalTask.getTime());
                             }
                             if (!originalTask.getReceiverId().equals(task.getReceiverId())){
                                 task.setAuthor(getUsersName(task.getAuthorId()));

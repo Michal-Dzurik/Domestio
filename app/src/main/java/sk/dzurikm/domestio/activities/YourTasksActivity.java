@@ -69,8 +69,6 @@ public class YourTasksActivity extends AppCompatActivity {
             public void onTasksLoaded(ArrayList<Task> data) {
                 taskData = data;
 
-                System.out.println(data);
-
                 // Setting up adapters
                 refreshNoDataTexts();
                 adapter = new HomeActivityTaskAdapter(YourTasksActivity.this, taskData,null,getSupportFragmentManager()){
