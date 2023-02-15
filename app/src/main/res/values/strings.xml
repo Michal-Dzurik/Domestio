@@ -130,6 +130,15 @@
     <string name="app_permission">App permission</string>
     <string name="app_permission_descirption">We need to enable background activity for app to work properly.Please enable it.</string>
     <string name="enable">Enable</string>
+    <string name="new_room_for_you">You are now member of new room. Go check it out!</string>
+    <string name="task_removed">Task removed</string>
+    <string name="has_removed_you_task">has removed you task</string>
+    <string name="has_left_room">has left room</string>
+    <string name="removed_you_from_room">had removed you from room</string>
+    <string name="user_left_the_room">User left the room</string>
+    <string name="room_unavailable">Room unavailable</string>
+    <string name="task_done">Task done</string>
+    <string name="has_done_task">has done task</string>
 
 
     <string-array name="taskSpinner">

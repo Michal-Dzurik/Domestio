@@ -220,12 +220,9 @@ public class NotificationService extends Service {
                     break;
             }
         }
-
         else if (isNew(data)){
                 // Notifications it self
                 // send notification
-                Intent intent;
-                PendingIntent pendingIntent;
 
                 // TODO pridaj notifikacie
                 switch (COLLECTION){
@@ -233,66 +230,18 @@ public class NotificationService extends Service {
                         Room room = new Room();
                         room.cast(documentID,data);
 
-                        intent = new Intent(this, SplashScreenActivity.class);
-                        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-
-                        if (type == REMOVED) {
-                            break;
-                        }
-
                         if (isRoomNew(room) ) {
                             roomData.add(room);
                             // If i haven't created room then notify me
-                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.your_are_member_of_room) + " " + room.getTitle() + ". " + getString(R.string.go_check_it_out), pendingIntent);
-                                notificationId++;
-                            }
-                        }
-                        else {
-                            // If i haven't changed room then notify me
-                            if(!room.getAdminId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,room.getTitle(), getString(R.string.something_new_in_room) + ". " + getString(R.string.go_check_it_out), pendingIntent);
-                                notificationId++;
-                            }
                         }
                         break;
                     case DOCUMENT_TASKS:
                         Task task = new Task();
                         task.cast(documentID,data);
-                        Task originalTask = getTask(task);
-
-                        intent = new Intent(this, SplashScreenActivity.class);
-                        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-
                         task.setAuthor(Helpers.DataSet.getAuthorName(DataStorage.users,task.getAuthorId()));
 
-                        if (originalTask == null) {
-                            taskData.add(task);
+                        taskData.add(task);
 
-
-                            // If i haven't created task then notify me
-                            if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.NEW_TASKS,task.getAuthor() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
-                                notificationId++;
-                            }
-                        }
-                        else {
-                            if (type == REMOVED) break;
-
-                            // If i haven't changed task then notify me
-                            if(!originalTask.getVerified() && task.getVerified()){
-                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + task.getAuthor() + " " + getString(R.string.has_verified_task), pendingIntent);
-                                notificationId++;
-                            }
-                            else if(originalTask.getVerified() && !task.getVerified()){
-                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + task.getAuthor() + " " + getString(R.string.has_removed_verification_from_task), pendingIntent);
-                                notificationId++;
-                            }
-                            else if(!task.getAuthorId().equals(auth.getCurrentUser().getUid())) {
-                                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_modified), getString(R.string.something_new_in_task) + " " + task.getHeading() + ". " + getString(R.string.go_check_it_out), pendingIntent);
-                                notificationId++;
-                            }
-                        }
                         break;
                     case DOCUMENT_USERS:
                         User user = new User();
@@ -301,6 +250,9 @@ public class NotificationService extends Service {
 
                         // no need for notification , we don't wanna notify users when another is registered or something
 
+                        break;
+                    case DOCUMENT_NOTIFICATIONS:
+                        resolveNotification(documentID,data);
                         break;
                 }
 
@@ -329,11 +281,68 @@ public class NotificationService extends Service {
                     user.cast(data);
 
                     usersData.add(user);
+                    break;
+                case DOCUMENT_NOTIFICATIONS:
+                    resolveNotification(documentID,data);
 
                     break;
             }
         }
 
+    }
+
+    private void resolveNotification(String id,HashMap<String, Object> data){
+        Log.i("DATA NOTIFICATION", String.valueOf(data));
+
+        String from,to;
+        to = (String) data.get(Notifications.FIELD_RECEIVER_ID);
+
+        if (!to.equals(auth.getUid())) return;
+
+        Long action = (Long) data.get(Notifications.FIELD_ACTION_ID);
+
+        from = (String) data.get(Notifications.FIELD_FROM_ID);
+        User userFrom = Helpers.DataSet.getUserById(usersData,from);
+
+        Intent intent;
+        PendingIntent pendingIntent;
+        intent = new Intent(this, SplashScreenActivity.class);
+        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        String roomId;
+        Room room;
+
+        switch (action.intValue()){
+            case Notifications.Action.USER_ADDED_TO_NEW_ROOM:
+                sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.new_room_for_you), pendingIntent);
+                break;
+            case Notifications.Action.TASK_ASSIGNED:
+                sendNotification(Constants.NotificationChannels.NEW_TASKS,userFrom.getName() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + "." + getString(R.string.go_check_it_out), pendingIntent);
+                break;
+            case Notifications.Action.TASK_VERIFIED:
+                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.has_verified_task), pendingIntent);
+                break;
+            case Notifications.Action.TASK_DONE:
+                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_done), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.has_done_task) + ".", pendingIntent);
+                break;
+            case Notifications.Action.TASK_REMOVED:
+                sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_removed), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.has_removed_you_task), pendingIntent);
+                break;
+            case Notifications.Action.USER_LEFT_THE_ROOM:
+                roomId = (String) data.get("room_id");
+                room = Helpers.DataSet.getRoomById(roomData,roomId);
+                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,getString(R.string.user_left_the_room), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.has_left_room) + " " + room.getTitle() + " .", pendingIntent);
+                break;
+            case Notifications.Action.USER_REMOVED_FROM_ROOM:
+                String roomTitle = (String) data.get("room_title");
+                sendNotification(Constants.NotificationChannels.ROOM_UPDATES,getString(R.string.room_unavailable), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.removed_you_from_room) + " " + roomTitle + " .", pendingIntent);
+                break;
+
+
+        }
+
+        notificationId++;
+        db.collection(DOCUMENT_NOTIFICATIONS).document(id).delete();
     }
 
     private void sendNotification(String channel,String text, String content, PendingIntent pendingIntent){
