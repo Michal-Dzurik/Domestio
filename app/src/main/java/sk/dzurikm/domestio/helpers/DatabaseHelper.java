@@ -662,7 +662,6 @@ public class DatabaseHelper {
 
     public void removeUnrelatedTask(Task task){
         db.collection(DOCUMENT_TASKS).document(task.getId()).delete();
-        db.collection(DOCUMENT_ROOMS).document(task.getRoomId()).update(FIELD_TASK_IDS,FieldValue.arrayRemove(task.getId()));
     }
 
     /**
