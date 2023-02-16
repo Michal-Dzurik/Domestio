@@ -374,6 +374,7 @@ public class HomeActivity extends AppCompatActivity {
         }){
             @Override
             public void refresh(){
+                if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
                 refreshNoDataTexts();
             }
         };

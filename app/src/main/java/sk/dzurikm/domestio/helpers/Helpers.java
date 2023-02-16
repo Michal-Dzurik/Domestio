@@ -469,6 +469,28 @@ public class Helpers {
             return null;
         }
 
+        public static boolean updateRoom(ArrayList<Room> list,String originalRoomId, Room updatedRoom){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalRoomId)) {
+                    list.set(i,updatedRoom);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static boolean updateTask(ArrayList<Task> list,String originalTaskId, Task updatedTask){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalTaskId)) {
+                    list.set(i,updatedTask);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static User getUserById(ArrayList<User> list,String id){
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getId().equals(id)) return list.get(i);
@@ -508,6 +530,16 @@ public class Helpers {
             return newList;
         }
 
+        public static boolean updateUser(ArrayList<User> list,String originalUserId, User updatedUser){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalUserId)) {
+                    list.set(i,updatedUser);
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public static class Network{

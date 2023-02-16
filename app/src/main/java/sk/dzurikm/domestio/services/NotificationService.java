@@ -1,6 +1,7 @@
 package sk.dzurikm.domestio.services;
 
 import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
+import static com.google.firebase.firestore.DocumentChange.Type.MODIFIED;
 import static com.google.firebase.firestore.DocumentChange.Type.REMOVED;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.*;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_MODIFIED_AT;
@@ -199,7 +200,6 @@ public class NotificationService extends Service {
 
     private void processData(String COLLECTION, HashMap<String,Object> data,String documentID, DocumentChange.Type type){
         if ( type == REMOVED) {
-            sendChangedData(COLLECTION, data, documentID, type);
 
             switch (COLLECTION) {
                 case DOCUMENT_ROOMS:
@@ -219,6 +219,8 @@ public class NotificationService extends Service {
                     usersData.remove(user);
                     break;
             }
+
+            sendChangedData(COLLECTION, data, documentID, type);
         }
         else if (isNew(data)){
                 // Notifications it self
@@ -230,23 +232,40 @@ public class NotificationService extends Service {
                         Room room = new Room();
                         room.cast(documentID,data);
 
-                        if (isRoomNew(room) ) {
+                        if (type == ADDED){
                             roomData.add(room);
-                            // If i haven't created room then notify me
                         }
+                        else if (type == MODIFIED){
+                            Helpers.DataSet.updateRoom(roomData,room.getId(),room);
+                        }
+
                         break;
                     case DOCUMENT_TASKS:
                         Task task = new Task();
                         task.cast(documentID,data);
                         task.setAuthor(Helpers.DataSet.getAuthorName(DataStorage.users,task.getAuthorId()));
 
-                        taskData.add(task);
+                        if (type == ADDED){
+                            taskData.add(task);
+                        }
+                        else if (type == MODIFIED){
+                            Helpers.DataSet.updateTask(taskData,task.getId(),task);
+                        }
+
+
 
                         break;
                     case DOCUMENT_USERS:
                         User user = new User();
                         user.setId(documentID);
                         user.cast(data);
+
+                        if (type == ADDED){
+                            usersData.add(user);
+                        }
+                        else if (type == MODIFIED){
+                            Helpers.DataSet.updateUser(usersData,user.getId(),user);
+                        }
 
                         // no need for notification , we don't wanna notify users when another is registered or something
 
@@ -317,7 +336,7 @@ public class NotificationService extends Service {
                 sendNotification(Constants.NotificationChannels.NEW_JOINED_ROOM,getString(R.string.new_room), getString(R.string.new_room_for_you), pendingIntent);
                 break;
             case Notifications.Action.TASK_ASSIGNED:
-                sendNotification(Constants.NotificationChannels.NEW_TASKS,userFrom.getName() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + "." + getString(R.string.go_check_it_out), pendingIntent);
+                sendNotification(Constants.NotificationChannels.NEW_TASKS,userFrom.getName().trim() + " " + getString(R.string.assigned_you_a_new_task), getString(R.string.you_have_new_task) + "." + getString(R.string.go_check_it_out), pendingIntent);
                 break;
             case Notifications.Action.TASK_VERIFIED:
                 sendNotification(Constants.NotificationChannels.TASK_UPDATES,getString(R.string.task_verified), getString(R.string.user) + " " + userFrom.getName() + " " + getString(R.string.has_verified_task), pendingIntent);
