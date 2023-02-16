@@ -54,12 +54,6 @@ public class SettingsDialog extends BottomSheetDialogFragment {
     private FragmentManager fragmentManager;
 
     private Button notificationEditButton;
-    private Spinner taskCollapseEditSpinner;
-    private TextView taskCollapse;
-
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor sharedPreferencesEditor;
-
 
     public SettingsDialog(Context context, FragmentManager fragmentManager) {
         this.context = context;
@@ -80,18 +74,7 @@ public class SettingsDialog extends BottomSheetDialogFragment {
 
         // Views
         notificationEditButton = rootView.findViewById(R.id.notificationEditButton);
-        taskCollapseEditSpinner = rootView.findViewById(R.id.taskCollapseEditSpinner);
-        taskCollapse = rootView.findViewById(R.id.taskCollapse);
-
         ((View) rootView.getParent()).setBackgroundColor(Color.TRANSPARENT);
-
-        // SharedPreferences
-        sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
-        sharedPreferencesEditor = sharedPreferences.edit();
-
-        String collapseState = sharedPreferences.getString(COLLAPSED_STATE,String.valueOf(Constants.Settings.CollapsingState.COLLAPSED));
-
-        taskCollapse.setText(Helpers.allLowercaseButFirstUppercase(collapseState));
 
         // Setting up listeners
         notificationEditButton.setOnClickListener(new View.OnClickListener() {
@@ -111,32 +94,11 @@ public class SettingsDialog extends BottomSheetDialogFragment {
                 startActivity(intent);
             }
         });
-
-        List<String> spinnerData = Arrays.asList(Constants.Settings.CollapsingState.getNames());
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item,spinnerData);
-        taskCollapseEditSpinner.setAdapter(spinnerAdapter);
-        taskCollapseEditSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                taskCollapse.setText(Helpers.allLowercaseButFirstUppercase(spinnerData.get(position)));
-
-                sharedPreferencesEditor.putString(COLLAPSED_STATE,spinnerData.get(position).toUpperCase());
-                System.out.println(sharedPreferences.getString(COLLAPSED_STATE,""));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        taskCollapseEditSpinner.setSelection(spinnerAdapter.getPosition(Helpers.allLowercaseButFirstUppercase(collapseState)));
-
     }
 
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);
-        sharedPreferencesEditor.commit();
         ((HomeActivity) context).preferencesHasBeenChanged();
     }
 
@@ -157,7 +119,7 @@ public class SettingsDialog extends BottomSheetDialogFragment {
         BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
         ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
 
-        int windowHeight = getWindowHeight();
+        int windowHeight = getWindowHeight() / 2;
         if (layoutParams != null) {
             layoutParams.height = windowHeight;
         }
