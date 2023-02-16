@@ -133,7 +133,12 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             color = Helpers.stringValueOrDefault(currentTask.getColor(),"#bada55");
 
             Date date = new Date();
-            if (currentTask.getTimestamp() < ((long) (new Timestamp(date.getTime()).getTime() / 1000))){
+            Long currentTimestamp = ((long) (new Timestamp(date.getTime()).getTime() / 1000));
+            Long taskTimestamp = currentTask.getTimestamp();
+
+            Log.i("TASK INFO - Timestamp", currentTimestamp + " ~ " + taskTimestamp);
+
+            if (taskTimestamp < currentTimestamp){
                 holder.getMotionLayout().setAlpha(0.5F);
             }
 
@@ -177,7 +182,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                     doneButton.setTextColor(context.getResources().getColor(R.color.white_transparent));
                 }
 
-                if (currentTask.getVerified()){
+                if (currentTask.getVerified() != null && currentTask.getVerified()){
                     decorateLineThrough(doneButton);
                 }
                 else {
@@ -231,7 +236,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
         holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid())){
+                if (currentTask.getAuthorId().equals(auth.getCurrentUser().getUid()) && fragmentManager != null){
                     Log.i("HomeActivityTaskAdapter","Long pressed task - " + currentTask);
                     TasksOptionDialog tasksOptionDialog = new TasksOptionDialog(context,fragmentManager,currentTask);
                     tasksOptionDialog.show(fragmentManager,"TaskOptionDialog");
@@ -266,16 +271,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                                 // TODO pridat kredity pre užívateľa
 
                                 refresh();
-
-                                final Handler handler = new Handler();
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        databaseHelper.removeUnrelatedTask(currentTask);
-                                    }
-                                }, 500);
-
 
 
                                 alert.dismiss();

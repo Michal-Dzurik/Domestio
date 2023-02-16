@@ -205,6 +205,8 @@ public class Task implements Serializable {
         this.description = map.get(Constants.Validation.Task.DESCRIPTION);
         this.timestamp = Long.parseLong(map.get(Constants.Validation.Task.TIME));
         this.receiverId = map.get(Constants.Validation.Task.USER_ID);
+        this.time = Helpers.Time.getTimeDate(timestamp);
+
 
         // TODO tu sa meni roomka treba pozriet ci sa tak deje a ak ano treba to zmenit v db teda odstranit id z tej roomky / alebo dat prec idecka a pozitat to inak to je asi lepsie rieseneie
         this.roomId = map.get(Constants.Validation.Task.ROOM_ID);

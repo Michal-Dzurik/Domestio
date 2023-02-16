@@ -41,7 +41,6 @@ public class User implements Serializable {
     }
 
     public void cast(Map<String, Object> data){
-        this.id = (String) data.get(FIELD_ID);
         this.name = (String) data.get(FIELD_NAME);
         this.email = (String) data.get(FIELD_EMAIL);
     }

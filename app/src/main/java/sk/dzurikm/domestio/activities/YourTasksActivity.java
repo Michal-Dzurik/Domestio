@@ -3,26 +3,20 @@ package sk.dzurikm.domestio.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.firestore.DocumentChange;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
-import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
-import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
@@ -32,7 +26,7 @@ public class YourTasksActivity extends AppCompatActivity {
     // Views
     RecyclerView recyclerView;
     ImageButton backButton;
-    TextView noTasksText;
+    LinearLayout noTasksText;
 
     // Datasets
     List<Task> taskData;
@@ -74,8 +68,6 @@ public class YourTasksActivity extends AppCompatActivity {
             @Override
             public void onTasksLoaded(ArrayList<Task> data) {
                 taskData = data;
-
-                System.out.println(data);
 
                 // Setting up adapters
                 refreshNoDataTexts();
@@ -120,8 +112,18 @@ public class YourTasksActivity extends AppCompatActivity {
             if (taskData.get(i).getId().equals(task.getId())){
                 taskData.remove(i);
                 adapter.notifyItemRemoved(i);
+                removeIdFromTaskIdList(task);
                 refreshNoDataTexts();
                 break;
+            }
+        }
+    }
+
+    public void removeIdFromTaskIdList(Task task){
+        if (DataStorage.rooms == null) return;
+        for (int i = 0; i < DataStorage.rooms.size(); i++) {
+            if (DataStorage.rooms.get(i).getId().equals(task.getRoomId())){
+                DataStorage.rooms.get(i).removeTaskId(task.getId());
             }
         }
     }

@@ -28,7 +28,8 @@ import java.util.HashMap;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
 import sk.dzurikm.domestio.adapters.StringSpinnerAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.DataStorage;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
@@ -46,9 +47,9 @@ public class RoomActivity extends AppCompatActivity {
 
     // Views
     RecyclerView roomsRecycler;
-    TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount,noTaskText;
+    TextView roomTitle,roomDescription,roomPeopleCount,roomTaskCount;
     ImageButton backButton,addTaskButton,optionButton,addMemberButton;
-    LinearLayout cardBackground;
+    LinearLayout cardBackground,noTaskText;
     Spinner taskSpinner;
 
     // Helpers
@@ -76,6 +77,20 @@ public class RoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
 
+        // Views
+        roomsRecycler = findViewById(R.id.tasksRecycler);
+        roomTitle = findViewById(R.id.roomTitle);
+        roomDescription = findViewById(R.id.roomDescription);
+        roomPeopleCount = findViewById(R.id.roomPeopleNumber);
+        roomTaskCount = findViewById(R.id.roomTasksNumber);
+        backButton = findViewById(R.id.backButton);
+        cardBackground = findViewById(R.id.cardBackground);
+        addTaskButton = findViewById(R.id.addTaskButton);
+        optionButton = findViewById(R.id.optionButton);
+        addMemberButton = findViewById(R.id.addMemberButton);
+        noTaskText = findViewById(R.id.noTasksText);
+        taskSpinner = findViewById(R.id.taskSpinner);
+
         // DB
         auth = FirebaseAuth.getInstance();
 
@@ -84,6 +99,12 @@ public class RoomActivity extends AppCompatActivity {
 
         // helpers
         databaseHelper = new DatabaseHelper();
+
+        if (RoomActivity.this.usersData != null && DataStorage.users != null) {
+            RoomActivity.this.usersData.clear();
+            RoomActivity.this.usersData.addAll(DataStorage.users);
+        }
+        else RoomActivity.this.usersData = (DataStorage.users);
 
         // Broadcasts
         dataChangedReceiver = new DataChangedReceiver(new DataChangedReceiver.DataChangedListener() {
@@ -134,6 +155,7 @@ public class RoomActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                     switch (type){
@@ -157,29 +179,20 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onTasksLoaded(ArrayList<Task> data) {
                 RoomActivity.this.allRoomTaskData = data;
-                System.out.println("DATA" + data);
+
+                if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
+
+                refreshNoDataTexts();
+
             }
         });
 
-
-        // Views
-        roomsRecycler = findViewById(R.id.tasksRecycler);
-        roomTitle = findViewById(R.id.roomTitle);
-        roomDescription = findViewById(R.id.roomDescription);
-        roomPeopleCount = findViewById(R.id.roomPeopleNumber);
-        roomTaskCount = findViewById(R.id.roomTasksNumber);
-        backButton = findViewById(R.id.backButton);
-        cardBackground = findViewById(R.id.cardBackground);
-        addTaskButton = findViewById(R.id.addTaskButton);
-        optionButton = findViewById(R.id.optionButton);
-        addMemberButton = findViewById(R.id.addMemberButton);
-        noTaskText = findViewById(R.id.noTasksText);
-        taskSpinner = findViewById(R.id.taskSpinner);
 
         //Spinners
         taskSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.i("Spinner Selected", String.valueOf(position));
                 switch (position){
                     case Constants.Spinner.Room.ALL_TASKS:
                         tasksFilter = Constants.Spinner.Room.ALL_TASKS;
@@ -213,13 +226,14 @@ public class RoomActivity extends AppCompatActivity {
         dco = new DCO(new DCO.OnDataChangeListener() {
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
+                Log.i("DCO on change", "triggered");
                 Room newRoom = dco.getRoom(room.getId());
-                System.out.println(newRoom);
 
                 if (usersData != null){
                     RoomActivity.this.usersData = usersData;
                 }
 
+                Log.i("DCO task data", String.valueOf(taskData));
                 if (taskData != null){
                     // Removing finished tasks
                     switch (tasksFilter){
@@ -228,10 +242,22 @@ public class RoomActivity extends AppCompatActivity {
                             databaseHelper.loadTasksForRoom(room, new DatabaseHelper.TasksForRoomLoadedListener() {
                                 @Override
                                 public void onTasksLoaded(ArrayList<Task> data) {
-                                    RoomActivity.this.allRoomTaskData = data;
-                                    RoomActivity.this.taskData.clear();
-                                    RoomActivity.this.taskData.addAll(data);
+                                    if (data != null){
+                                        if (RoomActivity.this.taskData != null) {
+                                            RoomActivity.this.taskData.clear();
+                                            RoomActivity.this.taskData.addAll(data);
+                                        }
+                                        else RoomActivity.this.taskData = (data);
+
+                                        if (RoomActivity.this.allRoomTaskData != null) {
+                                            RoomActivity.this.allRoomTaskData.clear();
+                                            RoomActivity.this.allRoomTaskData.addAll(data);
+                                        }
+                                        else RoomActivity.this.allRoomTaskData = (data);
+                                    }
+
                                     if(taskAdapter != null) taskAdapter.notifyDataSetChanged();
+                                    refreshNoDataTexts();
                                 }
                             });
                             break;
@@ -259,6 +285,8 @@ public class RoomActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Log.i("Room users", String.valueOf(dco.filterUsersForThisRoom(room.getUserIds())));
 
         // Setting up empty adapter
         taskData = Helpers.DataSet.filterOnlyRelevantTasksForRoom(dco.getTaskData(),room.getId());
@@ -301,6 +329,7 @@ public class RoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (room.isAdmin(auth.getUid())){
+                    System.out.println("DCO - " + dco.getUsersData());
                     RoomOptionDialog dialog = new RoomOptionDialog(RoomActivity.this, RoomActivity.this.getSupportFragmentManager(), dco.filterUsersForThisRoom(room.getUserIds()), new RoomOptionDialog.RoomRemoveListener() {
                         @Override
                         public void onRoomRemove() {
@@ -360,6 +389,19 @@ public class RoomActivity extends AppCompatActivity {
                     public void onTaskAdded(Task task) {
                         // Add task id to room and increment count of them
                         // I am adding nothing cause all the task you see are just your and you cant make your own
+                        if (tasksFilter == Constants.Spinner.Room.ALL_TASKS){
+                            taskData.add(task);
+                            //dco.updateRoomChangeableInfo(taskData,room);
+                        }
+
+                        if (allRoomTaskData == null) allRoomTaskData = new ArrayList<>();
+                        allRoomTaskData.add(task);
+                        room.addTaskId(task.getId());
+
+                        dco.updateRoomChangeableInfo(taskData,room);
+
+                        refreshNoDataTexts();
+
                     }
 
                     @Override
@@ -391,12 +433,16 @@ public class RoomActivity extends AppCompatActivity {
                                             dialog.dismiss();
                                             room.addUserId(id);
                                             dco.updateRoomChangeableInfo(taskData,room);
+                                            dialog.positiveButtonDisabled(false);
                                             Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_is_now_member_of_this_room),Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
                             }
-                            else Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists),Toast.LENGTH_SHORT).show();
+                            else {
+                                dialog.positiveButtonDisabled(false);
+                                Toast.makeText(RoomActivity.this, RoomActivity.this.getString(R.string.user_doesnt_exists), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                     dialog.show(RoomActivity.this.getSupportFragmentManager(),"Add Member");
@@ -411,7 +457,7 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     private void refreshNoDataTexts(){
-        if (taskData.size() == 0) noTaskText.setVisibility(View.VISIBLE);
+        if (taskData != null && taskData.size() == 0) noTaskText.setVisibility(View.VISIBLE);
         else noTaskText.setVisibility(View.GONE);
     }
 

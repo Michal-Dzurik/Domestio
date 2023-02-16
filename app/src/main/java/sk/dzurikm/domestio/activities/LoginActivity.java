@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,16 +21,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
-import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InfoAlert;
 import sk.dzurikm.domestio.views.alerts.InputAlert;
 
@@ -46,10 +49,17 @@ public class LoginActivity extends AppCompatActivity {
     // Validation
     private Helpers.Validation validation;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Shared preferences
+        sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
+        sharedPreferencesEditor = sharedPreferences.edit();
 
         // Views
         email = (EditText) findViewById(R.id.emailInput);
@@ -124,6 +134,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(){
+        Helpers.Views.buttonDisabled(loginButton,true);
+
         String emailContent,passwordContent;
 
         emailContent = getTextOfView(email);
@@ -149,14 +161,29 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onLoginSucceed(){
         Log.d("Firebase Auth", "signInUserWithEmail:success");
-        FirebaseUser user = mAuth.getCurrentUser();
-        Toast.makeText(LoginActivity.this,
-                LoginActivity.this.getString(R.string.you_have_been_logged_in_successfully),
-                Toast.LENGTH_SHORT).show();
 
-        Intent nextActivity = new Intent(LoginActivity.this,HomeActivity.class);
-        nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(nextActivity);
+        databaseHelper.getUserFromDatabase(mAuth.getUid(), new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    Map<String, Object> data = task.getResult().getData();
+                    String name = (String) data.get(Constants.Firebase.User.FIELD_NAME);
+
+                    Toast.makeText(LoginActivity.this,
+                            LoginActivity.this.getString(R.string.you_have_been_logged_in_successfully),
+                            Toast.LENGTH_SHORT).show();
+
+                    sharedPreferencesEditor.putString("user-name",name);
+                    sharedPreferencesEditor.commit();
+
+                    Intent nextActivity = new Intent(LoginActivity.this,HomeActivity.class);
+                    nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(nextActivity);
+
+                }
+            }
+        });
+
     }
 
     private boolean loginDataValid(){

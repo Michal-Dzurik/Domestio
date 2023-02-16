@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,12 +38,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -63,6 +67,7 @@ public class DatabaseHelper {
     FirebaseFirestore db;
     FirebaseUser user;
     FirebaseAuth auth;
+    FirebaseFunctions functions;
 
     // Additional variables
     ArrayList<String> roomsIDs,userRelatedUserIds,tasksRelatedIds;
@@ -87,6 +92,7 @@ public class DatabaseHelper {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        functions = FirebaseFunctions.getInstance();
 
         // Enabling offline persistance
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -97,6 +103,10 @@ public class DatabaseHelper {
 
     int TYPE;
     String id;
+
+    public void getUserFromDatabase(String uid, OnCompleteListener<DocumentSnapshot> onCompleteListener){
+        db.collection(DOCUMENT_USERS).document(uid).get().addOnCompleteListener(onCompleteListener);
+    }
 
 
     public void loadRooms(){
@@ -170,9 +180,10 @@ public class DatabaseHelper {
                                 // Creating task and casting from DB result to model
                                 User user = new User();
                                 user.cast(data);
+                                user.setId(document.getId());
 
                                 // Adding user to it's dataset
-                                usersData.add(user);
+                                DatabaseHelper.this.usersData.add(user);
                                 Log.i("Firebase result", String.valueOf(user));
 
                             }
@@ -250,8 +261,6 @@ public class DatabaseHelper {
             return;
         }
 
-        System.out.println("HJBO - " + room);
-
         db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_ROOM_ID,room.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
@@ -306,7 +315,7 @@ public class DatabaseHelper {
                 .addOnCompleteListener((Activity) context, onLoginCompleteListener);
     }
 
-    public void register(Context context,String name,String email, String password,OnRegisterListener onRegisterListener){
+    public void register(Context context,String email, String password,OnRegisterListener onRegisterListener){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -318,34 +327,15 @@ public class DatabaseHelper {
                             Log.d("Firebase Auth", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            // Updating user info
-                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(name).build();
-                            if (user != null) {
-                                user.updateProfile(profileUpdate);
-                            }
+                            onRegisterListener.onRegisterSuccess();
 
-                            Map<String,Object> set = new HashMap<>();
-                            set.put(FIELD_NAME,name.toString());
-                            set.put(FIELD_ID,user.getUid());
-                            set.put(FIELD_EMAIL,email);
-                            set.put(FIELD_CREATED_AT, FieldValue.serverTimestamp());
-                            set.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
-
-                            // User insertion for internal use
-                            db.collection(DOCUMENT_USERS).document().set(set).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    onRegisterListener.onRegisterSuccess();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    onRegisterListener.onRegisterFailed();
-                                }
-                            });
                         }
                         else onRegisterListener.onRegisterFailed();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        onRegisterListener.onRegisterFailed();
                     }
                 });
     }
@@ -436,8 +426,28 @@ public class DatabaseHelper {
     }
 
     public void addMemberInRoom(String roomId,String userId, OnCompleteListener onCompleteListener){
-
         Map<String, Object> update = new HashMap<>();
+        update.put("room_id", roomId);
+        update.put("user_id",userId);
+
+        functions.getHttpsCallable("addUserToRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
+
+
+        /*Map<String, Object> update = new HashMap<>();
         update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayUnion(userId));
         update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
         db.collection(DOCUMENT_ROOMS).document(roomId)
@@ -447,27 +457,52 @@ public class DatabaseHelper {
                         // TODO send and email to user
                         onCompleteListener.onComplete(task);
                     }
-                });
+                });*/
     }
 
     public void updateTaskDone(Task task){
-        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
-        document.update(FIELD_DONE,task.getDone()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                System.out.println(task.isSuccessful());
-            }
-        });
+        Map<String, Object> update = new HashMap<>();
+        update.put("task_id", task.getId());
+        update.put("done",task.getDone());
+
+        functions.getHttpsCallable("taskDoneToggle")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            // TODO i dont check if this is successfull i just do it , bada55
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
+
     }
 
     public void updateTaskVerified(Task task){
-        DocumentReference document = db.collection(DOCUMENT_TASKS).document(task.getId());
-        document.update(FIELD_VERIFIED,task.getVerified()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                System.out.println(task.isSuccessful());
-            }
-        });
+        Map<String, Object> update = new HashMap<>();
+        update.put("task_id", task.getId());
+
+        functions.getHttpsCallable("taskVerified")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            Log.i("Task result", result);
+                            // TODO i dont check if this is successfull i just do it , bada55
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
     }
 
     public void updateTask(Task task,OnTaskEditedListener onTaskEditedListener,Task originalTask){
@@ -498,6 +533,8 @@ public class DatabaseHelper {
                             if (!originalTask.getRoomId().equals(task.getRoomId())){
                                 task.setRoomName(getRoomsTitle(task.getRoomId()));
                                 task.setColor(getRoomsColor(task.getRoomId()));
+                                task.setTimestamp(originalTask.getTimestamp());
+                                task.setTime(originalTask.getTime());
                             }
                             if (!originalTask.getReceiverId().equals(task.getReceiverId())){
                                 task.setAuthor(getUsersName(task.getAuthorId()));
@@ -551,24 +588,20 @@ public class DatabaseHelper {
         });
     }
 
-    public void updateUserName(String newName,OnCompleteListener<QuerySnapshot> onCompleteListener,OnFailureListener onFailureListener){
-        // Set Name
-        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                .setDisplayName(newName)
-                .build();
+    public void updateUserName(String newName,OnCompleteListener<Void> onCompleteListener,OnFailureListener onFailureListener){
+        db.collection(DOCUMENT_USERS).document(auth.getCurrentUser().getUid()).update(FIELD_NAME, newName).addOnCompleteListener(onCompleteListener);
 
-        Objects.requireNonNull(auth.getCurrentUser()).updateProfile(profileUpdate).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                db.collection(DOCUMENT_USERS).whereEqualTo(FIELD_ID,auth.getCurrentUser().getUid()).get().addOnCompleteListener(onCompleteListener);
-            }
-        }).addOnFailureListener(onFailureListener);
 
     }
 
     public void updateUserEmail(String newEmail,OnCompleteListener<Void> onCompleteListener){
 
-        Objects.requireNonNull(auth.getCurrentUser()).updateEmail(newEmail).addOnCompleteListener(onCompleteListener);
+        Objects.requireNonNull(auth.getCurrentUser()).updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                db.collection(DOCUMENT_USERS).document(auth.getUid()).update(FIELD_EMAIL,newEmail).addOnCompleteListener(onCompleteListener);
+            }
+        });
 
     }
 
@@ -577,40 +610,50 @@ public class DatabaseHelper {
     }
 
     public void removeUserFromRoom(Room room,String userId, OnCompleteListener onCompleteListener){
+
         Map<String, Object> update = new HashMap<>();
-        update.put(Constants.Firebase.Room.FIELD_USER_IDS, FieldValue.arrayRemove(userId));
-        update.put(Constants.Firebase.Room.FIELD_MODIFIED_AT,FieldValue.serverTimestamp());
+        update.put("room_id", room.getId());
+        update.put("user_id",userId);
 
-        ArrayList<String> taskIds = new ArrayList<>();
+        functions.getHttpsCallable("removeUserFromRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
 
-        db.collection(DOCUMENT_TASKS).whereEqualTo(FIELD_AUTHOR_ID,auth.getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> t) {
-                if (t.isSuccessful()){
-                    for (QueryDocumentSnapshot document : t.getResult()){
-                        taskIds.add(document.getId());
-
+                        return null;
                     }
 
+                });
 
-                    update.put(FIELD_TASK_IDS, FieldValue.arrayRemove(taskIds));
 
-                    db.collection(DOCUMENT_ROOMS).document(room.getId())
-                            .update(update).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                                    // TODO send and email to user
-                                    onCompleteListener.onComplete(task);
-                                }
-                            });
-                }
-            }
-        });
 
     }
 
     public void leaveRoom(Room room,String userId, OnCompleteListener onCompleteListener){
-        removeUserFromRoom(room,userId,onCompleteListener);
+        Map<String, Object> update = new HashMap<>();
+        update.put("room_id", room.getId());
+
+        functions.getHttpsCallable("leaveRoom")
+                .call(update)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull com.google.android.gms.tasks.Task<HttpsCallableResult> task) throws Exception {
+                        if (task.isSuccessful()){
+                            String result = (String) task.getResult().getData();
+                            onCompleteListener.onComplete(task);
+                            return result;
+                        }
+
+                        return null;
+                    }
+
+                });
     }
 
     public void removeRoom(Room room,OnCompleteListener onCompleteListener){
@@ -619,7 +662,6 @@ public class DatabaseHelper {
 
     public void removeUnrelatedTask(Task task){
         db.collection(DOCUMENT_TASKS).document(task.getId()).delete();
-        db.collection(DOCUMENT_ROOMS).document(task.getRoomId()).update(FIELD_TASK_IDS,FieldValue.arrayRemove(task.getId()));
     }
 
     /**

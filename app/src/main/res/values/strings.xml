@@ -122,6 +122,23 @@
     <string name="has_removed_verification_from_task">has removed verification from task</string>
     <string name="set_task_as_verified">Set task as verified</string>
     <string name="sure_want_to_set_verified">Are you sure you want to set this task as verified? Task will be deleted after this action.</string>
+    <string name="your_name">Your name</string>
+    <string name="enter_name">Enter name you want to use. You can change it later on.</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="noone_in_room">There is no one in this room</string>
+    <string name="nothing_here">Nothing here</string>
+    <string name="app_permission">App permission</string>
+    <string name="app_permission_descirption">We need to enable background activity for app to work properly.Please enable it.</string>
+    <string name="enable">Enable</string>
+    <string name="new_room_for_you">You are now member of new room. Go check it out!</string>
+    <string name="task_removed">Task removed</string>
+    <string name="has_removed_you_task">has removed you task</string>
+    <string name="has_left_room">has left room</string>
+    <string name="removed_you_from_room">had removed you from room</string>
+    <string name="user_left_the_room">User left the room</string>
+    <string name="room_unavailable">Room unavailable</string>
+    <string name="task_done">Task done</string>
+    <string name="has_done_task">has done task</string>
 
 
     <string-array name="taskSpinner">

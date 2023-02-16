@@ -107,14 +107,16 @@ public class HomeActivityRoomAdapter extends RecyclerView.Adapter<HomeActivityRo
                     alert.setPositiveButtonOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            alert.dismiss();
+                            Helpers.Views.buttonDisabled(v,true);
+
                             DatabaseHelper helper = new DatabaseHelper();
                             helper.leaveRoom(currentRoom, auth.getUid(), new OnCompleteListener() {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
                                     if (task.isSuccessful()){
                                         onRoomLeaveListener.onRoomLeave(currentRoom);
-
+                                        Helpers.Views.buttonDisabled(v,false);
+                                        alert.dismiss();
                                     }
                                 }
                             });

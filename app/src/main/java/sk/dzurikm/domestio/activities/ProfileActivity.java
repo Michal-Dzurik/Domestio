@@ -10,9 +10,9 @@ import static sk.dzurikm.domestio.helpers.Helpers.Views.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
-import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -83,6 +82,10 @@ public class ProfileActivity extends AppCompatActivity {
     // Broadcasts
     DataChangedReceiver dataChangedReceiver;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +93,10 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         authenticated = false;
+
+        // Shared preferences
+        sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
+        sharedPreferencesEditor = sharedPreferences.edit();
 
         // Database init
         auth = FirebaseAuth.getInstance();
@@ -155,6 +162,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
 
                         switch (type){
@@ -193,7 +201,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Checking if user exists
         if (user != null) {
             // Name, email address, and profile photo Url
-            userName = user.getDisplayName();
+            userName = sharedPreferences.getString("user-name","");
             userEmail = user.getEmail();
             //Uri photoUrl = user.getPhotoUrl();
 
@@ -258,11 +266,13 @@ public class ProfileActivity extends AppCompatActivity {
                                     authenticated = true;
                                 }
                                 else somethingWentWrongMessage();
+
+                                reauthenticateAlert.positiveButtonDisabled(false);
                             }
                         });
                         reauthenticateAlert.show();
                     }
-                    editNameAlert.show();
+
                 }
                 else Helpers.Toast.noInternet(ProfileActivity.this);
             }
@@ -287,6 +297,8 @@ public class ProfileActivity extends AppCompatActivity {
                                     authenticated = true;
                                 }
                                 else somethingWentWrongMessage();
+
+                                reauthenticateAlert.positiveButtonDisabled(false);
                             }
                         });
                         reauthenticateAlert.show();
@@ -345,54 +357,64 @@ public class ProfileActivity extends AppCompatActivity {
                 ArrayList<String> errors = validation.validate(map);
 
                 if (errors == null){
+                    Helpers.Views.buttonDisabled(v,true);
                     // Update name of the user
-                    databaseHelper.updateUserName(input, new OnCompleteListener<QuerySnapshot>() {
+                    databaseHelper.updateUserName(input, new OnCompleteListener<Void>() {
                         @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                QuerySnapshot snapshot = task.getResult();
-                                if (!snapshot.isEmpty()) {
 
-                                    String id = snapshot.getDocuments().get(0).getId();
-                                    HashMap<String, Object> updatedData = new HashMap<>();
+                                String id = auth.getUid();
+                                HashMap<String, Object> updatedData = new HashMap<>();
 
-                                    updatedData.put(FIELD_NAME, input);
-                                    updatedData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
+                                updatedData.put(FIELD_NAME, input);
+                                updatedData.put(FIELD_MODIFIED_AT, FieldValue.serverTimestamp());
 
-                                    if (id == null) somethingWentWrongMessage();
-
-                                    db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                editNameAlert.dismiss();
-
-                                                // Changing hints in activity to be updated
-                                                User userToChange = new User();
-                                                userToChange.setName(input);
-                                                changeNamesDisplayed(userToChange);
-                                                Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
-
-                                            } else somethingWentWrongMessage();
-                                        }
-                                    });
-                                } else {
-                                    Log.i("Rewrite", "NOT FOUND " + auth.getCurrentUser().getUid());
+                                if (id == null) {
+                                    Helpers.Views.buttonDisabled(v,false);
                                     somethingWentWrongMessage();
+                                    return;
                                 }
+
+                                db.collection(DOCUMENT_USERS).document(id).update(updatedData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            editNameAlert.dismiss();
+
+                                            // Changing hints in activity to be updated
+                                            User userToChange = new User();
+                                            userToChange.setId(auth.getUid());
+                                            userToChange.setName(input);
+                                            changeNamesDisplayed(userToChange);
+                                            sharedPreferencesEditor.putString("user-name",input);
+                                            sharedPreferencesEditor.commit();
+                                            Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.name_was_changed_successfully), Toast.LENGTH_SHORT).show();
+
+                                        } else {
+                                            somethingWentWrongMessage();
+                                        }
+
+                                        Helpers.Views.buttonDisabled(v,false);
+                                    }
+                                });
                             } else {
                                 Log.i("Rewrite", "UNSUCCESFFUL");
+                                Helpers.Views.buttonDisabled(v,false);
                                 somethingWentWrongMessage();
                             }
                         }
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            Helpers.Views.buttonDisabled(v,false);
                             somethingWentWrongMessage();
                         }
                     });
                 }
-                else Toast.makeText(ProfileActivity.this,errors.get(0),Toast.LENGTH_SHORT).show();
+                else {
+                    Toast.makeText(ProfileActivity.this, errors.get(0), Toast.LENGTH_SHORT).show();
+                }
 
 
 
@@ -424,6 +446,7 @@ public class ProfileActivity extends AppCompatActivity {
                 ArrayList<String> errors = validation.validate(map);
 
                 if (errors == null){
+                    Helpers.Views.buttonDisabled(v,true);
                     databaseHelper.updateUserEmail(input, new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -439,7 +462,12 @@ public class ProfileActivity extends AppCompatActivity {
                                             waitAndShow(editEmailAlert,200);
                                             authenticated = true;
                                         }
-                                        else somethingWentWrongMessage();
+                                        else {
+                                            somethingWentWrongMessage();
+                                        }
+
+                                        reauthenticateAlert.positiveButtonDisabled(false);
+                                        Helpers.Views.buttonDisabled(v,false);
                                     }
                                 });
                                 reauthenticateAlert.show();
@@ -448,12 +476,17 @@ public class ProfileActivity extends AppCompatActivity {
                                 editEmailAlert.dismiss();
 
                                 User userToUpdate = new User();
+                                userToUpdate.setId(auth.getUid());
                                 userToUpdate.setEmail(input);
                                 changeEmailsDisplayed(userToUpdate);
 
                                 Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.email_was_changed_successfully),Toast.LENGTH_SHORT).show();
                             }
-                            else somethingWentWrongMessage();
+                            else {
+                                somethingWentWrongMessage();
+                            }
+
+                            Helpers.Views.buttonDisabled(v,false);
                         }
                     });
                 }
@@ -466,7 +499,8 @@ public class ProfileActivity extends AppCompatActivity {
         passwordChangeAlert = new PasswordChangeAlert(ProfileActivity.this);
         passwordChangeAlert.setPasswordMatchListener(new PasswordChangeAlert.OnPasswordMatchListener() {
             @Override
-            public void onPasswordMach(String password) {
+            public void onPasswordMach(View v,String password) {
+                Helpers.Views.buttonDisabled(v,true);
                 // Change password
                 databaseHelper.updateUserPassword(password,new OnCompleteListener<Void>() {
                     @Override
@@ -484,17 +518,26 @@ public class ProfileActivity extends AppCompatActivity {
                                         waitAndShow(passwordChangeAlert,200);
                                         authenticated = true;
                                     }
-                                    else somethingWentWrongMessage();
+                                    else {
+                                        somethingWentWrongMessage();
+                                    }
+
+                                    reauthenticateAlert.positiveButtonDisabled(false);
+                                    Helpers.Views.buttonDisabled(v,false);
                                 }
                             });
                             reauthenticateAlert.show();
                         }
                         if(task.isSuccessful()){
                             passwordChangeAlert.dismiss();
+                            Helpers.Views.buttonDisabled(v,false);
 
                             Toast.makeText(ProfileActivity.this, ProfileActivity.this.getString(R.string.password_was_changed_successfully),Toast.LENGTH_SHORT).show();
                         }
-                        else somethingWentWrongMessage();
+                        else {
+                            Helpers.Views.buttonDisabled(v,false);
+                            somethingWentWrongMessage();
+                        }
                     }
                 });
 

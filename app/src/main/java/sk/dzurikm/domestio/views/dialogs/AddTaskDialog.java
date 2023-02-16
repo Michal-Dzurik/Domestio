@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,7 +37,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -185,6 +188,10 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
 
             selectedUser = Helpers.DataSet.getUserById(DataStorage.users,task.getReceiverId());
             selectedRoom = Helpers.DataSet.getRoomById(DataStorage.rooms,task.getRoomId());
+
+            Helpers.Views.spinnerDisable(roomSelect,true);
+            Helpers.Views.spinnerDisable(ownerSelect,true);
+
         }
 
         // Setting up listeners
@@ -199,7 +206,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                 day = calendar.get(Calendar.DAY_OF_MONTH);
                 month = calendar.get(Calendar.MONTH);
                 year = calendar.get(Calendar.YEAR);
-                hour = calendar.get(Calendar.HOUR);
+                hour = calendar.get(Calendar.HOUR_OF_DAY);
                 minute = calendar.get(Calendar.MINUTE);
 
                 DatePickerDialog dialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
@@ -243,17 +250,17 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                         Toast.makeText(context,errors.get(0),Toast.LENGTH_SHORT).show();
                     }
                     else {
+                        Helpers.Views.buttonDisabled(v,true);
                         if (role == DialogRole.ADD){
-                            addTaskToDatabase();
+                            addTaskToDatabase(v);
                         }
                         if (role == DialogRole.EDIT){
                             Task originalTask = Task.editTaskCopy(task);
                             task.updateFromValidationData(map);
 
-                            System.out.println(task);
-
                             if (!originalTask.getRoomId().equals(task.getRoomId())) updateTask(task,originalTask);
                             else updateTask(task,null);
+                            Helpers.Views.buttonDisabled(v,false);
 
                         }
                     }
@@ -356,10 +363,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
             day = calendar.get(Calendar.DAY_OF_MONTH);
             month = calendar.get(Calendar.MONTH);
             year = calendar.get(Calendar.YEAR);
-            hour = calendar.get(Calendar.HOUR);
+            hour = calendar.get(Calendar.HOUR_OF_DAY);
             minute = calendar.get(Calendar.MINUTE);
-
-            System.out.println(month);
 
             setDateAndTime(year,month,day,hour,minute);
         }
@@ -374,16 +379,19 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                 Helpers.Integer.formatNumberOnTwoSpaces(hour) + ":" +
                 Helpers.Integer.formatNumberOnTwoSpaces(minute);
 
+        Log.i("INPUT HOUR",Helpers.Integer.formatNumberOnTwoSpaces(hour) + " ~ " + hour);
+
         DateTimeFormatter f = DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm" ) ;
 
-        Log.i("DOK",datetime);
 
-        LocalDateTime ldt = LocalDateTime.parse( datetime , f ) ;
-        OffsetDateTime odt = ldt.atOffset( ZoneOffset.UTC ) ;
+        OffsetDateTime dateTime = LocalDateTime.parse(datetime , f)
+                .atZone(ZoneId.of("Europe/Bratislava"))
+                .toOffsetDateTime();
 
-        long secondsSinceEpoch = odt.toEpochSecond() ;
+        long secondsSinceEpoch = dateTime.toEpochSecond() ;
 
-        System.out.println(secondsSinceEpoch);
+        Log.i("DOK", String.valueOf(secondsSinceEpoch));
+
 
         timestamp = secondsSinceEpoch;
         datePickerButtonText.setText(datetime);
@@ -399,7 +407,7 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
         return filtered;
     }
 
-    private void addTaskToDatabase(){
+    private void addTaskToDatabase(View v){
         Task task = new Task();
         task.setRoomId(selectedRoom.getId());
         task.setAuthorId(auth.getUid());
@@ -418,6 +426,8 @@ public class AddTaskDialog extends BottomSheetDialogFragment {
                     onTaskChangeListener.onTaskAdded(task);
                 }
                 else Helpers.Toast.somethingWentWrong(context);
+
+                Helpers.Views.buttonDisabled(v,false);
             }
         });
 

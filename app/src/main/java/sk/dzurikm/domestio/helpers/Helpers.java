@@ -16,10 +16,15 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -289,7 +294,6 @@ public class Helpers {
 
             if (numbStr.length() < 2) return "0" + numb;
 
-
             return numbStr;
 
         }
@@ -316,6 +320,54 @@ public class Helpers {
                     alert.show();
                 }
             },delay);
+        }
+
+        @SuppressLint("ResourceAsColor")
+        public static void buttonDisabled(Button btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+
+        }
+
+        public static void buttonDisabled(ImageButton btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+        }
+
+        public static void buttonDisabled(TextView btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+        }
+
+        public static void buttonDisabled(View btn, boolean disabled){
+            btn.setEnabled(!disabled);
+            if (disabled){
+                btn.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            }
+            else {
+                btn.getBackground().clearColorFilter();
+            }
+        }
+
+        public static void spinnerDisable(Spinner spinner, boolean disabled){
+            spinner.setEnabled(!disabled);
+            spinner.setClickable(!disabled);
+            spinner.setAlpha(!disabled ? 1.0f : 0.4f);
         }
     }
 
@@ -417,6 +469,28 @@ public class Helpers {
             return null;
         }
 
+        public static boolean updateRoom(ArrayList<Room> list,String originalRoomId, Room updatedRoom){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalRoomId)) {
+                    list.set(i,updatedRoom);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static boolean updateTask(ArrayList<Task> list,String originalTaskId, Task updatedTask){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalTaskId)) {
+                    list.set(i,updatedTask);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static User getUserById(ArrayList<User> list,String id){
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getId().equals(id)) return list.get(i);
@@ -456,14 +530,16 @@ public class Helpers {
             return newList;
         }
 
-    }
+        public static boolean updateUser(ArrayList<User> list,String originalUserId, User updatedUser){
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId().equals(originalUserId)) {
+                    list.set(i,updatedUser);
+                    return true;
+                }
+            }
 
-    public static String getAuthorName(ArrayList<User> usersData, String uid){
-        for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).equals(uid)) return usersData.get(i).getName();
+            return false;
         }
-
-        return null;
     }
 
     public static class Network{

@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
+import sk.dzurikm.domestio.helpers.Helpers;
 
 
 public class ReauthenticateAlert extends Dialog {
@@ -80,6 +81,8 @@ public class ReauthenticateAlert extends Dialog {
                     return;
                 }
 
+                positiveButtonDisabled(true);
+
                 AuthCredential credential = EmailAuthProvider
                         .getCredential(Objects.requireNonNull(user.getEmail()), password);
 
@@ -106,6 +109,10 @@ public class ReauthenticateAlert extends Dialog {
 
     public EditText getInput() {
         return input;
+    }
+
+    public void positiveButtonDisabled(boolean disabled){
+        Helpers.Views.buttonDisabled(positiveButton,disabled);
     }
 
 

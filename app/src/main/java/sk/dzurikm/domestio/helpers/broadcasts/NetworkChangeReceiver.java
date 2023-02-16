@@ -1,4 +1,4 @@
-package sk.dzurikm.domestio.broadcasts;
+package sk.dzurikm.domestio.helpers.broadcasts;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

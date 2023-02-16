@@ -10,10 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -21,6 +27,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,8 +39,8 @@ import java.util.HashMap;
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.adapters.HomeActivityRoomAdapter;
 import sk.dzurikm.domestio.adapters.HomeActivityTaskAdapter;
-import sk.dzurikm.domestio.broadcasts.DataChangedReceiver;
-import sk.dzurikm.domestio.broadcasts.NetworkChangeReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.DataChangedReceiver;
+import sk.dzurikm.domestio.helpers.broadcasts.NetworkChangeReceiver;
 import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
@@ -43,6 +50,7 @@ import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.services.NotificationService;
+import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.dialogs.AddRoomDialog;
 import sk.dzurikm.domestio.views.dialogs.AddTaskDialog;
 import sk.dzurikm.domestio.views.dialogs.MenuDialog;
@@ -54,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
     View loading,offlineBar;
     TextView userName;
     ImageButton menuButton, profileButton;
-    TextView noTasksText,noRoomsText;
+    LinearLayout noTasksText,noRoomsText;
 
     // Datasets
     ArrayList<Room> roomData;
@@ -82,14 +90,23 @@ public class HomeActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
+
+    Alert appPermissionsAlert;
+    PowerManager pm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Shared preferences
+        sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_KEY,MODE_PRIVATE);
+
         /* Setting user name for greeting */
         userName = findViewById(R.id.userName);
-        userName.setText(getIntent().getStringExtra("user_name"));
+        userName.setText(sharedPreferences.getString("user-name","Anonymous"));
 
         // Views with need of adapter
         horizontalRoomSlider = findViewById(R.id.horizontalRoomSlider);
@@ -104,6 +121,30 @@ public class HomeActivity extends AppCompatActivity {
         offlineBar = findViewById(R.id.offlineBar);
 
         loading.setVisibility(View.VISIBLE);
+
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+        // Set up appPermissionsAlert for app permission
+        appPermissionsAlert = new Alert(HomeActivity.this);
+        appPermissionsAlert.setTitle(getString(R.string.app_permission));
+        appPermissionsAlert.setDescription(getString(R.string.app_permission_descirption));
+        appPermissionsAlert.setPositiveButtonText(getString(R.string.enable));
+        appPermissionsAlert.setNegativeButtonText("");
+        appPermissionsAlert.setCanceledOnTouchOutside(false);
+        appPermissionsAlert.setCancelable(false);
+        appPermissionsAlert.setPositiveButtonOnClickListener(view -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 1002);
+            }
+        });
+        appPermissionsAlert.disableNegativeButton(true);
+        appPermissionsAlert.setNegativeButtonOnClickListener(view -> {
+
+        });
+
+        checkForBatteryPermissions();
 
         // Login info
         auth = FirebaseAuth.getInstance();
@@ -175,7 +216,17 @@ public class HomeActivity extends AppCompatActivity {
 
                     case Constants.Firebase.DOCUMENT_USERS:
                         User user = new User();
+                        user.setId(documentID);
                         user.cast(data);
+
+                        switch (type){
+                            case ADDED:
+                                dco.addUser(user);
+                                break;
+                            case MODIFIED:
+                                dco.updatedUser(user);
+                                break;
+                        }
 
                         break;
                 }
@@ -240,16 +291,38 @@ public class HomeActivity extends AppCompatActivity {
         databaseHelper.setOnDataLoadedListener(new DatabaseHelper.OnDataLoadedListener() {
             @Override
             public void onDataLoaded(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> userData) {
-                HomeActivity.this.roomData = roomData;
-                HomeActivity.this.taskData = Helpers.DataSet.filterOnlyRelevantTasks(taskData);
-                HomeActivity.this.usersData = userData;
+                Log.i("Data loaded","\nRoom - " + roomData + "\nTasks - " + taskData + "\nUsers - " + userData);
+                if (HomeActivity.this.roomData != null) {
+                    HomeActivity.this.roomData.clear();
+                    HomeActivity.this.roomData.addAll(roomData);
+                }
+                else HomeActivity.this.roomData = roomData;
+
+
+                if (HomeActivity.this.taskData != null) {
+                    HomeActivity.this.taskData.clear();
+                    HomeActivity.this.taskData.addAll(Helpers.DataSet.filterOnlyRelevantTasks(taskData));
+                }
+                else HomeActivity.this.taskData = taskData;
+
+
+                if (HomeActivity.this.usersData != null) {
+                    HomeActivity.this.usersData.clear();
+                    HomeActivity.this.usersData.addAll(userData);
+                }
+                else HomeActivity.this.usersData = userData;
+
+                DataStorage.rooms = roomData;
+                DataStorage.tasks = taskData;
+                DataStorage.users = userData;
+
 
                 // Dialogs init
                 menuDialog = new MenuDialog(HomeActivity.this, HomeActivity.this.getSupportFragmentManager(), roomData, usersData, new AddRoomDialog.OnRoomCreatedListener() {
                     @Override
                     public void onRoomCreate(Room room) {
                         // update room
-
+                        Log.i("Room Created","Now");
                         dco.addRoom(room);
                     }
                 }, new AddTaskDialog.OnTaskChangeListener() {
@@ -273,7 +346,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void refreshNoDataTexts(){
         // Room no data message
-        System.out.println(roomData);
         if (roomData != null && roomData.isEmpty()) noRoomsText.setVisibility(View.VISIBLE);
         else noRoomsText.setVisibility(View.GONE);
 
@@ -281,16 +353,11 @@ public class HomeActivity extends AppCompatActivity {
 
         if (taskData != null && taskData.isEmpty()) {
             noTasksText.setVisibility(View.VISIBLE);
-            System.out.println(taskData);
         }
         else noTasksText.setVisibility(View.GONE);
     }
 
     private void hideLoading(){
-        /*System.out.println(usersData + " ~ " + usersData.size());
-        System.out.println(roomData + " ~ " + roomData.size());
-        System.out.println(taskData + " ~ " + taskData.size());*/
-
         refreshNoDataTexts();
         // Creating adapters needed
         roomAdapter = new HomeActivityRoomAdapter(HomeActivity.this, roomData, new HomeActivityRoomAdapter.OnRoomLeaveListener() {
@@ -307,32 +374,51 @@ public class HomeActivity extends AppCompatActivity {
         }){
             @Override
             public void refresh(){
+                if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
                 refreshNoDataTexts();
             }
         };
 
         // Setting up DCO
+
         dco = new DCO(roomData, taskData, usersData, new DCO.OnDataChangeListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
                 Log.i("DCO On Change","DCO On Change triggered");
                 if (usersData != null) {
-                    HomeActivity.this.usersData = usersData;
+
+                    if (HomeActivity.this.usersData != null) {
+                        HomeActivity.this.usersData.clear();
+                        HomeActivity.this.usersData.addAll(usersData);
+                    }
+                    else HomeActivity.this.usersData = (usersData);
+
+                    Log.i("DCO Update Users", String.valueOf(usersData));
                 }
 
                 if (taskData != null) {
                     Log.i("DCO On Change new list", String.valueOf(taskData));
                     ArrayList<Task> newList = Helpers.DataSet.filterOnlyRelevantTasks(taskData);
-                    HomeActivity.this.taskData.clear();
-                    HomeActivity.this.taskData.addAll(newList);
+
+                    if (HomeActivity.this.taskData != null) {
+                        HomeActivity.this.taskData.clear();
+                        HomeActivity.this.taskData.addAll(newList);
+                    }
+                    else HomeActivity.this.taskData = (newList);
+
                     HomeActivity.this.taskAdapter.refresh();
-                    //refreshNoDataTexts();
                 }
 
                 if (roomData != null) {
-                    HomeActivity.this.roomData = roomData;
-                    roomAdapter.notifyDataSetChanged();
+                    Log.i("Room Data Changed", String.valueOf(roomData));
+                    if (HomeActivity.this.roomData != null) {
+                        HomeActivity.this.roomData.clear();
+                        HomeActivity.this.roomData.addAll(roomData);
+                    }
+                    else HomeActivity.this.roomData = (roomData);
+
+                    HomeActivity.this.roomAdapter.notifyDataSetChanged();
                     refreshNoDataTexts();
                 }
 
@@ -362,12 +448,21 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        usersData = DataStorage.users;
-        roomData = DataStorage.rooms;
+        if (HomeActivity.this.usersData != null && DataStorage.users != null) {
+            HomeActivity.this.usersData.clear();
+            HomeActivity.this.usersData.addAll(DataStorage.users);
+        }
+        else HomeActivity.this.usersData = (DataStorage.users);
+
+        if (HomeActivity.this.usersData != null && DataStorage.rooms != null) {
+            HomeActivity.this.roomData.clear();
+            HomeActivity.this.roomData.addAll(DataStorage.rooms);
+        }
+        else HomeActivity.this.roomData = (DataStorage.rooms);
+
         if (DataStorage.tasks != null){
             taskData = Helpers.DataSet.filterOnlyRelevantTasks(DataStorage.tasks);
         }
-
 
         if (roomAdapter != null) roomAdapter.notifyDataSetChanged();
         if (taskAdapter != null) taskAdapter.notifyDataSetChanged();
@@ -378,12 +473,30 @@ public class HomeActivity extends AppCompatActivity {
 
         changeConnectionStatus();
 
+        checkForBatteryPermissions();
+
         super.onResume();
     }
 
     public void preferencesHasBeenChanged(){
         taskAdapter.notifyDataSetChanged();
     }
+
+    public void checkForBatteryPermissions(){
+        String packageName = getPackageName();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                if (!appPermissionsAlert.isShowing()) appPermissionsAlert.show();
+                // it is not enabled. Ask the user to do so from the settings.
+            }
+            else{
+                if (appPermissionsAlert.isShowing()) appPermissionsAlert.dismiss();
+            }
+        }
+
+    }
+
+
 
     @Override
     protected void onPause() {

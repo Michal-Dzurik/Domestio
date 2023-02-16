@@ -16,12 +16,17 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
+
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.YourTasksActivity;
+import sk.dzurikm.domestio.helpers.DCO;
 import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
+import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
+import sk.dzurikm.domestio.models.User;
 import sk.dzurikm.domestio.views.alerts.Alert;
 import sk.dzurikm.domestio.views.alerts.InfoAlert;
 
@@ -91,7 +96,6 @@ public class TasksOptionDialog extends BottomSheetDialogFragment {
 
                     @Override
                     public void onTaskEdited(Task task) {
-                        // when edited edit just views
                     }
                 },task);
                 TasksOptionDialog.this.dismiss();

@@ -40,9 +40,9 @@ public class DCO {
     }
 
     public DCO(ArrayList<Room> roomData, ArrayList<Task> taskData, ArrayList<User> usersData, OnDataChangeListener onDataChangeListener) {
-        this.roomData = (ArrayList<Room>) roomData.clone();
-        this.taskData = (ArrayList<Task>) taskData.clone();
-        this.usersData = (ArrayList<User>) usersData.clone();
+        this.roomData = roomData != null ? (ArrayList<Room>) roomData.clone() : new ArrayList<Room>();
+        this.taskData = taskData != null ? (ArrayList<Task>) taskData.clone() : new ArrayList<Task>();
+        this.usersData = usersData != null ? (ArrayList<User>) usersData.clone() : new ArrayList<User>();
         this.onDataChangeListener = new OnDataChangeListener() {
             @Override
             public void onChange(ArrayList<User> usersData, ArrayList<Room> roomData, ArrayList<Task> taskData) {
@@ -75,13 +75,13 @@ public class DCO {
         databaseHelper = new DatabaseHelper();
     }
 
-    private void saveToStorage(){
+    public void saveToStorage(){
         DataStorage.rooms = roomData;
         DataStorage.tasks = taskData;
         DataStorage.users = usersData;
     }
 
-    private void loadFromStorage(){
+    public void loadFromStorage(){
         roomData = DataStorage.rooms;
         taskData = DataStorage.tasks ;
         usersData = DataStorage.users;
@@ -229,7 +229,9 @@ public class DCO {
     public void updatedUser(User user){
         if (usersData == null) return;
         for (int i = 0; i < usersData.size(); i++) {
-            if (usersData.get(i).getId().equals(user.getId())){
+            System.out.println(user);
+            System.out.println(usersData.get(i));
+            if (user.getId().equals(usersData.get(i).getId())){
                 user.update(user);
                 onDataChangeListener.onChange(usersData,roomData,taskData);
                 break;
@@ -279,8 +281,10 @@ public class DCO {
     public ArrayList<User> filterUsersForThisRoom(ArrayList<String> users){
         ArrayList<User> filtered = new ArrayList<>();
 
-        for (int i = 0; i < usersData.size(); i++) {
-            if (users.contains(usersData.get(i).getId())) filtered.add(usersData.get(i));
+        if(DataStorage.users == null || DataStorage.users.isEmpty() || users == null || users.isEmpty()) return filtered;
+
+        for (int i = 0; i < DataStorage.users.size(); i++) {
+            if (users.contains(DataStorage.users.get(i).getId())) filtered.add(DataStorage.users.get(i));
         }
 
         return filtered;
@@ -313,16 +317,9 @@ public class DCO {
         databaseHelper.removeRoom(room, new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task task) {
-                for (int i = 0; i < roomData.size(); i++) {
-                    if (roomData.get(i).getId().equals(room.getId())) {
-                        roomData.remove(i);
+                roomData.remove(room);
 
-
-                        removeAllTasksWithRoomId(room.getId());
-
-                        break;
-                    }
-                }
+                removeAllTasksWithRoomId(room.getId());
 
                 saveToStorage();
                 onCompleteListener.onComplete(task);
