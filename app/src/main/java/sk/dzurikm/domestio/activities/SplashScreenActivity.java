@@ -17,8 +17,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.helpers.Constants;

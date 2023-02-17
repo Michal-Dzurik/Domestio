@@ -1,7 +1,6 @@
 package sk.dzurikm.domestio.adapters;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -23,7 +22,6 @@ import java.util.List;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.RoomActivity;
-import sk.dzurikm.domestio.helpers.Constants;
 import sk.dzurikm.domestio.helpers.DatabaseHelper;
 import sk.dzurikm.domestio.helpers.Helpers;
 import sk.dzurikm.domestio.models.Room;

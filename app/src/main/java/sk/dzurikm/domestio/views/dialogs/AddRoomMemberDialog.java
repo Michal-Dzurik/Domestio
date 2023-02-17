@@ -1,7 +1,6 @@
 package sk.dzurikm.domestio.views.dialogs;
 
 import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
-import static sk.dzurikm.domestio.helpers.Helpers.Views.waitAndShow;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;

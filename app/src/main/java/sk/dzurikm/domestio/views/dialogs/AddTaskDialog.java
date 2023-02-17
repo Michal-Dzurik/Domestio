@@ -1,6 +1,5 @@
 package sk.dzurikm.domestio.views.dialogs;
 
-import static sk.dzurikm.domestio.helpers.Constants.Validation.EMAIL;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.DESCRIPTION;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Validation.Task.ROOM_ID;
@@ -15,7 +14,6 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,8 +36,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;

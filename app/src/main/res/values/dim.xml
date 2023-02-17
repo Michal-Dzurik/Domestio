@@ -45,6 +45,4 @@
     <dimen name="room_card_padding">20dp</dimen>
     <dimen name="room_card_radius">20dp</dimen>
 
-    <dimen name="task_card_radius">20dp</dimen>
-
 </resources>

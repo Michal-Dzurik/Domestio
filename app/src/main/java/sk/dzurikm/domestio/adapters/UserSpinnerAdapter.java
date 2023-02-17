@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.User;
 
 public class UserSpinnerAdapter extends ArrayAdapter<User> {

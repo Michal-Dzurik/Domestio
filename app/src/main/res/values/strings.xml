@@ -5,7 +5,6 @@
     <string name="made_by">Made by</string>
     <string name="author">Michal Dzurík</string>
     <string name="sign_up_by_email">Sign up by Email</string>
-    <string name="name_and_surename">Name and Surename</string>
     <string name="email_address">Email Address</string>
     <string name="password">Password</string>
     <string name="password_repeat">Password repeat</string>
@@ -92,13 +91,9 @@
     <string name="user_not_selected">User is not selected</string>
     <string name="room_not_selected">Room is not selected</string>
     <string name="new_room">New room here!</string>
-    <string name="your_are_member_of_room">You are now member of room</string>
     <string name="go_check_it_out">Go check it out</string>
-    <string name="something_new_in_room">There is something new in here!</string>
     <string name="assigned_you_a_new_task">assigned you a new task</string>
-    <string name="task_modified">Task modified</string>
     <string name="you_have_new_task">You have new task </string>
-    <string name="something_new_in_task">Something new in your</string>
     <string name="remove_task">Remove task</string>
     <string name="do_you_want_to_remove_task">Do you really want to remove this task?</string>
     <string name="tasks_you_created">Tasks you created</string>
@@ -119,7 +114,6 @@
     <string name="task_verified">Task verified</string>
     <string name="user">User</string>
     <string name="has_verified_task">has verified the task</string>
-    <string name="has_removed_verification_from_task">has removed verification from task</string>
     <string name="set_task_as_verified">Set task as verified</string>
     <string name="sure_want_to_set_verified">Are you sure you want to set this task as verified? Task will be deleted after this action.</string>
     <string name="your_name">Your name</string>

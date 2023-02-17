@@ -36,7 +36,6 @@
             android:layout_marginBottom="60dp">
 
             <TextView
-                android:id="@+id/logoLeftPart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Domest"
@@ -44,7 +43,6 @@
                 android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/logoRightPart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="io"
