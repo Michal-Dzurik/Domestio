@@ -151,6 +151,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.w("Firebase Auth", "signInUserWithEmail:failure", task.getException());
                     Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.authentication_failed),
                             Toast.LENGTH_SHORT).show();
+                    Helpers.Views.buttonDisabled(loginButton,false);
 
                 }
             }
