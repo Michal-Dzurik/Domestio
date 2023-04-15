@@ -84,66 +84,13 @@
 
                 <android.widget.Button
                     android:id="@+id/notificationEditButton"
-                    android:gravity="center"
-                    android:layout_width="50dp"
+                    android:layout_width="70dp"
                     android:layout_height="30dp"
-                    android:text="@string/edit"
                     android:background="@drawable/edit_button_background"
-                    android:textColor="?MainColor"
-                    android:textAllCaps="false"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_marginBottom="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/home_body_margin"
-                android:gravity="center">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Task default look"
-                        android:textColor="?PrimaryTextColor"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/taskCollapse"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Collapsed"
-                        android:textSize="15sp" />
-
-
-                </LinearLayout>
-
-                <!--<android.widget.Button
-                    android:id="@+id/taskCollapseEditButton"
                     android:gravity="center"
-                    android:layout_width="50dp"
-                    android:layout_height="30dp"
                     android:text="@string/edit"
-                    android:background="@drawable/edit_button_background"
-                    android:textColor="?MainColor"
-                    android:textAllCaps="false"/>-->
-
-                <Spinner
-                    android:id="@+id/taskCollapseEditSpinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:backgroundTint="?MainColor"
-                    android:paddingHorizontal="0dp"
-                    android:layout_marginRight="-5dp"
-                    />
+                    android:textAllCaps="false"
+                    android:textColor="?MainColor" />
 
             </LinearLayout>
 

@@ -22,8 +22,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -153,6 +151,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.w("Firebase Auth", "signInUserWithEmail:failure", task.getException());
                     Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.authentication_failed),
                             Toast.LENGTH_SHORT).show();
+                    Helpers.Views.buttonDisabled(loginButton,false);
 
                 }
             }

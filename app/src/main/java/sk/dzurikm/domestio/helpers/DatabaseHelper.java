@@ -10,17 +10,14 @@ import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TASK_IDS
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_TITLE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Room.FIELD_USER_IDS;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_AUTHOR_ID;
-import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_DONE;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_HEADING;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_MODIFIED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_ROOM_ID;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.Task.FIELD_VERIFIED;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_CREATED_AT;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_EMAIL;
-import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_ID;
 import static sk.dzurikm.domestio.helpers.Constants.Firebase.User.FIELD_NAME;
 import static sk.dzurikm.domestio.helpers.Helpers.DataSet.getRoomInfo;
-import static sk.dzurikm.domestio.helpers.Helpers.firstUppercase;
 
 import android.app.Activity;
 import android.content.Context;
@@ -32,11 +29,9 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -48,8 +43,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +51,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.activities.RoomActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;
 import sk.dzurikm.domestio.models.User;

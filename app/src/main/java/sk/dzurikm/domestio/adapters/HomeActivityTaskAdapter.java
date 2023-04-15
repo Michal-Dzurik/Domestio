@@ -8,32 +8,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Handler;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -55,7 +46,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     private FragmentManager fragmentManager;
     private OnDoneClickListener doneClickListener;
 
-    boolean collapsed;
 
     private DatabaseHelper databaseHelper;
 
@@ -120,8 +110,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
         String collapseState = sharedPreferences.getString(COLLAPSED_STATE,String.valueOf(Constants.Settings.CollapsingState.COLLAPSED));
 
-        collapsed = !collapseState.equals(String.valueOf(Constants.Settings.CollapsingState.EXPANDED));
-
         if (!empty){
             String heading,description,owner,time,room,color;
 
@@ -139,7 +127,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             Log.i("TASK INFO - Timestamp", currentTimestamp + " ~ " + taskTimestamp);
 
             if (taskTimestamp < currentTimestamp){
-                holder.getMotionLayout().setAlpha(0.5F);
+                holder.getCard().setAlpha(0.5F);
             }
 
             Log.i("HomeActivityTaskAdapter","Current task - " + currentTask);
@@ -167,8 +155,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
 
             doneButton = holder.getDoneButton();
 
-
-            MotionLayout motionLayout = holder.getMotionLayout();
 
             if (auth.getUid().equals(currentTask.getAuthorId())){
                 // You are the author of the task
@@ -199,39 +185,7 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
                 }
             }
 
-
-            if (!collapsed){
-                motionLayout.transitionToStart();
-
-                collapsed = true;
-            }
-            else {
-                motionLayout.transitionToEnd();
-
-                collapsed = false;
-            }
         }
-
-        holder.getCardBackground().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                MotionLayout motionLayout = holder.getMotionLayout();
-
-                if (!collapsed){
-                    motionLayout.transitionToStart();
-
-                    collapsed = true;
-                }
-                else {
-                    motionLayout.transitionToEnd();
-
-                    collapsed = false;
-                }
-
-
-            }
-        });
 
         holder.getCardBackground().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -331,15 +285,15 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder{
        private LinearLayout cardBackground;
+       private ConstraintLayout card;
        private CardView additionalInfo;
        private TextView heading,description,time,owner,room,doneButton;
-       private MotionLayout motionLayout;
 
 
         ViewHolder(View view) {
             super(view);
             cardBackground = view.findViewById(R.id.cardBackground);
-
+            card = view.findViewById(R.id.card);
             heading = view.findViewById(R.id.heading);
             description = view.findViewById(R.id.description);
             time = view.findViewById(R.id.time);
@@ -347,8 +301,11 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             room = view.findViewById(R.id.roomName);
             doneButton = view.findViewById(R.id.doneButton);
             additionalInfo = view.findViewById(R.id.additionalInfo);
-            motionLayout = view.findViewById(R.id.motionLayout);
 
+        }
+
+        public ConstraintLayout getCard() {
+            return card;
         }
 
         public LinearLayout getCardBackground() {
@@ -383,9 +340,6 @@ public class HomeActivityTaskAdapter extends RecyclerView.Adapter<HomeActivityTa
             return additionalInfo;
         }
 
-        public MotionLayout getMotionLayout() {
-            return motionLayout;
-        }
     }
 
     // convenience method for getting data at click position

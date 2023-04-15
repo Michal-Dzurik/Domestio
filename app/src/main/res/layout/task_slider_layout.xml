@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="20dp"
-    android:id="@+id/motionLayout"
-    app:layoutDescription="@xml/task_slider_layout_scene">
+    android:id="@+id/card">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/additionalInfo"
@@ -74,7 +73,6 @@
 
     </androidx.cardview.widget.CardView>
     <androidx.cardview.widget.CardView
-        android:id="@+id/taskContentContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="50dp"
@@ -82,6 +80,7 @@
         app:layout_constraintTop_toBottomOf="@id/additionalInfo"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="-50dp"
         app:cardCornerRadius="@dimen/corner_radius">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -148,4 +147,4 @@
     </androidx.cardview.widget.CardView>
 
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

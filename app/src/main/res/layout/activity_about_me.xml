@@ -69,7 +69,7 @@
             android:maxWidth="300dp"
             android:paddingHorizontal="20dp"
             android:layout_height="wrap_content"
-            android:text="Cupcake brownie halvah gingerbread gingerbread brownie danish muffin. Caramels gummi bears pie. Sugar plum sweet roll chocolate gingerbread jelly halvah muffin. Marzipan macaroon bonbon gummies."/>
+            android:text="@string/about_me_text"/>
 
     </LinearLayout>
 

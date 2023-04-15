@@ -17,8 +17,6 @@ import java.util.ArrayList;
 
 import sk.dzurikm.domestio.R;
 import sk.dzurikm.domestio.activities.AboutMeActivity;
-import sk.dzurikm.domestio.activities.HomeActivity;
-import sk.dzurikm.domestio.activities.SettingsActivity;
 import sk.dzurikm.domestio.activities.YourTasksActivity;
 import sk.dzurikm.domestio.models.Room;
 import sk.dzurikm.domestio.models.Task;

@@ -11,10 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import sk.dzurikm.domestio.R;
-import sk.dzurikm.domestio.models.Room;
 
 public class StringSpinnerAdapter extends ArrayAdapter<String> {
 

@@ -3,7 +3,6 @@ package sk.dzurikm.domestio.helpers.broadcasts;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import sk.dzurikm.domestio.helpers.DataStorage;
 import sk.dzurikm.domestio.helpers.Helpers;
