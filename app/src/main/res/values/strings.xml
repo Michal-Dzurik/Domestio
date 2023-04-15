@@ -133,6 +133,7 @@
     <string name="room_unavailable">Room unavailable</string>
     <string name="task_done">Task done</string>
     <string name="has_done_task">has done task</string>
+    <string name="about_me_text">I am a student, who is making websites, mobile apps and whatever I want. \nIf you want to support me you can do so on links bellow</string>
 
 
     <string-array name="taskSpinner">

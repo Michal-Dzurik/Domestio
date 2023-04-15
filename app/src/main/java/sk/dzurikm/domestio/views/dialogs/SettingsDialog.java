@@ -99,7 +99,7 @@ public class SettingsDialog extends BottomSheetDialogFragment {
         BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
         ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
 
-        int windowHeight = getWindowHeight() / 2;
+        int windowHeight = getWindowHeight() / 100 * 35;
         if (layoutParams != null) {
             layoutParams.height = windowHeight;
         }

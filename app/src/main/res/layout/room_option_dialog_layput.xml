@@ -39,15 +39,15 @@
 
                 </LinearLayout>
 
-                <android.widget.Button
-                    android:id="@+id/roomNameEditButton"
-                    android:gravity="center"
-                    android:layout_width="50dp"
-                    android:layout_height="30dp"
-                    android:text="@string/edit"
-                    android:background="@drawable/edit_button_background"
-                    android:textColor="?MainColor"
-                    android:textAllCaps="false"/>
+            <android.widget.Button
+                android:id="@+id/roomNameEditButton"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:background="@drawable/edit_button_background"
+                android:gravity="center"
+                android:text="@string/edit"
+                android:textAllCaps="false"
+                android:textColor="?MainColor" />
 
             </LinearLayout>
 
@@ -82,17 +82,17 @@
 
                 </LinearLayout>
 
-                <android.widget.Button
-                    android:id="@+id/roomDescriptionEditButton"
-                    android:gravity="center"
-                    android:layout_width="50dp"
-                    android:layout_height="30dp"
-                    android:text="@string/edit"
-                    android:background="@drawable/edit_button_background"
-                    android:textColor="?MainColor"
-                    android:textAllCaps="false"/>
+            <android.widget.Button
+                android:id="@+id/roomDescriptionEditButton"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:background="@drawable/edit_button_background"
+                android:gravity="center"
+                android:text="@string/edit"
+                android:textAllCaps="false"
+                android:textColor="?MainColor" />
 
-            </LinearLayout>
+        </LinearLayout>
 
         <LinearLayout
         android:layout_marginTop="20dp"
@@ -172,7 +172,7 @@
             <android.widget.Button
                 android:id="@+id/membersListButton"
                 android:gravity="center"
-                android:layout_width="60dp"
+                android:layout_width="70dp"
                 android:layout_height="30dp"
                 android:text="@string/show"
                 android:background="@drawable/edit_button_background"

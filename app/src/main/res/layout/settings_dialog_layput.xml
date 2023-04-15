@@ -84,13 +84,13 @@
 
                 <android.widget.Button
                     android:id="@+id/notificationEditButton"
-                    android:gravity="center"
-                    android:layout_width="50dp"
+                    android:layout_width="70dp"
                     android:layout_height="30dp"
-                    android:text="@string/edit"
                     android:background="@drawable/edit_button_background"
-                    android:textColor="?MainColor"
-                    android:textAllCaps="false"/>
+                    android:gravity="center"
+                    android:text="@string/edit"
+                    android:textAllCaps="false"
+                    android:textColor="?MainColor" />
 
             </LinearLayout>
 
